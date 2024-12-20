@@ -48,6 +48,8 @@ function App() {
               </AuthGuard>
             }
           />
+          {/* Catch-all route for handling page refreshes */}
+          <Route path="*" element={<Navigate to="/calculator" replace />} />
         </Routes>
         <Toaster />
       </Router>

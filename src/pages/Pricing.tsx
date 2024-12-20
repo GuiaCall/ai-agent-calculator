@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -25,9 +27,9 @@ export default function Pricing() {
     if (plan === 'premium') {
       try {
         const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
+          body: {
+            priceId: 'price_1QXj5IJxQ3vRyrS2nku3L71t'
+          }
         });
 
         if (error) throw error;
@@ -40,14 +42,14 @@ export default function Pricing() {
         });
       }
     } else {
-      // Handle free plan subscription
       navigate("/calculator");
     }
   };
 
   return (
-    <div className="min-h-screen bg-background py-20">
-      <div className="container px-4 mx-auto">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="container px-4 mx-auto py-20">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Simple, transparent pricing</h1>
           <p className="text-xl text-muted-foreground">
@@ -120,6 +122,7 @@ export default function Pricing() {
           </Card>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
