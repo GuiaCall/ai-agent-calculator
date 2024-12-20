@@ -1,3 +1,5 @@
+import { Json } from "../schema";
+
 export interface InvoicesTable {
   Row: {
     id: string

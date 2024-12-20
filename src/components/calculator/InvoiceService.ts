@@ -68,10 +68,10 @@ export function useInvoiceService() {
       }
     }
 
-    // Update subscription invoice count
+    // Update subscription invoice count using a simple increment
     const { error: updateError } = await supabase
       .from('subscriptions')
-      .update({ invoice_count: supabase.sql`invoice_count + 1` })
+      .update({ invoice_count: (subscription?.invoice_count || 0) + 1 })
       .eq('user_id', user.id);
 
     if (updateError) {
