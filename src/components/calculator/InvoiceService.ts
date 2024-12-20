@@ -1,18 +1,15 @@
 import { supabase } from "@/integrations/supabase/client";
-import { AgencyInfo, ClientInfo } from "@/types/invoice";
+import { AgencyInfo, ClientInfo, InvoiceHistory } from "@/types/invoice";
 import { Database } from "@/types/database";
 import { Technology } from "@/types/calculator";
 
-type Invoice = Database['public']['Tables']['invoices']['Row'];
-type InvoiceInsert = Database['public']['Tables']['invoices']['Insert'];
-
 export async function checkInvoiceLimit(): Promise<boolean> {
-  const { data: subscription } = await supabase
+  const { data: subscription, error } = await supabase
     .from('subscriptions')
     .select('plan_type, invoice_count')
     .single();
 
-  if (!subscription) return false;
+  if (error || !subscription) return false;
 
   return !(subscription.plan_type === 'free' && 
     (subscription.invoice_count || 0) >= 3);
@@ -28,7 +25,7 @@ export async function saveInvoice(
   client_info: ClientInfo,
   agency_info: AgencyInfo,
   technologies: Technology[]
-) {
+): Promise<InvoiceHistory | null> {
   const user = await supabase.auth.getUser();
   const user_id = user.data.user?.id;
 
@@ -46,8 +43,8 @@ export async function saveInvoice(
       margin,
       total_minutes,
       call_duration,
-      client_info: client_info as any,
-      agency_info: agency_info as any
+      client_info,
+      agency_info
     })
     .select()
     .single();
@@ -75,10 +72,15 @@ export async function saveInvoice(
 
   await supabase.rpc('increment_invoice_count');
 
-  return invoiceData;
+  return {
+    ...invoiceData,
+    date: new Date(invoiceData.created_at),
+    client_info: invoiceData.client_info as ClientInfo,
+    agency_info: invoiceData.agency_info as AgencyInfo,
+  };
 }
 
-export async function loadInvoices() {
+export async function loadInvoices(): Promise<InvoiceHistory[]> {
   const { data: invoices, error } = await supabase
     .from('invoices')
     .select(`
@@ -91,12 +93,12 @@ export async function loadInvoices() {
     throw new Error('Error loading invoices');
   }
 
-  return invoices?.map(invoice => ({
+  return (invoices || []).map(invoice => ({
     ...invoice,
     date: new Date(invoice.created_at),
     client_info: invoice.client_info as ClientInfo,
     agency_info: invoice.agency_info as AgencyInfo,
-  })) || [];
+  }));
 }
 
 export async function deleteInvoice(id: string) {

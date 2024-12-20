@@ -43,3 +43,14 @@ export interface InvoiceHistory {
   updated_at: string;
   invoice_parameters?: InvoiceParameter[];
 }
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  plan_type: string;
+  status: string;
+  invoice_count: number;
+  current_period_end: string | null;
+  created_at: string;
+  updated_at: string;
+}

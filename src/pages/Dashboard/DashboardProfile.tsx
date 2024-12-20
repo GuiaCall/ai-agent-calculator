@@ -1,13 +1,20 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
-export default function DashboardProfile() {
-  const [profile, setProfile] = useState<any>(null);
+interface Profile {
+  id: string;
+  name: string | null;
+  location: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+}
+
+export function DashboardProfile() {
+  const [profile, setProfile] = useState<Profile | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -36,18 +43,14 @@ export default function DashboardProfile() {
     setProfile(data);
   }
 
-  async function updateProfile(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!profile) return;
+  async function updateProfile(updates: Partial<Profile>) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
     const { error } = await supabase
       .from('profiles')
-      .update({
-        name: profile.name,
-        location: profile.location,
-        bio: profile.bio,
-      })
-      .eq('id', profile.id);
+      .update(updates)
+      .eq('id', user.id);
 
     if (error) {
       toast({
@@ -58,6 +61,7 @@ export default function DashboardProfile() {
       return;
     }
 
+    setProfile(prev => prev ? { ...prev, ...updates } : null);
     toast({
       title: "Success",
       description: "Profile updated successfully",
@@ -68,32 +72,33 @@ export default function DashboardProfile() {
 
   return (
     <Card className="p-6">
-      <form onSubmit={updateProfile} className="space-y-4">
+      <h2 className="text-2xl font-bold mb-6">Profile Settings</h2>
+      <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Name</label>
+          <label className="block text-sm font-medium mb-1">Name</label>
           <Input
-            type="text"
             value={profile.name || ''}
-            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+            onChange={(e) => updateProfile({ name: e.target.value })}
+            placeholder="Your name"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Location</label>
+          <label className="block text-sm font-medium mb-1">Location</label>
           <Input
-            type="text"
             value={profile.location || ''}
-            onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+            onChange={(e) => updateProfile({ location: e.target.value })}
+            placeholder="Your location"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Bio</label>
-          <Textarea
+          <label className="block text-sm font-medium mb-1">Bio</label>
+          <Input
             value={profile.bio || ''}
-            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+            onChange={(e) => updateProfile({ bio: e.target.value })}
+            placeholder="A short bio about yourself"
           />
         </div>
-        <Button type="submit">Update Profile</Button>
-      </form>
+      </div>
     </Card>
   );
 }

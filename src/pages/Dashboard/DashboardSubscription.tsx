@@ -1,16 +1,10 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Card } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { Subscription } from '@/types/invoice';
 
-interface Subscription {
-  plan_type: string;
-  status: string;
-  invoice_count: number;
-  current_period_end: string | null;
-}
-
-export default function DashboardSubscription() {
+export function DashboardSubscription() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const { toast } = useToast();
 
@@ -31,27 +25,33 @@ export default function DashboardSubscription() {
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to fetch subscription",
+        description: "Failed to fetch subscription details",
         variant: "destructive",
       });
       return;
     }
 
-    setSubscription(data);
+    setSubscription(data as Subscription);
   }
 
   if (!subscription) return null;
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Subscription Details</h2>
-      <div className="space-y-2">
-        <p>Plan: {subscription.plan_type}</p>
-        <p>Status: {subscription.status}</p>
-        <p>Invoices Generated: {subscription.invoice_count || 0}</p>
-        {subscription.current_period_end && (
-          <p>Renewal Date: {new Date(subscription.current_period_end).toLocaleDateString()}</p>
-        )}
+      <h2 className="text-2xl font-bold mb-6">Subscription Details</h2>
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm font-medium">Plan Type</p>
+          <p className="text-lg">{subscription.plan_type}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium">Status</p>
+          <p className="text-lg">{subscription.status}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium">Invoices Generated</p>
+          <p className="text-lg">{subscription.invoice_count}</p>
+        </div>
       </div>
     </Card>
   );
