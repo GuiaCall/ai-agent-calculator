@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 import { TechnologyParameters } from "./TechnologyParameters";
 import { InvoiceHistoryList } from "./InvoiceHistory";
 import { CalculatorHeader } from "./calculator/CalculatorHeader";
@@ -12,12 +13,14 @@ import { CalculatorStateProvider, useCalculatorStateContext } from "./calculator
 import { Navbar } from "./layout/Navbar";
 import { Footer } from "./layout/Footer";
 import { Disclaimer } from "./Disclaimer";
+import { supabase } from "@/integrations/supabase/client";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
 
 function CalculatorContent() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state, currency: state.currency });
 
@@ -38,6 +41,25 @@ function CalculatorContent() {
     }
   };
 
+  const checkInvoiceLimit = async () => {
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('plan_type, invoice_limit, invoices_generated')
+      .single();
+
+    if (subscription?.plan_type === 'free' && 
+        subscription?.invoices_generated >= (subscription?.invoice_limit || 3)) {
+      toast({
+        title: "Invoice Limit Reached",
+        description: "Please upgrade to continue generating invoices",
+        variant: "destructive",
+      });
+      navigate('/pricing');
+      return false;
+    }
+    return true;
+  };
+
   const exportPDF = async (invoice?: any) => {
     if (!state.totalCost && !invoice) {
       toast({
@@ -47,6 +69,9 @@ function CalculatorContent() {
       });
       return;
     }
+
+    const canProceed = await checkInvoiceLimit();
+    if (!canProceed) return;
 
     const pdf = new jsPDF();
     const element = document.getElementById('invoice-preview');
@@ -73,44 +98,73 @@ function CalculatorContent() {
 
     if (!invoice) {
       const invoiceNumber = `INV-${format(new Date(), 'yyyyMMdd')}-${state.invoices.length + 1}`;
-      const newInvoice = {
-        id: crypto.randomUUID(),
-        invoiceNumber,
-        date: new Date(),
-        clientInfo: state.clientInfo,
-        agencyInfo: state.agencyInfo,
-        totalAmount: state.totalCost,
-        taxRate: state.taxRate,
-        margin: state.margin
-      };
+      
+      // Save invoice data to Supabase
+      const { data: invoiceData, error: invoiceError } = await supabase
+        .from('invoices')
+        .insert({
+          invoice_number: invoiceNumber,
+          total_amount: state.totalCost,
+          tax_rate: state.taxRate,
+          margin: state.margin,
+          total_minutes: state.totalMinutes,
+          call_duration: state.callDuration
+        })
+        .select()
+        .single();
 
-      const updatedInvoices = [...state.invoices, newInvoice];
-      state.setInvoices(updatedInvoices);
+      if (invoiceError) {
+        console.error('Error saving invoice:', invoiceError);
+        return;
+      }
+
+      // Save technology parameters
+      const techParams = state.technologies
+        .filter(tech => tech.isSelected)
+        .map(tech => ({
+          invoice_id: invoiceData.id,
+          technology_name: tech.name,
+          cost_per_minute: tech.costPerMinute,
+          is_selected: tech.isSelected
+        }));
+
+      await supabase
+        .from('invoice_parameters')
+        .insert(techParams);
+
+      // Update invoice count for free plan
+      await supabase
+        .from('subscriptions')
+        .update({ invoices_generated: supabase.sql`invoices_generated + 1` })
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+
       pdf.save(`invoice-${invoiceNumber}.pdf`);
     } else {
       pdf.save(`invoice-${invoice.invoiceNumber}.pdf`);
     }
   };
 
+  // Load saved data on component mount
   useEffect(() => {
-    const savedInvoices = localStorage.getItem('invoiceHistory');
-    if (savedInvoices) {
-      const parsedInvoices = JSON.parse(savedInvoices);
-      const processedInvoices = parsedInvoices.map((inv: any) => ({
-        ...inv,
-        date: new Date(inv.date)
-      }));
-      state.setInvoices(processedInvoices);
-    }
+    const loadSavedData = async () => {
+      const { data: invoices } = await supabase
+        .from('invoices')
+        .select(`
+          *,
+          invoice_parameters (*)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (invoices) {
+        state.setInvoices(invoices.map(inv => ({
+          ...inv,
+          date: new Date(inv.created_at)
+        })));
+      }
+    };
+
+    loadSavedData();
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('invoiceHistory', JSON.stringify(state.invoices));
-  }, [state.invoices]);
-
-  const convertCurrency = (amount: number) => {
-    return state.currency === 'EUR' ? amount * 0.85 : amount;
-  };
 
   return (
     <>
@@ -145,8 +199,8 @@ function CalculatorContent() {
           onCalculate={logic.calculateCost}
           onPreviewToggle={() => state.setShowPreview(!state.showPreview)}
           onExportPDF={() => exportPDF()}
-          totalCost={convertCurrency(state.totalCost || 0)}
-          setupCost={convertCurrency(state.setupCost || 0)}
+          totalCost={state.totalCost || 0}
+          setupCost={state.setupCost || 0}
           currency={state.currency}
           totalMinutes={state.totalMinutes}
         />
@@ -157,10 +211,9 @@ function CalculatorContent() {
             agencyInfo={state.agencyInfo}
             clientInfo={state.clientInfo}
             totalMinutes={state.totalMinutes}
-            totalCost={convertCurrency(state.totalCost || 0)}
-            setupCost={convertCurrency(state.setupCost || 0)}
+            totalCost={state.totalCost || 0}
+            setupCost={state.setupCost || 0}
             taxRate={state.taxRate}
-            themeColor={state.themeColor}
             currency={state.currency}
           />
         )}
@@ -168,7 +221,10 @@ function CalculatorContent() {
         <InvoiceHistoryList
           invoices={state.invoices}
           onEdit={(invoice) => logic.handleEdit(invoice, state.setEditingId, state.setRecalculatedId)}
-          onDelete={(id) => state.setInvoices(state.invoices.filter((inv) => inv.id !== id))}
+          onDelete={async (id) => {
+            await supabase.from('invoices').delete().eq('id', id);
+            state.setInvoices(state.invoices.filter((inv) => inv.id !== id));
+          }}
           onPrint={exportPDF}
           onSave={(invoice) => logic.handleSave(invoice, state.setEditingId, state.setRecalculatedId)}
           editingId={state.editingId}
