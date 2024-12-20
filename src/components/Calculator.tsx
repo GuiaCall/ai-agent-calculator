@@ -13,8 +13,7 @@ import { CalculatorStateProvider, useCalculatorStateContext } from "./calculator
 import { Navbar } from "./layout/Navbar";
 import { Footer } from "./layout/Footer";
 import { Disclaimer } from "./Disclaimer";
-import { format } from 'date-fns';
-import { checkInvoiceLimit, saveInvoice, loadInvoices, deleteInvoice } from './calculator/InvoiceService';
+import { useInvoiceService } from './calculator/InvoiceService';
 import { useCalculatorEffects } from "./calculator/CalculatorEffects";
 
 function CalculatorContent() {
@@ -22,6 +21,7 @@ function CalculatorContent() {
   const navigate = useNavigate();
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state, currency: state.currency });
+  const invoiceService = useInvoiceService();
   
   useCalculatorEffects();
 
@@ -98,7 +98,7 @@ function CalculatorContent() {
           invoices={state.invoices}
           onEdit={(invoice) => logic.handleEdit(invoice, state.setEditingId, state.setRecalculatedId)}
           onDelete={async (id) => {
-            await deleteInvoice(id);
+            await invoiceService.deleteInvoice(id);
             state.setInvoices(state.invoices.filter((inv) => inv.id !== id));
           }}
           onPrint={logic.exportPDF}

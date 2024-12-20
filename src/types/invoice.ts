@@ -10,6 +10,7 @@ export interface InvoiceHistory {
   call_duration: number;
   client_info: ClientInfo;
   agency_info: AgencyInfo;
+  date: string;
   created_at: string;
   technologies: Technology[];
 }
