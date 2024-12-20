@@ -2,12 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -25,16 +23,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        if (!session.user.email_confirmed_at) {
-          toast({
-            title: "Email verification required",
-            description: "Please verify your email address to continue.",
-            variant: "destructive",
-          });
-          navigate("/pricing");
-          return;
-        }
-
         setIsLoading(false);
       } catch (error) {
         console.error("Session check error:", error);
@@ -46,15 +34,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       if (event === "SIGNED_OUT") {
         navigate("/login");
       } else if (event === "SIGNED_IN" && session) {
-        if (!session.user.email_confirmed_at) {
-          toast({
-            title: "Email verification required",
-            description: "Please verify your email address to continue.",
-            variant: "destructive",
-          });
-          navigate("/pricing");
-          return;
-        }
         setIsLoading(false);
       }
     });
@@ -64,7 +43,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+  }, [navigate]);
 
   if (isLoading) {
     return (

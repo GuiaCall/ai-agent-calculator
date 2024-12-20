@@ -2,8 +2,6 @@ import { useToast } from "@/hooks/use-toast";
 import { CalcomPlan } from "@/types/calcom";
 import { TwilioSelection } from "@/types/twilio";
 import { InvoiceHistory } from "@/types/invoice";
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import {
   calculateCalcomCostPerMinute,
   calculateTwilioCostPerMinute,
@@ -116,40 +114,6 @@ export function useCalculatorLogic({
     }
   };
 
-  const exportPDF = async () => {
-    const element = document.getElementById('invoice-preview');
-    if (!element) {
-      toast({
-        title: "Error",
-        description: "Preview not found. Please generate preview first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const canvas = await html2canvas(element);
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF();
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save('invoice.pdf');
-
-      toast({
-        title: "Success",
-        description: "PDF exported successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to export PDF",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleEdit = (invoice: InvoiceHistory, setEditingId: (id: string) => void, setRecalculatedId: (id: string) => void) => {
     setEditingId(invoice.id);
     calculateCost();
@@ -158,7 +122,7 @@ export function useCalculatorLogic({
 
   const handleSave = (invoice: InvoiceHistory, setEditingId: (id: string) => void, setRecalculatedId: (id: string) => void) => {
     const updatedInvoices = invoices.map((inv: InvoiceHistory) =>
-      inv.id === invoice.id ? { ...inv, total_amount: invoice.total_amount } : inv
+      inv.id === invoice.id ? { ...inv, totalAmount: invoice.totalAmount } : inv
     );
     setInvoices(updatedInvoices);
     setEditingId('');
@@ -175,6 +139,5 @@ export function useCalculatorLogic({
     calculateCost,
     handleEdit,
     handleSave,
-    exportPDF,
   };
 }

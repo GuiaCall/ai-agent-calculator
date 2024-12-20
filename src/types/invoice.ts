@@ -1,28 +1,13 @@
-import { Json } from "./database";
-
-export interface InvoiceHistory {
-  id: string;
-  invoice_number: string;
-  total_amount: number;
-  tax_rate: number;
-  margin: number;
-  total_minutes: number;
-  call_duration: number;
-  client_info: ClientInfo;
-  agency_info: AgencyInfo;
-  date: string;
-  created_at: string;
-  technologies: Technology[];
+export interface ContactPerson {
+  name: string;
+  phone: string;
 }
 
 export interface ClientInfo {
   name: string;
   address: string;
   tvaNumber: string;
-  contactPerson: {
-    name: string;
-    phone: string;
-  };
+  contactPerson: ContactPerson;
 }
 
 export interface AgencyInfo {
@@ -33,20 +18,13 @@ export interface AgencyInfo {
   website: string;
 }
 
-export interface Technology {
+export interface InvoiceHistory {
   id: string;
-  name: string;
-  isSelected: boolean;
-  costPerMinute: number;
-}
-
-export interface Subscription {
-  id: string;
-  user_id: string;
-  plan_type: string;
-  status: string;
-  invoice_count: number;
-  current_period_end: string | null;
-  created_at: string;
-  updated_at: string;
+  invoiceNumber: string;
+  date: Date;
+  clientInfo: ClientInfo;
+  agencyInfo: AgencyInfo;
+  totalAmount: number;
+  taxRate: number;
+  margin: number;
 }

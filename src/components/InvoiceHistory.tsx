@@ -52,10 +52,10 @@ export function InvoiceHistoryList({
         <TableBody>
           {invoices.map((invoice) => (
             <TableRow key={invoice.id}>
-              <TableCell>{invoice.invoice_number}</TableCell>
+              <TableCell>{invoice.invoiceNumber}</TableCell>
               <TableCell>{format(new Date(invoice.date), 'dd/MM/yyyy')}</TableCell>
-              <TableCell>{invoice.client_info.name}</TableCell>
-              <TableCell>{currencySymbol}{invoice.total_amount.toFixed(2)}</TableCell>
+              <TableCell>{invoice.clientInfo.name}</TableCell>
+              <TableCell>{currencySymbol}{invoice.totalAmount.toFixed(2)}</TableCell>
               <TableCell>
                 <div className="flex space-x-2">
                   {editingId === invoice.id ? (

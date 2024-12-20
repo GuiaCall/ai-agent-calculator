@@ -1,37 +1,40 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from "@/components/ui/toaster";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Calculator } from "@/components/Calculator";
+import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import Dashboard from "@/pages/Dashboard";
-import Landing from "@/pages/Landing";
-import Pricing from "@/pages/Pricing";
+import { Toaster } from "@/components/ui/toaster";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route
-          path="/calculator"
-          element={
-            <AuthGuard>
-              <Calculator />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <AuthGuard>
-              <Dashboard />
-            </AuthGuard>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      <Toaster />
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<AuthLayout />} />
+          <Route path="/" element={<Navigate to="/calculator" replace />} />
+          <Route
+            path="/calculator"
+            element={
+              <AuthGuard>
+                <Calculator />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <AuthGuard>
+                <Dashboard />
+              </AuthGuard>
+            }
+          />
+        </Routes>
+        <Toaster />
+      </Router>
+    </QueryClientProvider>
   );
 }
 
