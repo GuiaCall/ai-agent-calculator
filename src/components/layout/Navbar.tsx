@@ -1,5 +1,4 @@
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
 export function Navbar() {
