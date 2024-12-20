@@ -25,28 +25,35 @@ export async function checkInvoiceLimit() {
 }
 
 export async function saveInvoice(
-  invoiceNumber: string,
-  totalCost: number,
-  taxRate: number,
+  invoice_number: string,
+  total_amount: number,
+  tax_rate: number,
   margin: number,
-  totalMinutes: number,
-  callDuration: number,
-  clientInfo: ClientInfo,
-  agencyInfo: AgencyInfo,
+  total_minutes: number,
+  call_duration: number,
+  client_info: ClientInfo,
+  agency_info: AgencyInfo,
   technologies: Technology[]
 ) {
+  const user = await supabase.auth.getUser();
+  const user_id = user.data.user?.id;
+
+  if (!user_id) {
+    throw new Error('User not authenticated');
+  }
+
   const { data: invoiceData, error: invoiceError } = await supabase
     .from('invoices')
     .insert({
-      invoice_number: invoiceNumber,
-      total_amount: totalCost,
-      tax_rate: taxRate,
-      margin: margin,
-      total_minutes: totalMinutes,
-      call_duration: callDuration,
-      client_info: clientInfo,
-      agency_info: agencyInfo,
-      user_id: (await supabase.auth.getUser()).data.user?.id
+      user_id,
+      invoice_number,
+      total_amount,
+      tax_rate,
+      margin,
+      total_minutes,
+      call_duration,
+      client_info,
+      agency_info
     })
     .select()
     .single();
@@ -77,7 +84,7 @@ export async function saveInvoice(
   return invoiceData;
 }
 
-export async function loadInvoices(): Promise<Invoice[]> {
+export async function loadInvoices() {
   const { data: invoices, error } = await supabase
     .from('invoices')
     .select(`
@@ -90,7 +97,12 @@ export async function loadInvoices(): Promise<Invoice[]> {
     throw new Error('Error loading invoices');
   }
 
-  return invoices || [];
+  return invoices?.map(invoice => ({
+    ...invoice,
+    date: new Date(invoice.created_at),
+    client_info: invoice.client_info as ClientInfo,
+    agency_info: invoice.agency_info as AgencyInfo,
+  })) || [];
 }
 
 export async function deleteInvoice(id: string) {

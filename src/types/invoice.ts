@@ -18,6 +18,16 @@ export interface AgencyInfo {
   website: string;
 }
 
+export interface InvoiceParameter {
+  id: string;
+  invoice_id: string;
+  technology_name: string;
+  cost_per_minute: number;
+  is_selected: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface InvoiceHistory {
   id: string;
   invoice_number: string;
@@ -31,11 +41,5 @@ export interface InvoiceHistory {
   agency_info: AgencyInfo;
   created_at: string;
   updated_at: string;
-  invoice_parameters?: {
-    id: string;
-    invoice_id: string;
-    technology_name: string;
-    cost_per_minute: number;
-    is_selected: boolean;
-  }[];
+  invoice_parameters?: InvoiceParameter[];
 }

@@ -122,7 +122,7 @@ export function useCalculatorLogic({
 
   const handleSave = (invoice: InvoiceHistory, setEditingId: (id: string) => void, setRecalculatedId: (id: string) => void) => {
     const updatedInvoices = invoices.map((inv: InvoiceHistory) =>
-      inv.id === invoice.id ? { ...inv, totalAmount: invoice.totalAmount } : inv
+      inv.id === invoice.id ? { ...inv, total_amount: invoice.total_amount } : inv
     );
     setInvoices(updatedInvoices);
     setEditingId('');
