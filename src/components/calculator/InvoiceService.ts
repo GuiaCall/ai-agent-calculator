@@ -6,17 +6,19 @@ export function useInvoiceService() {
   const { toast } = useToast();
 
   const checkInvoiceLimit = async () => {
-    const { data: subscription, error } = await supabase
-      .from('subscriptions')
-      .select('plan_type, invoice_count')
-      .single();
+    try {
+      const { data: subscription, error } = await supabase
+        .from('subscriptions')
+        .select('plan_type, invoice_count')
+        .single();
 
-    if (error) {
+      if (error) throw error;
+
+      return subscription?.plan_type === 'free' && (subscription?.invoice_count || 0) >= 5;
+    } catch (error) {
       console.error('Error checking invoice limit:', error);
       return false;
     }
-
-    return subscription?.plan_type === 'free' && (subscription?.invoice_count || 0) >= 5;
   };
 
   const saveInvoice = async (invoice: Omit<InvoiceHistory, 'id' | 'created_at'>) => {
@@ -69,7 +71,7 @@ export function useInvoiceService() {
     // Update subscription invoice count
     const { error: updateError } = await supabase
       .from('subscriptions')
-      .update({ invoice_count: (subscription?.invoice_count || 0) + 1 })
+      .update({ invoice_count: supabase.sql`invoice_count + 1` })
       .eq('user_id', user.id);
 
     if (updateError) {

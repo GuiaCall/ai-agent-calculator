@@ -2,17 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Card } from '@/components/ui/card';
-
-interface Subscription {
-  id: string;
-  user_id: string;
-  plan_type: string;
-  status: string;
-  invoice_count: number;
-  current_period_end: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { Subscription } from '@/types/invoice';
 
 export function DashboardSubscription() {
   const [subscription, setSubscription] = useState<Subscription | null>(null);

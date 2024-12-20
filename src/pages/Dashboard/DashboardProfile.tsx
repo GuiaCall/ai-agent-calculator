@@ -21,7 +21,7 @@ export function DashboardProfile() {
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('No user');
 
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('profiles')
         .select('name, location')
         .eq('id', user.id)
