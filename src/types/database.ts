@@ -33,17 +33,6 @@ export interface Database {
           updated_at?: string;
         };
       };
-      invoice_parameters: {
-        Row: {
-          id: string;
-          invoice_id: string;
-          technology_name: string;
-          cost_per_minute: number;
-          is_selected: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-      };
       profiles: {
         Row: {
           id: string;
@@ -53,6 +42,41 @@ export interface Database {
           avatar_url: string | null;
           created_at: string;
           updated_at: string;
+        };
+        Insert: {
+          id: string;
+          name?: string | null;
+          location?: string | null;
+          bio?: string | null;
+          avatar_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
+          plan_type: string;
+          invoice_count: number | null;
+          status: string;
+          current_period_end: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          plan_type: string;
+          invoice_count?: number | null;
+          status: string;
+          current_period_end?: string | null;
+          created_at?: string;
+          updated_at?: string;
         };
       };
     };

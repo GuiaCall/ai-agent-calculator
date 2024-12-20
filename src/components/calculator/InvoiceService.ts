@@ -1,27 +1,21 @@
 import { supabase } from "@/integrations/supabase/client";
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
 import { Database } from "@/types/database";
-
-export interface Technology {
-  id: string;
-  name: string;
-  isSelected: boolean;
-  costPerMinute: number;
-}
+import { Technology } from "@/types/calculator";
 
 type Invoice = Database['public']['Tables']['invoices']['Row'];
-type InvoiceParameter = Database['public']['Tables']['invoice_parameters']['Row'];
+type InvoiceInsert = Database['public']['Tables']['invoices']['Insert'];
 
-export async function checkInvoiceLimit() {
+export async function checkInvoiceLimit(): Promise<boolean> {
   const { data: subscription } = await supabase
     .from('subscriptions')
-    .select('plan_type, invoice_limit, invoices_generated')
+    .select('plan_type, invoice_count')
     .single();
 
   if (!subscription) return false;
 
   return !(subscription.plan_type === 'free' && 
-    subscription.invoices_generated >= (subscription.invoice_limit || 3));
+    (subscription.invoice_count || 0) >= 3);
 }
 
 export async function saveInvoice(
@@ -52,8 +46,8 @@ export async function saveInvoice(
       margin,
       total_minutes,
       call_duration,
-      client_info,
-      agency_info
+      client_info: client_info as any,
+      agency_info: agency_info as any
     })
     .select()
     .single();

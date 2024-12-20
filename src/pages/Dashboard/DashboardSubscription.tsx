@@ -1,59 +1,56 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Database } from "@/types/database";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 
-type Subscription = Database['public']['Tables']['subscriptions']['Row'];
+interface Subscription {
+  plan_type: string;
+  status: string;
+  invoice_count: number;
+  current_period_end: string | null;
+}
 
-export function DashboardSubscription() {
-  const navigate = useNavigate();
-  
-  const { data: subscription, isLoading } = useQuery({
-    queryKey: ['subscription'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .single();
-        
-      if (error) throw error;
-      return data as Subscription;
+export default function DashboardSubscription() {
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchSubscription();
+  }, []);
+
+  async function fetchSubscription() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch subscription",
+        variant: "destructive",
+      });
+      return;
     }
-  });
 
-  if (isLoading) {
-    return (
-      <Card className="p-6 space-y-4">
-        <Skeleton className="h-6 w-1/3" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
-        </div>
-      </Card>
-    );
+    setSubscription(data);
   }
 
+  if (!subscription) return null;
+
   return (
-    <Card className="p-6 space-y-4">
-      <h2 className="text-2xl font-bold">Subscription</h2>
+    <Card className="p-6">
+      <h2 className="text-2xl font-bold mb-4">Subscription Details</h2>
       <div className="space-y-2">
-        <p>
-          <span className="font-semibold">Plan:</span> {subscription?.plan_type || 'Free'}
-        </p>
-        <p>
-          <span className="font-semibold">Status:</span> {subscription?.status || 'Active'}
-        </p>
-        <p>
-          <span className="font-semibold">Invoices Created:</span>{' '}
-          {subscription?.invoices_generated || 0}
-        </p>
-        {(!subscription || subscription.plan_type === 'free') && (
-          <Button onClick={() => navigate('/pricing')}>
-            Upgrade to Premium
-          </Button>
+        <p>Plan: {subscription.plan_type}</p>
+        <p>Status: {subscription.status}</p>
+        <p>Invoices Generated: {subscription.invoice_count || 0}</p>
+        {subscription.current_period_end && (
+          <p>Renewal Date: {new Date(subscription.current_period_end).toLocaleDateString()}</p>
         )}
       </div>
     </Card>

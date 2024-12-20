@@ -1,38 +1,53 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Database } from "@/types/database";
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
-
-export function DashboardProfile() {
-  const [isEditing, setIsEditing] = useState(false);
+export default function DashboardProfile() {
+  const [profile, setProfile] = useState<any>(null);
   const { toast } = useToast();
-  
-  const { data: profile, isLoading, refetch } = useQuery({
-    queryKey: ['profile'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .single();
-        
-      if (error) throw error;
-      return data as Profile;
-    }
-  });
 
-  const updateProfile = async (updatedProfile: Partial<Profile>) => {
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  async function fetchProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch profile",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProfile(data);
+  }
+
+  async function updateProfile(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!profile) return;
+
     const { error } = await supabase
       .from('profiles')
-      .update(updatedProfile)
-      .eq('id', profile?.id);
+      .update({
+        name: profile.name,
+        location: profile.location,
+        bio: profile.bio,
+      })
+      .eq('id', profile.id);
 
     if (error) {
       toast({
@@ -47,64 +62,38 @@ export function DashboardProfile() {
       title: "Success",
       description: "Profile updated successfully",
     });
-    setIsEditing(false);
-    refetch();
-  };
-
-  if (isLoading) {
-    return (
-      <Card className="p-6 space-y-4">
-        <Skeleton className="h-6 w-1/3" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
-        </div>
-      </Card>
-    );
   }
 
+  if (!profile) return null;
+
   return (
-    <Card className="p-6 space-y-4">
-      <h2 className="text-2xl font-bold">Profile</h2>
-      {isEditing ? (
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={profile?.name || ''}
-              onChange={(e) => profile && updateProfile({ ...profile, name: e.target.value })}
-            />
-          </div>
-          <div>
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              value={profile?.location || ''}
-              onChange={(e) => profile && updateProfile({ ...profile, location: e.target.value })}
-            />
-          </div>
-          <div>
-            <Label htmlFor="bio">Bio</Label>
-            <Input
-              id="bio"
-              value={profile?.bio || ''}
-              onChange={(e) => profile && updateProfile({ ...profile, bio: e.target.value })}
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={() => updateProfile(profile!)}>Save</Button>
-            <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
-          </div>
+    <Card className="p-6">
+      <form onSubmit={updateProfile} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Name</label>
+          <Input
+            type="text"
+            value={profile.name || ''}
+            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+          />
         </div>
-      ) : (
-        <div className="space-y-2">
-          <p><span className="font-semibold">Name:</span> {profile?.name || 'Not set'}</p>
-          <p><span className="font-semibold">Location:</span> {profile?.location || 'Not set'}</p>
-          <p><span className="font-semibold">Bio:</span> {profile?.bio || 'Not set'}</p>
-          <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Location</label>
+          <Input
+            type="text"
+            value={profile.location || ''}
+            onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+          />
         </div>
-      )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Bio</label>
+          <Textarea
+            value={profile.bio || ''}
+            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+          />
+        </div>
+        <Button type="submit">Update Profile</Button>
+      </form>
     </Card>
   );
 }
