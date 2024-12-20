@@ -1,113 +1,111 @@
 import { supabase } from "@/integrations/supabase/client";
-import { AgencyInfo, ClientInfo, InvoiceHistory } from "@/types/invoice";
-import { Database } from "@/types/database";
-import { Technology } from "@/types/calculator";
+import { InvoiceHistory, ClientInfo, AgencyInfo, Technology } from "@/types/invoice";
+import { useToast } from "@/hooks/use-toast";
 
-export async function checkInvoiceLimit(): Promise<boolean> {
-  const { data: subscription, error } = await supabase
-    .from('subscriptions')
-    .select('plan_type, invoice_count')
-    .single();
+export const useInvoiceService = () => {
+  const { toast } = useToast();
 
-  if (error || !subscription) return false;
+  const getSubscriptionInfo = async () => {
+    const { data: subscription, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .single();
 
-  return !(subscription.plan_type === 'free' && 
-    (subscription.invoice_count || 0) >= 3);
-}
+    if (error) {
+      console.error('Error fetching subscription:', error);
+      return null;
+    }
 
-export async function saveInvoice(
-  invoice_number: string,
-  total_amount: number,
-  tax_rate: number,
-  margin: number,
-  total_minutes: number,
-  call_duration: number,
-  client_info: ClientInfo,
-  agency_info: AgencyInfo,
-  technologies: Technology[]
-): Promise<InvoiceHistory | null> {
-  const user = await supabase.auth.getUser();
-  const user_id = user.data.user?.id;
+    return {
+      plan_type: subscription.plan_type,
+      invoice_count: subscription.invoice_count || 0
+    };
+  };
 
-  if (!user_id) {
-    throw new Error('User not authenticated');
-  }
+  const saveInvoice = async (
+    invoice: Omit<InvoiceHistory, 'id' | 'created_at'> & { technologies: Technology[] }
+  ) => {
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('plan_type, invoice_count')
+      .single();
 
-  const { data: invoiceData, error: invoiceError } = await supabase
-    .from('invoices')
-    .insert({
-      user_id,
-      invoice_number,
-      total_amount,
-      tax_rate,
-      margin,
-      total_minutes,
-      call_duration,
-      client_info,
-      agency_info
-    })
-    .select()
-    .single();
+    if (subscription?.plan_type === 'free' && (subscription?.invoice_count || 0) >= 5) {
+      toast({
+        title: "Free plan limit reached",
+        description: "Please upgrade to continue creating invoices",
+        variant: "destructive",
+      });
+      return null;
+    }
 
-  if (invoiceError || !invoiceData) {
-    throw new Error('Error saving invoice');
-  }
+    const { data: invoiceData, error: invoiceError } = await supabase
+      .from('invoices')
+      .insert([{
+        invoice_number: invoice.invoice_number,
+        total_amount: invoice.total_amount,
+        tax_rate: invoice.tax_rate,
+        margin: invoice.margin,
+        total_minutes: invoice.total_minutes,
+        call_duration: invoice.call_duration,
+        client_info: invoice.client_info,
+        agency_info: invoice.agency_info
+      }])
+      .select()
+      .single();
 
-  const techParams = technologies
-    .filter(tech => tech.isSelected)
-    .map(tech => ({
-      invoice_id: invoiceData.id,
-      technology_name: tech.name,
-      cost_per_minute: tech.costPerMinute,
-      is_selected: tech.isSelected
+    if (invoiceError) {
+      console.error('Error saving invoice:', invoiceError);
+      return null;
+    }
+
+    const { error: paramsError } = await supabase
+      .from('invoice_parameters')
+      .insert([{
+        invoice_id: invoiceData.id,
+        technologies: invoice.technologies
+      }]);
+
+    if (paramsError) {
+      console.error('Error saving invoice parameters:', paramsError);
+      return null;
+    }
+
+    await supabase
+      .from('subscriptions')
+      .update({ invoice_count: (subscription?.invoice_count || 0) + 1 })
+      .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+
+    return invoiceData;
+  };
+
+  const getInvoices = async (): Promise<InvoiceHistory[]> => {
+    const { data, error } = await supabase
+      .from('invoices')
+      .select(`
+        *,
+        invoice_parameters (
+          technologies
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching invoices:', error);
+      return [];
+    }
+
+    return data.map((invoice: any) => ({
+      ...invoice,
+      client_info: invoice.client_info as ClientInfo,
+      agency_info: invoice.agency_info as AgencyInfo,
+      technologies: invoice.invoice_parameters?.[0]?.technologies || []
     }));
-
-  const { error: paramsError } = await supabase
-    .from('invoice_parameters')
-    .insert(techParams);
-
-  if (paramsError) {
-    throw new Error('Error saving invoice parameters');
-  }
-
-  await supabase.rpc('increment_invoice_count');
+  };
 
   return {
-    ...invoiceData,
-    date: new Date(invoiceData.created_at),
-    client_info: invoiceData.client_info as ClientInfo,
-    agency_info: invoiceData.agency_info as AgencyInfo,
+    getSubscriptionInfo,
+    saveInvoice,
+    getInvoices
   };
-}
-
-export async function loadInvoices(): Promise<InvoiceHistory[]> {
-  const { data: invoices, error } = await supabase
-    .from('invoices')
-    .select(`
-      *,
-      invoice_parameters (*)
-    `)
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    throw new Error('Error loading invoices');
-  }
-
-  return (invoices || []).map(invoice => ({
-    ...invoice,
-    date: new Date(invoice.created_at),
-    client_info: invoice.client_info as ClientInfo,
-    agency_info: invoice.agency_info as AgencyInfo,
-  }));
-}
-
-export async function deleteInvoice(id: string) {
-  const { error } = await supabase
-    .from('invoices')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    throw new Error('Error deleting invoice');
-  }
-}
+};

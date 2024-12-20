@@ -1,103 +1,101 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-interface Profile {
-  id: string;
-  name: string | null;
-  location: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-}
-
-export function DashboardProfile() {
-  const [profile, setProfile] = useState<Profile | null>(null);
+export default function DashboardProfile() {
+  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState<string | null>(null);
+  const [location, setLocation] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchProfile();
+    getProfile();
   }, []);
 
-  async function fetchProfile() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+  async function getProfile() {
+    try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
+      if (!user) throw new Error("No user");
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch profile",
-        variant: "destructive",
-      });
-      return;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name, location')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+
+      setName(data.name);
+      setLocation(data.location);
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    } finally {
+      setLoading(false);
     }
-
-    setProfile(data);
   }
 
-  async function updateProfile(updates: Partial<Profile>) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+  async function updateProfile() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', user.id);
+      if (!user) throw new Error("No user");
 
-    if (error) {
+      const updates = {
+        name,
+        location,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update profile",
+        description: "Error updating the profile",
         variant: "destructive",
       });
-      return;
     }
-
-    setProfile(prev => prev ? { ...prev, ...updates } : null);
-    toast({
-      title: "Success",
-      description: "Profile updated successfully",
-    });
   }
-
-  if (!profile) return null;
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Profile Settings</h2>
+      <h2 className="text-2xl font-bold mb-6">Profile</h2>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Name</label>
+          <label className="block text-sm font-medium text-gray-700">Name</label>
           <Input
-            value={profile.name || ''}
-            onChange={(e) => updateProfile({ name: e.target.value })}
-            placeholder="Your name"
+            type="text"
+            value={name || ''}
+            onChange={(e) => setName(e.target.value)}
+            disabled={loading}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Location</label>
+          <label className="block text-sm font-medium text-gray-700">Location</label>
           <Input
-            value={profile.location || ''}
-            onChange={(e) => updateProfile({ location: e.target.value })}
-            placeholder="Your location"
+            type="text"
+            value={location || ''}
+            onChange={(e) => setLocation(e.target.value)}
+            disabled={loading}
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Bio</label>
-          <Input
-            value={profile.bio || ''}
-            onChange={(e) => updateProfile({ bio: e.target.value })}
-            placeholder="A short bio about yourself"
-          />
-        </div>
+        <Button onClick={updateProfile} disabled={loading}>
+          {loading ? 'Loading...' : 'Update Profile'}
+        </Button>
       </div>
     </Card>
   );
