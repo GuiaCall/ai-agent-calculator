@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-export default function DashboardProfile() {
+export function DashboardProfile() {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState<string | null>(null);
   const [location, setLocation] = useState<string | null>(null);
@@ -18,9 +18,8 @@ export default function DashboardProfile() {
   async function getProfile() {
     try {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) throw new Error("No user");
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) throw new Error('No user');
 
       const { data, error } = await supabase
         .from('profiles')
@@ -29,11 +28,16 @@ export default function DashboardProfile() {
         .single();
 
       if (error) throw error;
-
-      setName(data.name);
-      setLocation(data.location);
+      if (data) {
+        setName(data.name);
+        setLocation(data.location);
+      }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      toast({
+        title: 'Error',
+        description: 'Error loading profile',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -41,61 +45,63 @@ export default function DashboardProfile() {
 
   async function updateProfile() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) throw new Error("No user");
-
-      const updates = {
-        name,
-        location,
-        updated_at: new Date().toISOString(),
-      };
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) throw new Error('No user');
 
       const { error } = await supabase
         .from('profiles')
-        .update(updates)
+        .update({
+          name,
+          location,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', user.id);
 
       if (error) throw error;
-
       toast({
-        title: "Success",
-        description: "Profile updated successfully",
+        title: 'Success',
+        description: 'Profile updated successfully',
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Error updating the profile",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Error updating profile',
+        variant: 'destructive',
       });
     }
   }
 
   return (
     <Card className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Profile</h2>
+      <h2 className="text-2xl font-bold mb-4">Profile</h2>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Name</label>
+          <label className="block text-sm font-medium mb-1" htmlFor="name">
+            Name
+          </label>
           <Input
+            id="name"
             type="text"
             value={name || ''}
             onChange={(e) => setName(e.target.value)}
-            disabled={loading}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Location</label>
+          <label className="block text-sm font-medium mb-1" htmlFor="location">
+            Location
+          </label>
           <Input
+            id="location"
             type="text"
             value={location || ''}
             onChange={(e) => setLocation(e.target.value)}
-            disabled={loading}
           />
         </div>
-        <Button onClick={updateProfile} disabled={loading}>
-          {loading ? 'Loading...' : 'Update Profile'}
-        </Button>
+        <div>
+          <Button onClick={updateProfile} disabled={loading}>
+            {loading ? 'Loading...' : 'Update Profile'}
+          </Button>
+        </div>
       </div>
     </Card>
   );
