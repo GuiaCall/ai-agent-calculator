@@ -1,46 +1,27 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useAuth } from "@/hooks/use-auth";
-import { LayoutDashboard, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
 
 export function Navbar() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   return (
-    <nav className="fixed top-0 w-full z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <div className="mr-4 hidden md:flex">
-          <Link to="/" className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block">
-              AI Agent Calculator
-            </span>
-          </Link>
-        </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            {user && (
-              <Button
-                variant="ghost"
-                className="mr-2"
-                onClick={() => navigate('/dashboard')}
+    <nav className="bg-gray-800 p-4">
+      <div className="container mx-auto flex justify-between items-center">
+        <Link to="/" className="text-white text-lg font-bold">MyApp</Link>
+        <div>
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <span className="text-white">{user.email}</span>
+              <button
+                onClick={logout}
+                className="text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded"
               >
-                <LayoutDashboard className="h-5 w-5" />
-              </Button>
-            )}
-          </div>
-          <ThemeToggle />
-          {user && (
-            <Button
-              variant="ghost"
-              onClick={() => {
-                supabase.auth.signOut();
-                navigate('/');
-              }}
-            >
-              <LogOut className="h-5 w-5" />
-            </Button>
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link to="/login" className="text-white">Login</Link>
           )}
         </div>
       </div>

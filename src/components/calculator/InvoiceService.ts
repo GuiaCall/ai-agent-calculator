@@ -1,7 +1,12 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Invoice, InvoiceParameter } from "@/types/database";
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
-import { Technology } from "./CalculatorState";
+
+export interface Technology {
+  id: string;
+  name: string;
+  isSelected: boolean;
+  costPerMinute: number;
+}
 
 export async function checkInvoiceLimit() {
   const { data: subscription } = await supabase
@@ -9,11 +14,10 @@ export async function checkInvoiceLimit() {
     .select('plan_type, invoice_limit, invoices_generated')
     .single();
 
-  if (subscription?.plan_type === 'free' && 
-      subscription?.invoices_generated >= (subscription?.invoice_limit || 3)) {
-    return false;
-  }
-  return true;
+  if (!subscription) return false;
+
+  return !(subscription.plan_type === 'free' && 
+    subscription.invoices_generated >= (subscription.invoice_limit || 3));
 }
 
 export async function saveInvoice(
@@ -37,12 +41,13 @@ export async function saveInvoice(
       total_minutes: totalMinutes,
       call_duration: callDuration,
       client_info: clientInfo,
-      agency_info: agencyInfo
+      agency_info: agencyInfo,
+      user_id: (await supabase.auth.getUser()).data.user?.id
     })
     .select()
     .single();
 
-  if (invoiceError) {
+  if (invoiceError || !invoiceData) {
     throw new Error('Error saving invoice');
   }
 
@@ -55,9 +60,13 @@ export async function saveInvoice(
       is_selected: tech.isSelected
     }));
 
-  await supabase
+  const { error: paramsError } = await supabase
     .from('invoice_parameters')
     .insert(techParams);
+
+  if (paramsError) {
+    throw new Error('Error saving invoice parameters');
+  }
 
   await supabase
     .from('subscriptions')
@@ -67,7 +76,7 @@ export async function saveInvoice(
   return invoiceData;
 }
 
-export async function loadInvoices(): Promise<Invoice[]> {
+export async function loadInvoices() {
   const { data: invoices, error } = await supabase
     .from('invoices')
     .select(`

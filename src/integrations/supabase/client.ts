@@ -1,23 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from './types';
+import { Database } from '@/types/database/schema';
 
-const SUPABASE_URL = "https://qqyfupdnjcvecvdgvzct.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxeWZ1cGRuamN2ZWN2ZGd2emN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQzMDQ2NzcsImV4cCI6MjA0OTg4MDY3N30.cc9HzmbW9ujXAwsPWODRCFfoZDxklnTePS26CR-9_kc";
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables');
+}
 
-// Create a stored procedure for incrementing invoice count
-export const createIncrementInvoiceCount = async () => {
-  await supabase.rpc('create_increment_invoice_count_function', {
-    sql: `
-      CREATE OR REPLACE FUNCTION increment_invoice_count()
-      RETURNS void AS $$
-      BEGIN
-        UPDATE subscriptions
-        SET invoices_generated = invoices_generated + 1
-        WHERE user_id = auth.uid();
-      END;
-      $$ LANGUAGE plpgsql;
-    `
-  });
-};
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
