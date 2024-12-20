@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { InvoiceHistory, ClientInfo, AgencyInfo, Technology } from "@/types/invoice";
 import { useToast } from "@/hooks/use-toast";
+import { Json } from "@/types/database/schema";
 
 export function useInvoiceService() {
   const { toast } = useToast();
@@ -36,18 +37,18 @@ export function useInvoiceService() {
 
     const { data: invoiceData, error: invoiceError } = await supabase
       .from('invoices')
-      .insert({
+      .insert([{
+        user_id: user.id,
         invoice_number: invoice.invoice_number,
         total_amount: invoice.total_amount,
         tax_rate: invoice.tax_rate,
         margin: invoice.margin,
         total_minutes: invoice.total_minutes,
         call_duration: invoice.call_duration,
-        client_info: invoice.client_info,
-        agency_info: invoice.agency_info,
-        date: new Date().toISOString(),
-        user_id: user.id
-      })
+        client_info: invoice.client_info as unknown as Json,
+        agency_info: invoice.agency_info as unknown as Json,
+        date: new Date().toISOString()
+      }])
       .select()
       .single();
 
@@ -75,7 +76,7 @@ export function useInvoiceService() {
       }
     }
 
-    // Update subscription invoice count using a simple increment
+    // Update subscription invoice count
     const { error: updateError } = await supabase
       .from('subscriptions')
       .update({ invoice_count: (subscription?.invoice_count || 0) + 1 })
@@ -104,8 +105,8 @@ export function useInvoiceService() {
 
     return invoices.map(invoice => ({
       ...invoice,
-      client_info: invoice.client_info as ClientInfo,
-      agency_info: invoice.agency_info as AgencyInfo,
+      client_info: invoice.client_info as unknown as ClientInfo,
+      agency_info: invoice.agency_info as unknown as AgencyInfo,
       technologies: invoice.invoice_parameters.map((param: any) => ({
         id: param.technology_name,
         name: param.technology_name,
