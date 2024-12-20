@@ -33,12 +33,21 @@ export default function Pricing() {
           }
         });
 
-        if (error) throw error;
-        if (data?.url) window.location.href = data.url;
+        if (error) {
+          console.error('Checkout error:', error);
+          throw error;
+        }
+        
+        if (data?.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
       } catch (error) {
+        console.error('Subscription error:', error);
         toast({
           title: "Error",
-          description: "Failed to create checkout session",
+          description: "Failed to create checkout session. Please try again.",
           variant: "destructive",
         });
       }
