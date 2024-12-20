@@ -27,10 +27,16 @@ export function useInvoiceService() {
       throw new Error('User not authenticated');
     }
 
+    // First get the current subscription to check invoice count
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('invoice_count')
+      .eq('user_id', user.id)
+      .single();
+
     const { data: invoiceData, error: invoiceError } = await supabase
       .from('invoices')
       .insert({
-        user_id: user.id,
         invoice_number: invoice.invoice_number,
         total_amount: invoice.total_amount,
         tax_rate: invoice.tax_rate,
@@ -39,7 +45,8 @@ export function useInvoiceService() {
         call_duration: invoice.call_duration,
         client_info: invoice.client_info,
         agency_info: invoice.agency_info,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        user_id: user.id
       })
       .select()
       .single();
