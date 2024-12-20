@@ -118,7 +118,23 @@ function CalculatorContent() {
     const loadSavedData = async () => {
       try {
         const invoices = await loadInvoices();
-        state.setInvoices(invoices);
+        // Transform database records to match InvoiceHistory type
+        const transformedInvoices = invoices.map(invoice => ({
+          id: invoice.id,
+          invoice_number: invoice.invoice_number,
+          date: new Date(invoice.created_at),
+          total_amount: invoice.total_amount,
+          tax_rate: invoice.tax_rate,
+          margin: invoice.margin,
+          total_minutes: invoice.total_minutes,
+          call_duration: invoice.call_duration,
+          client_info: invoice.client_info,
+          agency_info: invoice.agency_info,
+          created_at: invoice.created_at,
+          updated_at: invoice.updated_at,
+          invoice_parameters: invoice.invoice_parameters
+        }));
+        state.setInvoices(transformedInvoices);
       } catch (error) {
         toast({
           title: "Error",

@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Database } from "@/types/database";
+
+type Subscription = Database['public']['Tables']['subscriptions']['Row'];
 
 export function DashboardSubscription() {
   const navigate = useNavigate();
@@ -14,10 +17,10 @@ export function DashboardSubscription() {
       const { data, error } = await supabase
         .from('subscriptions')
         .select('*')
-        .maybeSingle();
+        .single();
         
       if (error) throw error;
-      return data;
+      return data as Subscription;
     }
   });
 
@@ -45,7 +48,7 @@ export function DashboardSubscription() {
         </p>
         <p>
           <span className="font-semibold">Invoices Created:</span>{' '}
-          {subscription?.invoice_count || 0}
+          {subscription?.invoices_generated || 0}
         </p>
         {(!subscription || subscription.plan_type === 'free') && (
           <Button onClick={() => navigate('/pricing')}>

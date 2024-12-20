@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
+import { Database } from "@/types/database";
 
 export interface Technology {
   id: string;
@@ -7,6 +8,9 @@ export interface Technology {
   isSelected: boolean;
   costPerMinute: number;
 }
+
+type Invoice = Database['public']['Tables']['invoices']['Row'];
+type InvoiceParameter = Database['public']['Tables']['invoice_parameters']['Row'];
 
 export async function checkInvoiceLimit() {
   const { data: subscription } = await supabase
@@ -68,15 +72,12 @@ export async function saveInvoice(
     throw new Error('Error saving invoice parameters');
   }
 
-  await supabase
-    .from('subscriptions')
-    .update({ invoices_generated: supabase.rpc('increment_invoice_count') })
-    .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
+  await supabase.rpc('increment_invoice_count');
 
   return invoiceData;
 }
 
-export async function loadInvoices() {
+export async function loadInvoices(): Promise<Invoice[]> {
   const { data: invoices, error } = await supabase
     .from('invoices')
     .select(`

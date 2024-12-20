@@ -7,6 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Database } from "@/types/database";
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export function DashboardProfile() {
   const [isEditing, setIsEditing] = useState(false);
@@ -18,14 +21,14 @@ export function DashboardProfile() {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .maybeSingle();
+        .single();
         
       if (error) throw error;
-      return data;
+      return data as Profile;
     }
   });
 
-  const updateProfile = async (updatedProfile: any) => {
+  const updateProfile = async (updatedProfile: Partial<Profile>) => {
     const { error } = await supabase
       .from('profiles')
       .update(updatedProfile)
@@ -90,7 +93,7 @@ export function DashboardProfile() {
             />
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => updateProfile(profile)}>Save</Button>
+            <Button onClick={() => updateProfile(profile!)}>Save</Button>
             <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
           </div>
         </div>

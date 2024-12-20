@@ -20,11 +20,22 @@ export interface AgencyInfo {
 
 export interface InvoiceHistory {
   id: string;
-  invoiceNumber: string;
+  invoice_number: string;
   date: Date;
-  clientInfo: ClientInfo;
-  agencyInfo: AgencyInfo;
-  totalAmount: number;
-  taxRate: number;
+  total_amount: number;
+  tax_rate: number;
   margin: number;
+  total_minutes: number;
+  call_duration: number;
+  client_info: ClientInfo;
+  agency_info: AgencyInfo;
+  created_at: string;
+  updated_at: string;
+  invoice_parameters?: {
+    id: string;
+    invoice_id: string;
+    technology_name: string;
+    cost_per_minute: number;
+    is_selected: boolean;
+  }[];
 }
