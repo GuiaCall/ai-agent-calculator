@@ -63,9 +63,20 @@ export function AuthLayout() {
         <div className="bg-card p-6 rounded-lg shadow-lg">
           <Auth
             supabaseClient={supabase}
-            appearance={{ theme: ThemeSupa }}
+            appearance={{ 
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: 'rgb(var(--primary))',
+                    brandAccent: 'rgb(var(--primary))',
+                  },
+                },
+              },
+            }}
             providers={[]}
             redirectTo={`${window.location.origin}/calculator`}
+            onlyThirdPartyProviders={false}
           />
         </div>
       </div>
