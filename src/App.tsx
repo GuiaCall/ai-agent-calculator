@@ -3,7 +3,6 @@ import { Calculator } from "@/components/Calculator";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import Dashboard from "@/pages/Dashboard";
-import Pricing from "@/pages/Pricing";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -14,24 +13,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <Routes>
-          <Route 
-            path="/login" 
-            element={
-              <AuthLayout mode="login">
-                <h1>Welcome back!</h1>
-              </AuthLayout>
-            } 
-          />
-          <Route 
-            path="/signup" 
-            element={
-              <AuthLayout mode="signup">
-                <h1>Create your account</h1>
-              </AuthLayout>
-            } 
-          />
+          <Route path="/login" element={<AuthLayout />} />
           <Route path="/" element={<Navigate to="/calculator" replace />} />
-          <Route path="/pricing" element={<Pricing />} />
           <Route
             path="/calculator"
             element={
