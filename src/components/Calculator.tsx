@@ -16,6 +16,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
+import { DatabaseInvoice, InvoiceHistory } from "@/types/invoice";
 
 function CalculatorContent() {
   const { toast } = useToast();
@@ -39,7 +40,7 @@ function CalculatorContent() {
     }
   };
 
-  const exportPDF = async (invoice?: any) => {
+  const exportPDF = async (invoice?: InvoiceHistory) => {
     if (!state.totalCost && !invoice) {
       toast({
         title: "Error",
@@ -74,18 +75,7 @@ function CalculatorContent() {
 
     if (!invoice) {
       const invoiceNumber = `INV-${format(new Date(), 'yyyyMMdd')}-${state.invoices.length + 1}`;
-      const newInvoice = {
-        invoiceNumber,
-        date: new Date(),
-        clientInfo: state.clientInfo,
-        agencyInfo: state.agencyInfo,
-        totalAmount: state.totalCost,
-        taxRate: state.taxRate,
-        margin: state.margin,
-        totalMinutes: state.totalMinutes,
-        callDuration: state.callDuration
-      };
-
+      
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
@@ -97,18 +87,41 @@ function CalculatorContent() {
           return;
         }
 
+        const newInvoiceData = {
+          user_id: user.id,
+          invoice_number: invoiceNumber,
+          total_amount: state.totalCost || 0,
+          tax_rate: state.taxRate,
+          margin: state.margin,
+          total_minutes: state.totalMinutes,
+          call_duration: state.callDuration,
+          client_info: state.clientInfo,
+          agency_info: state.agencyInfo,
+          date: new Date().toISOString()
+        };
+
         const { data, error } = await supabase
           .from('invoices')
-          .insert([{
-            ...newInvoice,
-            user_id: user.id
-          }])
+          .insert([newInvoiceData])
           .select()
           .single();
 
         if (error) throw error;
 
-        const updatedInvoices = [...state.invoices, { ...data, id: data.id }];
+        const newInvoice: InvoiceHistory = {
+          id: data.id,
+          invoiceNumber: data.invoice_number,
+          date: new Date(data.date),
+          clientInfo: data.client_info,
+          agencyInfo: data.agency_info,
+          totalAmount: data.total_amount,
+          taxRate: data.tax_rate,
+          margin: data.margin,
+          totalMinutes: data.total_minutes,
+          callDuration: data.call_duration
+        };
+
+        const updatedInvoices = [...state.invoices, newInvoice];
         state.setInvoices(updatedInvoices);
         pdf.save(`invoice-${invoiceNumber}.pdf`);
 
@@ -143,9 +156,17 @@ function CalculatorContent() {
 
         if (error) throw error;
 
-        const processedInvoices = data.map((inv: any) => ({
-          ...inv,
-          date: new Date(inv.date)
+        const processedInvoices: InvoiceHistory[] = (data as DatabaseInvoice[]).map((inv) => ({
+          id: inv.id,
+          invoiceNumber: inv.invoice_number,
+          date: new Date(inv.date),
+          clientInfo: inv.client_info,
+          agencyInfo: inv.agency_info,
+          totalAmount: inv.total_amount,
+          taxRate: inv.tax_rate,
+          margin: inv.margin,
+          totalMinutes: inv.total_minutes,
+          callDuration: inv.call_duration
         }));
         
         state.setInvoices(processedInvoices);
