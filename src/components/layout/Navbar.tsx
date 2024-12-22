@@ -3,12 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { CurrencyDropdown } from "@/components/calculator/CurrencyDropdown";
 import { 
-  User, 
   Calculator, 
   LayoutDashboard, 
   LogOut,
   Menu,
-  X
+  X,
+  Brain
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -62,17 +62,6 @@ export function Navbar() {
         <LayoutDashboard className="h-5 w-5" />
       </Button>
       <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => {
-          navigate("/profile");
-          setIsOpen(false);
-        }}
-        className="hover:bg-accent"
-      >
-        <User className="h-5 w-5" />
-      </Button>
-      <Button
         variant="outline"
         onClick={handleLogout}
         className="flex items-center gap-2"
@@ -86,7 +75,11 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="font-bold text-xl">Cost Calculator</div>
+        <div className="flex items-center gap-2 font-bold text-xl">
+          <Calculator className="h-6 w-6" />
+          <Brain className="h-6 w-6" />
+          <span>AI Agent Calculator</span>
+        </div>
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-4">
