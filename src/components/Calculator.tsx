@@ -15,6 +15,7 @@ import { Disclaimer } from "./Disclaimer";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
+import { supabase } from "@/integrations/supabase/client";
 
 function CalculatorContent() {
   const { toast } = useToast();
@@ -74,43 +75,87 @@ function CalculatorContent() {
     if (!invoice) {
       const invoiceNumber = `INV-${format(new Date(), 'yyyyMMdd')}-${state.invoices.length + 1}`;
       const newInvoice = {
-        id: crypto.randomUUID(),
         invoiceNumber,
         date: new Date(),
         clientInfo: state.clientInfo,
         agencyInfo: state.agencyInfo,
         totalAmount: state.totalCost,
         taxRate: state.taxRate,
-        margin: state.margin
+        margin: state.margin,
+        totalMinutes: state.totalMinutes,
+        callDuration: state.callDuration
       };
 
-      const updatedInvoices = [...state.invoices, newInvoice];
-      state.setInvoices(updatedInvoices);
-      pdf.save(`invoice-${invoiceNumber}.pdf`);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast({
+            title: "Error",
+            description: "Please login to save invoices",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('invoices')
+          .insert([{
+            ...newInvoice,
+            user_id: user.id
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        const updatedInvoices = [...state.invoices, { ...data, id: data.id }];
+        state.setInvoices(updatedInvoices);
+        pdf.save(`invoice-${invoiceNumber}.pdf`);
+
+        toast({
+          title: "Success",
+          description: "Invoice saved successfully",
+        });
+      } catch (error) {
+        console.error('Error saving invoice:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save invoice",
+          variant: "destructive",
+        });
+      }
     } else {
       pdf.save(`invoice-${invoice.invoiceNumber}.pdf`);
     }
   };
 
   useEffect(() => {
-    const savedInvoices = localStorage.getItem('invoiceHistory');
-    if (savedInvoices) {
-      const parsedInvoices = JSON.parse(savedInvoices);
-      const processedInvoices = parsedInvoices.map((inv: any) => ({
-        ...inv,
-        date: new Date(inv.date)
-      }));
-      state.setInvoices(processedInvoices);
-    }
+    const fetchInvoices = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('invoices')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        const processedInvoices = data.map((inv: any) => ({
+          ...inv,
+          date: new Date(inv.date)
+        }));
+        
+        state.setInvoices(processedInvoices);
+      } catch (error) {
+        console.error('Error fetching invoices:', error);
+      }
+    };
+
+    fetchInvoices();
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('invoiceHistory', JSON.stringify(state.invoices));
-  }, [state.invoices]);
-
-  const convertCurrency = (amount: number) => {
-    return state.currency === 'EUR' ? amount * 0.85 : amount;
-  };
 
   return (
     <>
@@ -145,8 +190,8 @@ function CalculatorContent() {
           onCalculate={logic.calculateCost}
           onPreviewToggle={() => state.setShowPreview(!state.showPreview)}
           onExportPDF={() => exportPDF()}
-          totalCost={convertCurrency(state.totalCost || 0)}
-          setupCost={convertCurrency(state.setupCost || 0)}
+          totalCost={state.totalCost || 0}
+          setupCost={state.setupCost || 0}
           currency={state.currency}
           totalMinutes={state.totalMinutes}
         />
@@ -157,8 +202,8 @@ function CalculatorContent() {
             agencyInfo={state.agencyInfo}
             clientInfo={state.clientInfo}
             totalMinutes={state.totalMinutes}
-            totalCost={convertCurrency(state.totalCost || 0)}
-            setupCost={convertCurrency(state.setupCost || 0)}
+            totalCost={state.totalCost || 0}
+            setupCost={state.setupCost || 0}
             taxRate={state.taxRate}
             themeColor={state.themeColor}
             currency={state.currency}
@@ -168,7 +213,29 @@ function CalculatorContent() {
         <InvoiceHistoryList
           invoices={state.invoices}
           onEdit={(invoice) => logic.handleEdit(invoice, state.setEditingId, state.setRecalculatedId)}
-          onDelete={(id) => state.setInvoices(state.invoices.filter((inv) => inv.id !== id))}
+          onDelete={async (id) => {
+            try {
+              const { error } = await supabase
+                .from('invoices')
+                .delete()
+                .eq('id', id);
+
+              if (error) throw error;
+
+              state.setInvoices(state.invoices.filter((inv) => inv.id !== id));
+              toast({
+                title: "Success",
+                description: "Invoice deleted successfully",
+              });
+            } catch (error) {
+              console.error('Error deleting invoice:', error);
+              toast({
+                title: "Error",
+                description: "Failed to delete invoice",
+                variant: "destructive",
+              });
+            }
+          }}
           onPrint={exportPDF}
           onSave={(invoice) => logic.handleSave(invoice, state.setEditingId, state.setRecalculatedId)}
           editingId={state.editingId}
