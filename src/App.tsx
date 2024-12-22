@@ -5,6 +5,7 @@ import { AuthGuard } from "@/components/auth/AuthGuard";
 import Dashboard from "@/pages/Dashboard";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Documentation } from "@/pages/Documentation";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,14 @@ function App() {
             element={
               <AuthGuard>
                 <Dashboard />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/documentation"
+            element={
+              <AuthGuard>
+                <Documentation />
               </AuthGuard>
             }
           />
