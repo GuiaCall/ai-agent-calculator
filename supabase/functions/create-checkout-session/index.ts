@@ -8,7 +8,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -45,21 +44,16 @@ serve(async (req) => {
       customerId = customer.id;
     }
 
-    // Get the request body which should contain the priceId
-    const { priceId } = await req.json();
-
-    console.log('Creating checkout session with price ID:', priceId);
-
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
         {
-          price: priceId, // Use the priceId from the request
+          price: Deno.env.get('STRIPE_PRICE_ID'),
           quantity: 1,
         },
       ],
       mode: 'subscription',
-      success_url: `${req.headers.get('origin')}/calculator?success=true`,
+      success_url: `${req.headers.get('origin')}/dashboard?success=true`,
       cancel_url: `${req.headers.get('origin')}/pricing?canceled=true`,
     });
 
@@ -71,7 +65,6 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error('Error creating checkout session:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

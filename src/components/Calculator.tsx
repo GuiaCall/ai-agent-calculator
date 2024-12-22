@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
 import { TechnologyParameters } from "./TechnologyParameters";
 import { InvoiceHistoryList } from "./InvoiceHistory";
 import { CalculatorHeader } from "./calculator/CalculatorHeader";
@@ -13,14 +12,12 @@ import { CalculatorStateProvider, useCalculatorStateContext } from "./calculator
 import { Navbar } from "./layout/Navbar";
 import { Footer } from "./layout/Footer";
 import { Disclaimer } from "./Disclaimer";
-import { format } from 'date-fns';
-import { checkInvoiceLimit, saveInvoice, loadInvoices, deleteInvoice } from './calculator/InvoiceService';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { format } from 'date-fns';
 
 function CalculatorContent() {
   const { toast } = useToast();
-  const navigate = useNavigate();
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state, currency: state.currency });
 
@@ -51,17 +48,6 @@ function CalculatorContent() {
       return;
     }
 
-    const canProceed = await checkInvoiceLimit();
-    if (!canProceed) {
-      toast({
-        title: "Invoice Limit Reached",
-        description: "Please upgrade to continue generating invoices",
-        variant: "destructive",
-      });
-      navigate('/pricing');
-      return;
-    }
-
     const pdf = new jsPDF();
     const element = document.getElementById('invoice-preview');
     if (!element) return;
@@ -87,49 +73,44 @@ function CalculatorContent() {
 
     if (!invoice) {
       const invoiceNumber = `INV-${format(new Date(), 'yyyyMMdd')}-${state.invoices.length + 1}`;
-      
-      try {
-        await saveInvoice(
-          invoiceNumber,
-          state.totalCost,
-          state.taxRate,
-          state.margin,
-          state.totalMinutes,
-          state.callDuration,
-          state.clientInfo,
-          state.agencyInfo,
-          state.technologies
-        );
-        
-        pdf.save(`invoice-${invoiceNumber}.pdf`);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to save invoice",
-          variant: "destructive",
-        });
-      }
+      const newInvoice = {
+        id: crypto.randomUUID(),
+        invoiceNumber,
+        date: new Date(),
+        clientInfo: state.clientInfo,
+        agencyInfo: state.agencyInfo,
+        totalAmount: state.totalCost,
+        taxRate: state.taxRate,
+        margin: state.margin
+      };
+
+      const updatedInvoices = [...state.invoices, newInvoice];
+      state.setInvoices(updatedInvoices);
+      pdf.save(`invoice-${invoiceNumber}.pdf`);
     } else {
-      pdf.save(`invoice-${invoice.invoice_number}.pdf`);
+      pdf.save(`invoice-${invoice.invoiceNumber}.pdf`);
     }
   };
 
   useEffect(() => {
-    const loadSavedData = async () => {
-      try {
-        const invoices = await loadInvoices();
-        state.setInvoices(invoices);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load invoices",
-          variant: "destructive",
-        });
-      }
-    };
-
-    loadSavedData();
+    const savedInvoices = localStorage.getItem('invoiceHistory');
+    if (savedInvoices) {
+      const parsedInvoices = JSON.parse(savedInvoices);
+      const processedInvoices = parsedInvoices.map((inv: any) => ({
+        ...inv,
+        date: new Date(inv.date)
+      }));
+      state.setInvoices(processedInvoices);
+    }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('invoiceHistory', JSON.stringify(state.invoices));
+  }, [state.invoices]);
+
+  const convertCurrency = (amount: number) => {
+    return state.currency === 'EUR' ? amount * 0.85 : amount;
+  };
 
   return (
     <>
@@ -164,8 +145,8 @@ function CalculatorContent() {
           onCalculate={logic.calculateCost}
           onPreviewToggle={() => state.setShowPreview(!state.showPreview)}
           onExportPDF={() => exportPDF()}
-          totalCost={state.totalCost || 0}
-          setupCost={state.setupCost || 0}
+          totalCost={convertCurrency(state.totalCost || 0)}
+          setupCost={convertCurrency(state.setupCost || 0)}
           currency={state.currency}
           totalMinutes={state.totalMinutes}
         />
@@ -176,9 +157,10 @@ function CalculatorContent() {
             agencyInfo={state.agencyInfo}
             clientInfo={state.clientInfo}
             totalMinutes={state.totalMinutes}
-            totalCost={state.totalCost || 0}
-            setupCost={state.setupCost || 0}
+            totalCost={convertCurrency(state.totalCost || 0)}
+            setupCost={convertCurrency(state.setupCost || 0)}
             taxRate={state.taxRate}
+            themeColor={state.themeColor}
             currency={state.currency}
           />
         )}
@@ -186,10 +168,7 @@ function CalculatorContent() {
         <InvoiceHistoryList
           invoices={state.invoices}
           onEdit={(invoice) => logic.handleEdit(invoice, state.setEditingId, state.setRecalculatedId)}
-          onDelete={async (id) => {
-            await deleteInvoice(id);
-            state.setInvoices(state.invoices.filter((inv) => inv.id !== id));
-          }}
+          onDelete={(id) => state.setInvoices(state.invoices.filter((inv) => inv.id !== id))}
           onPrint={exportPDF}
           onSave={(invoice) => logic.handleSave(invoice, state.setEditingId, state.setRecalculatedId)}
           editingId={state.editingId}
