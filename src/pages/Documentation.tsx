@@ -3,10 +3,11 @@ import { Footer } from "@/components/layout/Footer";
 import { FormulaExplanation } from "@/components/FormulaExplanation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import { CalculatorStateProvider } from "@/components/calculator/CalculatorStateContext";
 
 export function Documentation() {
   return (
-    <>
+    <CalculatorStateProvider>
       <Navbar />
       <div className="container mx-auto px-4 py-8 space-y-8 mt-20 mb-20">
         <h1 className="text-3xl font-bold">AI Agent Calculator Documentation</h1>
@@ -85,6 +86,6 @@ export function Documentation() {
         </Card>
       </div>
       <Footer />
-    </>
+    </CalculatorStateProvider>
   );
 }
