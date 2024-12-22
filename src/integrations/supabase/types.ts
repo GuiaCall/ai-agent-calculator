@@ -9,54 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      invoices: {
-        Row: {
-          agency_info: Json
-          call_duration: number
-          client_info: Json
-          created_at: string | null
-          date: string | null
-          id: string
-          invoice_number: string
-          margin: number
-          tax_rate: number
-          total_amount: number
-          total_minutes: number
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          agency_info: Json
-          call_duration: number
-          client_info: Json
-          created_at?: string | null
-          date?: string | null
-          id?: string
-          invoice_number: string
-          margin: number
-          tax_rate: number
-          total_amount: number
-          total_minutes: number
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          agency_info?: Json
-          call_duration?: number
-          client_info?: Json
-          created_at?: string | null
-          date?: string | null
-          id?: string
-          invoice_number?: string
-          margin?: number
-          tax_rate?: number
-          total_amount?: number
-          total_minutes?: number
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       personal_records: {
         Row: {
           created_at: string

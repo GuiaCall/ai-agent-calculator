@@ -3,9 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Calculator } from "lucide-react";
 
-export function AuthLayout() {
+interface AuthLayoutProps {
+  mode: "login" | "signup";
+  children: React.ReactNode;
+}
+
+export function AuthLayout({ mode, children }: AuthLayoutProps) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -52,15 +57,25 @@ export function AuthLayout() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-foreground">Welcome Back</h2>
-          <p className="mt-2 text-muted-foreground">
-            Sign in to your account to continue
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary/20 p-4">
+      <div className="w-full max-w-md space-y-8 animate-fadeIn">
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="p-3 bg-primary/10 rounded-full">
+              <Calculator className="h-12 w-12 text-primary" />
+            </div>
+          </div>
+          <h2 className="text-3xl font-bold text-foreground font-heading">
+            {mode === "login" ? "Welcome Back" : "Create Account"}
+          </h2>
+          <p className="text-muted-foreground max-w-sm mx-auto">
+            {mode === "login" 
+              ? "Sign in to your account to access your calculator and manage your invoices."
+              : "Join us to start creating professional invoices and managing your business efficiently."
+            }
           </p>
         </div>
-        <div className="bg-card p-6 rounded-lg shadow-lg">
+        <div className="bg-card p-8 rounded-lg shadow-lg border">
           <Auth
             supabaseClient={supabase}
             appearance={{ 
@@ -68,15 +83,15 @@ export function AuthLayout() {
               variables: {
                 default: {
                   colors: {
-                    brand: 'rgb(var(--primary))',
-                    brandAccent: 'rgb(var(--primary))',
+                    brand: 'rgb(37, 99, 235)',
+                    brandAccent: 'rgb(29, 78, 216)',
                   },
                 },
               },
             }}
             providers={[]}
             redirectTo={`${window.location.origin}/calculator`}
-            onlyThirdPartyProviders={false}
+            view={mode === "login" ? "sign_in" : "sign_up"}
           />
         </div>
       </div>
