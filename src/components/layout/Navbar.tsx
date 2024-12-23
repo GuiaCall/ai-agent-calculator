@@ -12,6 +12,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import { CalculatorStateProvider } from "../calculator/CalculatorStateContext";
 
 export function Navbar() {
   const navigate = useNavigate();
@@ -37,7 +38,9 @@ export function Navbar() {
 
   const NavItems = () => (
     <>
-      <CurrencyDropdown />
+      <CalculatorStateProvider>
+        <CurrencyDropdown />
+      </CalculatorStateProvider>
       <Button
         variant="ghost"
         size="icon"
