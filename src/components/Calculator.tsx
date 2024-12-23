@@ -32,13 +32,19 @@ function CalculatorContent() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Check subscription
-      const { data: subscription } = await supabase
+      // Check subscription using maybeSingle() instead of single()
+      const { data: subscription, error: subscriptionError } = await supabase
         .from('subscriptions')
         .select('plan_type')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
+      if (subscriptionError) {
+        console.error('Error fetching subscription:', subscriptionError);
+        return;
+      }
+
+      // Default to free plan if no subscription exists
       setIsSubscribed(subscription?.plan_type === 'pro');
 
       // Get invoice count
