@@ -32,17 +32,20 @@ export function InvoiceHistoryList({
   
   const handleDelete = async (id: string) => {
     try {
+      // Only soft delete by updating the is_deleted flag
       const { error } = await supabase
         .from('invoices')
-        .delete()
+        .update({ is_deleted: true })
         .eq('id', id);
 
       if (error) throw error;
 
+      // Update the UI by filtering out the deleted invoice
       onDelete(id);
+      
       toast({
         title: "Invoice deleted",
-        description: "The invoice has been successfully deleted.",
+        description: "The invoice has been successfully deleted from view.",
       });
     } catch (error: any) {
       toast({
@@ -80,7 +83,7 @@ export function InvoiceHistoryList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices?.map((invoice) => (
+          {invoices?.filter(invoice => !invoice.is_deleted).map((invoice) => (
             <TableRow key={invoice.id}>
               <TableCell>{invoice.invoice_number}</TableCell>
               <TableCell>
