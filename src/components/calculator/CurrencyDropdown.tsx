@@ -14,14 +14,14 @@ export function CurrencyDropdown() {
   // Load saved currency preference
   useEffect(() => {
     const savedCurrency = localStorage.getItem('preferred_currency');
-    if (savedCurrency) {
-      setCurrency(savedCurrency as 'USD' | 'EUR' | 'GBP');
+    if (savedCurrency && (savedCurrency === 'USD' || savedCurrency === 'EUR')) {
+      setCurrency(savedCurrency as 'USD' | 'EUR');
     }
   }, [setCurrency]);
 
   // Save currency preference
   const handleCurrencyChange = (value: string) => {
-    setCurrency(value as 'USD' | 'EUR' | 'GBP');
+    setCurrency(value as 'USD' | 'EUR');
     localStorage.setItem('preferred_currency', value);
   };
   
@@ -34,7 +34,6 @@ export function CurrencyDropdown() {
         <SelectContent>
           <SelectItem value="USD">USD ($)</SelectItem>
           <SelectItem value="EUR">EUR (€)</SelectItem>
-          <SelectItem value="GBP">GBP (£)</SelectItem>
         </SelectContent>
       </Select>
     </div>

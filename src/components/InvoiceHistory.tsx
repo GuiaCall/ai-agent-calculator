@@ -10,28 +10,20 @@ import {
 } from "@/components/ui/table";
 import { InvoiceHistory } from "@/types/invoice";
 import { format } from "date-fns";
-import { Edit, Printer, Save, Trash2, RotateCw } from "lucide-react";
+import { Printer, Trash2 } from "lucide-react";
 import { CurrencyType } from "@/components/calculator/CalculatorState";
 
 interface InvoiceHistoryListProps {
   invoices: InvoiceHistory[];
-  onEdit: (invoice: InvoiceHistory) => void;
   onDelete: (id: string) => void;
   onPrint: (invoice: InvoiceHistory) => void;
-  onSave?: (invoice: InvoiceHistory) => void;
-  editingId?: string;
-  recalculatedId?: string;
   currency: CurrencyType;
 }
 
 export function InvoiceHistoryList({
   invoices,
-  onEdit,
   onDelete,
   onPrint,
-  onSave,
-  editingId,
-  recalculatedId,
   currency,
 }: InvoiceHistoryListProps) {
   const currencySymbol = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$';
@@ -58,23 +50,6 @@ export function InvoiceHistoryList({
               <TableCell>{currencySymbol}{invoice.totalAmount.toFixed(2)}</TableCell>
               <TableCell>
                 <div className="flex space-x-2">
-                  {editingId === invoice.id ? (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => onEdit(invoice)}
-                    >
-                      <RotateCw className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => onEdit(invoice)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  )}
                   <Button
                     variant="outline"
                     size="icon"
@@ -82,15 +57,6 @@ export function InvoiceHistoryList({
                   >
                     <Printer className="h-4 w-4" />
                   </Button>
-                  {recalculatedId === invoice.id && onSave && (
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => onSave(invoice)}
-                    >
-                      <Save className="h-4 w-4" />
-                    </Button>
-                  )}
                   <Button
                     variant="outline"
                     size="icon"

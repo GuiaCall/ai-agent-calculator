@@ -19,6 +19,8 @@ export type Database = {
           id: string
           invoice_number: string
           margin: number
+          monthly_service_cost: number
+          setup_cost: number
           tax_rate: number
           total_amount: number
           total_minutes: number
@@ -34,6 +36,8 @@ export type Database = {
           id?: string
           invoice_number: string
           margin: number
+          monthly_service_cost?: number
+          setup_cost?: number
           tax_rate: number
           total_amount: number
           total_minutes: number
@@ -49,6 +53,8 @@ export type Database = {
           id?: string
           invoice_number?: string
           margin?: number
+          monthly_service_cost?: number
+          setup_cost?: number
           tax_rate?: number
           total_amount?: number
           total_minutes?: number

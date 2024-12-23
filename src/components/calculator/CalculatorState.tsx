@@ -5,7 +5,7 @@ import { CalcomPlan } from "@/types/calcom";
 import { TwilioSelection } from "@/types/twilio";
 import { AgencyInfo, ClientInfo, InvoiceHistory } from "@/types/invoice";
 
-export type CurrencyType = 'USD' | 'EUR' | 'GBP';
+export type CurrencyType = 'USD' | 'EUR';
 
 const initialTechnologies = [
   { id: "make", name: "Make.com", isSelected: true, costPerMinute: 0.001 },
@@ -52,8 +52,6 @@ export function useCalculatorState() {
   
   const [totalCost, setTotalCost] = useState<number | null>(null);
   const [setupCost, setSetupCost] = useState<number | null>(null);
-  const [editingId, setEditingId] = useState<string | undefined>();
-  const [recalculatedId, setRecalculatedId] = useState<string | undefined>();
 
   return {
     callDuration,
@@ -92,9 +90,5 @@ export function useCalculatorState() {
     setTotalCost,
     setupCost,
     setSetupCost,
-    editingId,
-    setEditingId,
-    recalculatedId,
-    setRecalculatedId,
   };
 }

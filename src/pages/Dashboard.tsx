@@ -4,20 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CalculatorStateProvider } from "@/components/calculator/CalculatorStateContext";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const [totalInvoices, setTotalInvoices] = useState(0);
   const [monthlyRevenue, setMonthlyRevenue] = useState(0);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [userEmail, setUserEmail] = useState("");
+  const [subscription, setSubscription] = useState({ plan_type: "free" });
+  const [newPassword, setNewPassword] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -25,10 +23,27 @@ export default function Dashboard() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Fetch data from local storage for demo purposes
-        const savedInvoices = localStorage.getItem('invoiceHistory');
-        if (savedInvoices) {
-          const invoices = JSON.parse(savedInvoices);
+        setUserEmail(user.email || "");
+
+        // Fetch subscription data
+        const { data: subscriptionData } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (subscriptionData) {
+          setSubscription(subscriptionData);
+        }
+
+        // Fetch invoices from Supabase
+        const { data: invoices } = await supabase
+          .from('invoices')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (invoices) {
           setTotalInvoices(invoices.length);
           
           // Calculate monthly revenue
@@ -37,15 +52,12 @@ export default function Dashboard() {
             new Date(inv.date).getMonth() === currentMonth
           );
           const revenue = monthlyInvoices.reduce((acc: number, inv: any) => 
-            acc + inv.totalAmount, 0
+            acc + inv.total_amount, 0
           );
           setMonthlyRevenue(revenue);
 
           // Get recent activity
-          const recent = invoices
-            .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
-            .slice(0, 5);
-          setRecentActivity(recent);
+          setRecentActivity(invoices.slice(0, 5));
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -55,15 +67,27 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
-  // Sample data for the chart
-  const chartData = [
-    { name: 'Jan', revenue: 4000 },
-    { name: 'Feb', revenue: 3000 },
-    { name: 'Mar', revenue: 2000 },
-    { name: 'Apr', revenue: 2780 },
-    { name: 'May', revenue: 1890 },
-    { name: 'Jun', revenue: 2390 },
-  ];
+  const handlePasswordChange = async () => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password updated",
+        description: "Your password has been successfully updated.",
+      });
+      setNewPassword("");
+    } catch (error: any) {
+      toast({
+        title: "Error updating password",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <CalculatorStateProvider>
@@ -83,29 +107,29 @@ export default function Dashboard() {
           </Card>
           
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-2">Active Projects</h3>
-            <p className="text-3xl font-bold">5</p>
+            <h3 className="text-lg font-semibold mb-2">Current Plan</h3>
+            <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Revenue Overview</h3>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="#8884d8" 
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            <h3 className="text-lg font-semibold mb-4">Account Information</h3>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-gray-500">Email</p>
+                <p className="font-medium">{userEmail}</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-500">Change Password</p>
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="New password"
+                />
+                <Button onClick={handlePasswordChange}>Update Password</Button>
+              </div>
             </div>
           </Card>
 
@@ -115,12 +139,12 @@ export default function Dashboard() {
               {recentActivity.map((invoice: any) => (
                 <div key={invoice.id} className="flex justify-between items-center">
                   <div>
-                    <p className="font-medium">{invoice.invoiceNumber}</p>
+                    <p className="font-medium">{invoice.invoice_number}</p>
                     <p className="text-sm text-gray-500">
                       {new Date(invoice.date).toLocaleDateString()}
                     </p>
                   </div>
-                  <p className="font-semibold">${invoice.totalAmount.toFixed(2)}</p>
+                  <p className="font-semibold">${invoice.total_amount.toFixed(2)}</p>
                 </div>
               ))}
             </div>

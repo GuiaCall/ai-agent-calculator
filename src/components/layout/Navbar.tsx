@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { CurrencyDropdown } from "@/components/calculator/CurrencyDropdown";
 import { 
-  User, 
   Calculator, 
   LayoutDashboard, 
   LogOut,
@@ -60,17 +59,6 @@ export function Navbar() {
         className="hover:bg-accent"
       >
         <LayoutDashboard className="h-5 w-5" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => {
-          navigate("/profile");
-          setIsOpen(false);
-        }}
-        className="hover:bg-accent"
-      >
-        <User className="h-5 w-5" />
       </Button>
       <Button
         variant="outline"
