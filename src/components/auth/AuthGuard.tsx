@@ -14,49 +14,31 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         
         if (error) {
           console.error("Auth error:", error);
-          await supabase.auth.signOut();
-          navigate("/login", { replace: true });
+          navigate("/login");
           return;
         }
 
         if (!session) {
-          navigate("/login", { replace: true });
-          return;
-        }
-
-        // Verify the session is still valid
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError || !user) {
-          console.error("User verification error:", userError);
-          await supabase.auth.signOut();
-          navigate("/login", { replace: true });
+          navigate("/login");
           return;
         }
 
         setIsLoading(false);
       } catch (error) {
         console.error("Session check error:", error);
-        await supabase.auth.signOut();
-        navigate("/login", { replace: true });
+        navigate("/login");
       }
     };
 
-    // Initial check
-    checkAuth();
-
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session);
-      
       if (event === "SIGNED_OUT") {
-        navigate("/login", { replace: true });
+        navigate("/login");
       } else if (event === "SIGNED_IN" && session) {
         setIsLoading(false);
-      } else if (event === "TOKEN_REFRESHED" && !session) {
-        navigate("/login", { replace: true });
       }
     });
+
+    checkAuth();
 
     return () => {
       subscription.unsubscribe();
