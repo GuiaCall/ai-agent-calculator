@@ -37,8 +37,6 @@ export function CalculatorPreview({
         setupCost={setupCost}
         taxRate={taxRate}
         themeColor={themeColor}
-        showColorPicker={true}
-        onColorChange={() => {}}
         currency={currency}
       />
     </div>

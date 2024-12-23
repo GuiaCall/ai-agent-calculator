@@ -8,7 +8,7 @@ export interface ClientInfo {
   address: string;
   tvaNumber: string;
   contactPerson: ContactPerson;
-  [key: string]: any; // Add index signature for Json compatibility
+  [key: string]: any;
 }
 
 export interface AgencyInfo {
@@ -17,16 +17,21 @@ export interface AgencyInfo {
   address: string;
   email: string;
   website: string;
-  [key: string]: any; // Add index signature for Json compatibility
+  [key: string]: any;
 }
 
 export interface InvoiceHistory {
   id: string;
-  invoiceNumber: string;
-  date: Date;
-  clientInfo: ClientInfo;
-  agencyInfo: AgencyInfo;
-  totalAmount: number;
-  taxRate: number;
+  invoice_number: string;
+  created_at: string;
+  client_info: ClientInfo;
+  agency_info: AgencyInfo;
+  total_amount: number;
+  tax_rate: number;
   margin: number;
+  setup_cost: number;
+  monthly_service_cost: number;
+  total_minutes: number;
+  call_duration: number;
+  user_id: string;
 }
