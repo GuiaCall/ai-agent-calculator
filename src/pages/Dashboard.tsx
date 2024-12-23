@@ -25,7 +25,6 @@ export default function Dashboard() {
 
         setUserEmail(user.email || "");
 
-        // Fetch subscription data
         const { data: subscriptionData } = await supabase
           .from('subscriptions')
           .select('*')
@@ -36,7 +35,6 @@ export default function Dashboard() {
           setSubscription(subscriptionData);
         }
 
-        // Fetch invoices count from Supabase
         const { data: invoices } = await supabase
           .from('invoices')
           .select('*', { count: 'exact' })

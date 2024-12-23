@@ -6,10 +6,27 @@ import Dashboard from "@/pages/Dashboard";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Documentation } from "@/pages/Documentation";
+import { useState, useEffect } from "react";
+import { PageLoader } from "@/components/layout/PageLoader";
 
 const queryClient = new QueryClient();
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading time
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
@@ -40,7 +57,6 @@ function App() {
               </AuthGuard>
             }
           />
-          {/* Add a catch-all route that redirects to /calculator */}
           <Route path="*" element={<Navigate to="/calculator" replace />} />
         </Routes>
         <Toaster />

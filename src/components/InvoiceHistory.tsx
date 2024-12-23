@@ -12,6 +12,8 @@ import { InvoiceHistory } from "@/types/invoice";
 import { format } from "date-fns";
 import { Printer, Trash2 } from "lucide-react";
 import { CurrencyType } from "@/components/calculator/CalculatorState";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface InvoiceHistoryListProps {
   invoices: InvoiceHistory[];
@@ -26,6 +28,31 @@ export function InvoiceHistoryList({
   onPrint,
   currency,
 }: InvoiceHistoryListProps) {
+  const { toast } = useToast();
+  
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      onDelete(id);
+      toast({
+        title: "Invoice deleted",
+        description: "The invoice has been successfully deleted.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error deleting invoice",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getCurrencySymbol = (currency: CurrencyType) => {
     switch (currency) {
       case 'EUR':
@@ -77,7 +104,7 @@ export function InvoiceHistoryList({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => onDelete(invoice.id)}
+                    onClick={() => handleDelete(invoice.id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
