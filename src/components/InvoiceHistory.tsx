@@ -26,7 +26,18 @@ export function InvoiceHistoryList({
   onPrint,
   currency,
 }: InvoiceHistoryListProps) {
-  const currencySymbol = currency === 'EUR' ? '€' : '$';
+  const getCurrencySymbol = (currency: CurrencyType) => {
+    switch (currency) {
+      case 'EUR':
+        return '€';
+      case 'GBP':
+        return '£';
+      default:
+        return '$';
+    }
+  };
+  
+  const currencySymbol = getCurrencySymbol(currency);
   
   return (
     <Card className="p-6 space-y-4">
@@ -42,12 +53,18 @@ export function InvoiceHistoryList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((invoice) => (
+          {invoices?.map((invoice) => (
             <TableRow key={invoice.id}>
               <TableCell>{invoice.invoiceNumber}</TableCell>
-              <TableCell>{format(new Date(invoice.date), 'dd/MM/yyyy')}</TableCell>
-              <TableCell>{invoice.clientInfo.name}</TableCell>
-              <TableCell>{currencySymbol}{invoice.totalAmount.toFixed(2)}</TableCell>
+              <TableCell>
+                {invoice.date ? format(new Date(invoice.date), 'dd/MM/yyyy') : 'N/A'}
+              </TableCell>
+              <TableCell>
+                {invoice.clientInfo?.name || 'Unknown Client'}
+              </TableCell>
+              <TableCell>
+                {currencySymbol}{invoice.totalAmount?.toFixed(2) || '0.00'}
+              </TableCell>
               <TableCell>
                 <div className="flex space-x-2">
                   <Button
