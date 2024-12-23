@@ -15,6 +15,7 @@ import { Disclaimer } from "./Disclaimer";
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
+import { supabase } from "@/integrations/supabase/client";
 
 function CalculatorContent() {
   const { toast } = useToast();
@@ -72,20 +73,37 @@ function CalculatorContent() {
     );
 
     if (!invoice) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const invoiceNumber = `INV-${format(new Date(), 'yyyyMMdd')}-${state.invoices.length + 1}`;
       const newInvoice = {
-        id: crypto.randomUUID(),
-        invoiceNumber,
-        date: new Date(),
-        clientInfo: state.clientInfo,
-        agencyInfo: state.agencyInfo,
-        totalAmount: state.totalCost,
-        taxRate: state.taxRate,
-        margin: state.margin
+        user_id: user.id,
+        invoice_number: invoiceNumber,
+        total_amount: state.totalCost || 0,
+        tax_rate: state.taxRate,
+        margin: state.margin,
+        total_minutes: state.totalMinutes,
+        call_duration: state.callDuration,
+        client_info: state.clientInfo,
+        agency_info: state.agencyInfo,
+        setup_cost: state.setupCost || 0,
+        monthly_service_cost: state.totalCost || 0
       };
 
-      const updatedInvoices = [...state.invoices, newInvoice];
-      state.setInvoices(updatedInvoices);
+      const { error } = await supabase
+        .from('invoices')
+        .insert(newInvoice);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to save invoice",
+          variant: "destructive",
+        });
+        return;
+      }
+
       pdf.save(`invoice-${invoiceNumber}.pdf`);
     } else {
       pdf.save(`invoice-${invoice.invoiceNumber}.pdf`);
@@ -93,20 +111,36 @@ function CalculatorContent() {
   };
 
   useEffect(() => {
-    const savedInvoices = localStorage.getItem('invoiceHistory');
-    if (savedInvoices) {
-      const parsedInvoices = JSON.parse(savedInvoices);
-      const processedInvoices = parsedInvoices.map((inv: any) => ({
-        ...inv,
-        date: new Date(inv.date)
-      }));
-      state.setInvoices(processedInvoices);
-    }
-  }, []);
+    const fetchInvoices = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-  useEffect(() => {
-    localStorage.setItem('invoiceHistory', JSON.stringify(state.invoices));
-  }, [state.invoices]);
+      const { data: invoices, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch invoices",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (invoices) {
+        const processedInvoices = invoices.map((inv: any) => ({
+          ...inv,
+          date: new Date(inv.created_at)
+        }));
+        state.setInvoices(processedInvoices);
+      }
+    };
+
+    fetchInvoices();
+  }, []);
 
   const convertCurrency = (amount: number) => {
     return state.currency === 'EUR' ? amount * 0.85 : amount;
@@ -167,12 +201,8 @@ function CalculatorContent() {
 
         <InvoiceHistoryList
           invoices={state.invoices}
-          onEdit={(invoice) => logic.handleEdit(invoice, state.setEditingId, state.setRecalculatedId)}
           onDelete={(id) => state.setInvoices(state.invoices.filter((inv) => inv.id !== id))}
           onPrint={exportPDF}
-          onSave={(invoice) => logic.handleSave(invoice, state.setEditingId, state.setRecalculatedId)}
-          editingId={state.editingId}
-          recalculatedId={state.recalculatedId}
           currency={state.currency}
         />
       </div>

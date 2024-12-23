@@ -26,7 +26,7 @@ export function InvoiceHistoryList({
   onPrint,
   currency,
 }: InvoiceHistoryListProps) {
-  const currencySymbol = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$';
+  const currencySymbol = currency === 'EUR' ? '€' : '$';
   
   return (
     <Card className="p-6 space-y-4">

@@ -10,8 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const [totalInvoices, setTotalInvoices] = useState(0);
-  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
-  const [recentActivity, setRecentActivity] = useState([]);
   const [userEmail, setUserEmail] = useState("");
   const [subscription, setSubscription] = useState({ plan_type: "free" });
   const [newPassword, setNewPassword] = useState("");
@@ -30,34 +28,20 @@ export default function Dashboard() {
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (subscriptionData) {
           setSubscription(subscriptionData);
         }
 
-        // Fetch invoices from Supabase
+        // Fetch invoices count from Supabase
         const { data: invoices } = await supabase
           .from('invoices')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
+          .select('*', { count: 'exact' })
+          .eq('user_id', user.id);
 
         if (invoices) {
           setTotalInvoices(invoices.length);
-          
-          // Calculate monthly revenue
-          const currentMonth = new Date().getMonth();
-          const monthlyInvoices = invoices.filter((inv: any) => 
-            new Date(inv.date).getMonth() === currentMonth
-          );
-          const revenue = monthlyInvoices.reduce((acc: number, inv: any) => 
-            acc + inv.total_amount, 0
-          );
-          setMonthlyRevenue(revenue);
-
-          // Get recent activity
-          setRecentActivity(invoices.slice(0, 5));
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -95,15 +79,10 @@ export default function Dashboard() {
       <div className="container mx-auto px-4 py-8 mt-16 mb-16">
         <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-2">Total Invoices</h3>
             <p className="text-3xl font-bold">{totalInvoices}</p>
-          </Card>
-          
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-2">Monthly Revenue</h3>
-            <p className="text-3xl font-bold">${monthlyRevenue.toFixed(2)}</p>
           </Card>
           
           <Card className="p-6">
@@ -112,7 +91,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Account Information</h3>
             <div className="space-y-4">
@@ -130,23 +109,6 @@ export default function Dashboard() {
                 />
                 <Button onClick={handlePasswordChange}>Update Password</Button>
               </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-            <div className="space-y-4">
-              {recentActivity.map((invoice: any) => (
-                <div key={invoice.id} className="flex justify-between items-center">
-                  <div>
-                    <p className="font-medium">{invoice.invoice_number}</p>
-                    <p className="text-sm text-gray-500">
-                      {new Date(invoice.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <p className="font-semibold">${invoice.total_amount.toFixed(2)}</p>
-                </div>
-              ))}
             </div>
           </Card>
         </div>
