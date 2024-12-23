@@ -5,7 +5,7 @@ import { CalcomPlan } from "@/types/calcom";
 import { TwilioSelection } from "@/types/twilio";
 import { AgencyInfo, ClientInfo, InvoiceHistory } from "@/types/invoice";
 
-export type CurrencyType = 'USD' | 'EUR';
+export type CurrencyType = 'USD' | 'EUR' | 'GBP';
 
 const initialTechnologies = [
   { id: "make", name: "Make.com", isSelected: true, costPerMinute: 0.001 },

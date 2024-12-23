@@ -16,6 +16,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
 
 function CalculatorContent() {
   const { toast } = useToast();
@@ -85,8 +86,8 @@ function CalculatorContent() {
         margin: state.margin,
         total_minutes: state.totalMinutes,
         call_duration: state.callDuration,
-        client_info: state.clientInfo,
-        agency_info: state.agencyInfo,
+        client_info: state.clientInfo as Json,
+        agency_info: state.agencyInfo as Json,
         setup_cost: state.setupCost || 0,
         monthly_service_cost: state.totalCost || 0
       };

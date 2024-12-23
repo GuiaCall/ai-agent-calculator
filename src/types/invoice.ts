@@ -8,6 +8,7 @@ export interface ClientInfo {
   address: string;
   tvaNumber: string;
   contactPerson: ContactPerson;
+  [key: string]: any; // Add index signature for Json compatibility
 }
 
 export interface AgencyInfo {
@@ -16,6 +17,7 @@ export interface AgencyInfo {
   address: string;
   email: string;
   website: string;
+  [key: string]: any; // Add index signature for Json compatibility
 }
 
 export interface InvoiceHistory {
