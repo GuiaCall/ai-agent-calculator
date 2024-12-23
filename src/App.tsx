@@ -40,6 +40,8 @@ function App() {
               </AuthGuard>
             }
           />
+          {/* Add a catch-all route that redirects to /calculator */}
+          <Route path="*" element={<Navigate to="/calculator" replace />} />
         </Routes>
         <Toaster />
       </Router>
