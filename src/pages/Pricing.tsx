@@ -31,18 +31,12 @@ export default function Pricing() {
   const handleSubscribe = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-        }
-      });
-
-      const { url } = await response.json();
-      if (url) {
-        window.location.href = url;
-      }
+      const { data, error } = await supabase.functions.invoke('create-checkout-session');
+      
+      if (error) throw error;
+      if (!data?.url) throw new Error('No checkout URL returned');
+      
+      window.location.href = data.url;
     } catch (error: any) {
       toast({
         title: "Error",
