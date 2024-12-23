@@ -55,15 +55,15 @@ export function InvoiceHistoryList({
         <TableBody>
           {invoices?.map((invoice) => (
             <TableRow key={invoice.id}>
-              <TableCell>{invoice.invoiceNumber}</TableCell>
+              <TableCell>{invoice.invoice_number}</TableCell>
               <TableCell>
-                {invoice.date ? format(new Date(invoice.date), 'dd/MM/yyyy') : 'N/A'}
+                {invoice.created_at ? format(new Date(invoice.created_at), 'dd/MM/yyyy') : 'N/A'}
               </TableCell>
               <TableCell>
-                {invoice.clientInfo?.name || 'Unknown Client'}
+                {invoice.client_info?.name || 'Unknown Client'}
               </TableCell>
               <TableCell>
-                {currencySymbol}{invoice.totalAmount?.toFixed(2) || '0.00'}
+                {currencySymbol}{invoice.total_amount?.toFixed(2) || '0.00'}
               </TableCell>
               <TableCell>
                 <div className="flex space-x-2">

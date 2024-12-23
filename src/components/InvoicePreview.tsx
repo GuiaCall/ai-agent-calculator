@@ -17,8 +17,6 @@ interface InvoicePreviewProps {
   setupCost: number | null;
   taxRate: number;
   themeColor: string;
-  onColorChange: (color: string) => void;
-  showColorPicker?: boolean;
   currency: CurrencyType;
 }
 
@@ -29,9 +27,6 @@ export function InvoicePreview({
   totalCost,
   setupCost,
   taxRate,
-  themeColor,
-  onColorChange,
-  showColorPicker = false,
   currency,
 }: InvoicePreviewProps) {
   const getCurrencySymbol = (currency: CurrencyType) => {
@@ -54,14 +49,6 @@ export function InvoicePreview({
     <div className="space-y-6 p-6 bg-background text-foreground border rounded-lg shadow-lg dark:bg-slate-900">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Invoice Preview</h2>
-        {showColorPicker && (
-          <input
-            type="color"
-            value={themeColor}
-            onChange={(e) => onColorChange(e.target.value)}
-            className="w-10 h-10 border-0 rounded"
-          />
-        )}
       </div>
 
       <div className="space-y-2">

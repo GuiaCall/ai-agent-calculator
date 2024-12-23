@@ -86,8 +86,8 @@ function CalculatorContent() {
         margin: state.margin,
         total_minutes: state.totalMinutes,
         call_duration: state.callDuration,
-        client_info: state.clientInfo as Json,
-        agency_info: state.agencyInfo as Json,
+        client_info: state.clientInfo,
+        agency_info: state.agencyInfo,
         setup_cost: state.setupCost || 0,
         monthly_service_cost: state.totalCost || 0
       };
@@ -105,9 +105,24 @@ function CalculatorContent() {
         return;
       }
 
+      // Refresh the invoice list after creating a new invoice
+      const { data: invoices } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (invoices) {
+        const processedInvoices = invoices.map((inv: any) => ({
+          ...inv,
+          date: new Date(inv.created_at)
+        }));
+        state.setInvoices(processedInvoices);
+      }
+
       pdf.save(`invoice-${invoiceNumber}.pdf`);
     } else {
-      pdf.save(`invoice-${invoice.invoiceNumber}.pdf`);
+      pdf.save(`invoice-${invoice.invoice_number}.pdf`);
     }
   };
 

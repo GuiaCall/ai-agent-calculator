@@ -7,6 +7,7 @@ import { CalculatorStateProvider } from "@/components/calculator/CalculatorState
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [totalInvoices, setTotalInvoices] = useState(0);
@@ -14,6 +15,7 @@ export default function Dashboard() {
   const [subscription, setSubscription] = useState({ plan_type: "free" });
   const [newPassword, setNewPassword] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -73,6 +75,10 @@ export default function Dashboard() {
     }
   };
 
+  const handleUpgrade = () => {
+    navigate('/pricing');
+  };
+
   return (
     <CalculatorStateProvider>
       <Navbar />
@@ -87,7 +93,14 @@ export default function Dashboard() {
           
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-2">Current Plan</h3>
-            <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>
+            <div className="flex justify-between items-center">
+              <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>
+              {subscription.plan_type === 'free' && (
+                <Button onClick={handleUpgrade} variant="default">
+                  Upgrade Plan
+                </Button>
+              )}
+            </div>
           </Card>
         </div>
 
