@@ -87,6 +87,11 @@ export default function Dashboard() {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-2">Total Invoices</h3>
             <p className="text-3xl font-bold">{totalInvoices}</p>
+            {subscription.plan_type === 'free' && (
+              <p className="text-sm text-gray-500 mt-2">
+                {totalInvoices}/5 free invoices used
+              </p>
+            )}
           </Card>
           
           <Card className="p-6">

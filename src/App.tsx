@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Documentation } from "@/pages/Documentation";
 import { useState, useEffect } from "react";
 import { PageLoader } from "@/components/layout/PageLoader";
+import Pricing from "@/pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -15,7 +16,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading time
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
@@ -54,6 +54,14 @@ function App() {
             element={
               <AuthGuard>
                 <Documentation />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/pricing"
+            element={
+              <AuthGuard>
+                <Pricing />
               </AuthGuard>
             }
           />

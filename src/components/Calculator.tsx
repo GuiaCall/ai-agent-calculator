@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { TechnologyParameters } from "./TechnologyParameters";
 import { InvoiceHistoryList } from "./InvoiceHistory";
@@ -17,11 +17,41 @@ import html2canvas from 'html2canvas';
 import { format } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
+import { useNavigate } from "react-router-dom";
 
 function CalculatorContent() {
   const { toast } = useToast();
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state, currency: state.currency });
+  const [invoiceCount, setInvoiceCount] = useState(0);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkSubscriptionAndInvoices = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Check subscription
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('plan_type')
+        .eq('user_id', user.id)
+        .single();
+
+      setIsSubscribed(subscription?.plan_type === 'pro');
+
+      // Get invoice count
+      const { count } = await supabase
+        .from('invoices')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user.id);
+
+      setInvoiceCount(count || 0);
+    };
+
+    checkSubscriptionAndInvoices();
+  }, []);
 
   const handleSettingChange = (setting: string, value: number) => {
     switch (setting) {
@@ -41,6 +71,16 @@ function CalculatorContent() {
   };
 
   const exportPDF = async (invoice?: any) => {
+    if (!isSubscribed && invoiceCount >= 5) {
+      toast({
+        title: "Free plan limit reached",
+        description: "Please upgrade to the Pro plan to generate more invoices.",
+        variant: "destructive",
+      });
+      navigate('/pricing');
+      return;
+    }
+
     if (!state.totalCost && !invoice) {
       toast({
         title: "Error",
