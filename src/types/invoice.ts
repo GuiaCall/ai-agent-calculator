@@ -34,4 +34,5 @@ export interface InvoiceHistory {
   total_minutes: number;
   call_duration: number;
   user_id: string;
+  is_deleted?: boolean;
 }
