@@ -5,6 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Check, X } from "lucide-react";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 export interface Technology {
   id: string;
@@ -26,6 +27,7 @@ export function TechnologyParameters({
 }: TechnologyParametersProps) {
   const { currency } = useCalculatorStateContext();
   const { t } = useTranslation();
+  const [inputValues, setInputValues] = useState<Record<string, string>>({});
   
   const getCurrencySymbol = (currency: string) => {
     switch (currency) {
@@ -49,7 +51,10 @@ export function TechnologyParameters({
   };
 
   const handleCostChange = (id: string, value: string) => {
-    // Allow empty input
+    // First, update the input value state to maintain the current input
+    setInputValues(prev => ({ ...prev, [id]: value }));
+
+    // Handle empty input
     if (value === '') {
       const updatedTechs = technologies.map(tech =>
         tech.id === id ? { ...tech, costPerMinute: 0 } : tech
@@ -58,23 +63,14 @@ export function TechnologyParameters({
       return;
     }
 
-    // Improved regex for decimal validation
-    // Allows:
-    // - Optional leading zero(s)
-    // - Numbers starting with "0."
-    // - Optional decimal point
-    // - Optional trailing digits
-    if (!/^[0-9]*\.?[0-9]*$/.test(value)) {
+    // Validate input format
+    if (!/^\d*\.?\d*$/.test(value)) {
       return;
     }
 
-    // Special cases handling
-    if (value === '.' || value === '0.') {
-      const updatedTechs = technologies.map(tech =>
-        tech.id === id ? { ...tech, costPerMinute: 0 } : tech
-      );
-      onTechnologyChange(updatedTechs);
-      return;
+    // Handle special cases
+    if (value === '.') {
+      return; // Keep the dot but don't update the value yet
     }
 
     // Convert to number and validate
@@ -87,14 +83,17 @@ export function TechnologyParameters({
     }
   };
 
-  const formatValue = (value: number) => {
-    if (value === 0) return '';
+  const getDisplayValue = (tech: Technology) => {
+    // If there's an active input value, use that
+    if (inputValues[tech.id] !== undefined) {
+      return inputValues[tech.id];
+    }
+
+    // Otherwise format the stored value
+    if (tech.costPerMinute === 0) return '';
     
-    // Convert to string while preserving leading zeros and decimal places
-    const stringValue = value.toString();
-    
-    // If it's a decimal number less than 1, ensure it starts with "0"
-    if (value < 1 && value > 0 && !stringValue.startsWith('0')) {
+    const stringValue = tech.costPerMinute.toString();
+    if (tech.costPerMinute < 1 && !stringValue.startsWith('0')) {
       return `0${stringValue}`;
     }
     
@@ -128,7 +127,7 @@ export function TechnologyParameters({
                   <Input
                     type="text"
                     inputMode="decimal"
-                    value={formatValue(tech.costPerMinute)}
+                    value={getDisplayValue(tech)}
                     onChange={(e) => handleCostChange(tech.id, e.target.value)}
                     className="w-32 pr-8 bg-background text-foreground"
                     placeholder="0.00"
