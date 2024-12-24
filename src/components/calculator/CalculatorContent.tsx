@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import jsPDF from "jspdf";
@@ -23,6 +23,52 @@ export function CalculatorContent() {
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state, currency: state.currency });
   const navigate = useNavigate();
+  const [invoiceCount, setInvoiceCount] = useState(0);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  useEffect(() => {
+    const checkSubscriptionAndInvoices = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('plan_type')
+        .eq('user_id', user.id)
+        .single();
+
+      setIsSubscribed(subscription?.plan_type === 'pro');
+
+      const { count } = await supabase
+        .from('invoices')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user.id);
+
+      setInvoiceCount(count || 0);
+    };
+
+    checkSubscriptionAndInvoices();
+  }, []);
+
+  const handleCalculate = async () => {
+    if (!isSubscribed && invoiceCount >= 5) {
+      toast({
+        title: "Free plan limit reached",
+        description: "Please upgrade to the Pro plan to make more calculations.",
+        variant: "destructive",
+        action: (
+          <button
+            onClick={() => navigate('/pricing')}
+            className="bg-primary text-primary-foreground px-3 py-1 rounded-md text-sm font-medium"
+          >
+            Upgrade Now
+          </button>
+        ),
+      });
+      return;
+    }
+    logic.calculateCost();
+  };
 
   const handleSettingChange = (setting: string, value: number) => {
     switch (setting) {
@@ -106,6 +152,8 @@ export function CalculatorContent() {
         return;
       }
 
+      setInvoiceCount(prev => prev + 1);
+
       const { data: invoices } = await supabase
         .from('invoices')
         .select('*')
@@ -125,38 +173,6 @@ export function CalculatorContent() {
       pdf.save(`invoice-${invoice.invoice_number}.pdf`);
     }
   };
-
-  useEffect(() => {
-    const fetchInvoices = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: invoices, error } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch invoices",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (invoices) {
-        const processedInvoices = invoices.map((inv: any) => ({
-          ...inv,
-          date: new Date(inv.created_at)
-        }));
-        state.setInvoices(processedInvoices);
-      }
-    };
-
-    fetchInvoices();
-  }, []);
 
   return (
     <>
@@ -188,7 +204,7 @@ export function CalculatorContent() {
         <TechnologyCalculators />
 
         <CalculatorActions
-          onCalculate={logic.calculateCost}
+          onCalculate={handleCalculate}
           onPreviewToggle={() => state.setShowPreview(!state.showPreview)}
           onExportPDF={exportPDF}
           totalCost={state.totalCost}

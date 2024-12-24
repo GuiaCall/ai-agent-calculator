@@ -49,18 +49,20 @@ export function TechnologyParameters({
   };
 
   const handleCostChange = (id: string, value: string) => {
-    // Remove any non-numeric characters except decimal point
-    let sanitizedValue = value.replace(/[^\d.]/g, '');
-    
-    // Handle multiple decimal points
-    const decimalPoints = sanitizedValue.match(/\./g)?.length || 0;
-    if (decimalPoints > 1) {
-      const parts = sanitizedValue.split('.');
-      sanitizedValue = parts[0] + '.' + parts.slice(1).join('');
+    // Allow empty input
+    if (value === '') {
+      const updatedTechs = technologies.map(tech =>
+        tech.id === id ? { ...tech, costPerMinute: 0 } : tech
+      );
+      onTechnologyChange(updatedTechs);
+      return;
     }
 
+    // Only allow numbers and one decimal point
+    if (!/^\d*\.?\d*$/.test(value)) return;
+
     // Convert to number and update state
-    const numValue = sanitizedValue === '' ? 0 : parseFloat(sanitizedValue);
+    const numValue = parseFloat(value);
     if (!isNaN(numValue)) {
       const updatedTechs = technologies.map(tech =>
         tech.id === id ? { ...tech, costPerMinute: numValue } : tech
