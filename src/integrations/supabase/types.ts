@@ -18,6 +18,7 @@ export type Database = {
           date: string | null
           id: string
           invoice_number: string
+          is_deleted: boolean | null
           margin: number
           monthly_service_cost: number
           setup_cost: number
@@ -35,6 +36,7 @@ export type Database = {
           date?: string | null
           id?: string
           invoice_number: string
+          is_deleted?: boolean | null
           margin: number
           monthly_service_cost?: number
           setup_cost?: number
@@ -52,6 +54,7 @@ export type Database = {
           date?: string | null
           id?: string
           invoice_number?: string
+          is_deleted?: boolean | null
           margin?: number
           monthly_service_cost?: number
           setup_cost?: number
