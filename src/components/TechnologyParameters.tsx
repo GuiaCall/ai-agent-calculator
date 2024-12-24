@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,19 +27,6 @@ export function TechnologyParameters({
   const { currency } = useCalculatorStateContext();
   const { t } = useTranslation();
   
-  // Load saved values from localStorage on component mount
-  useEffect(() => {
-    const savedTechnologies = localStorage.getItem('calculatorTechnologies');
-    if (savedTechnologies) {
-      onTechnologyChange(JSON.parse(savedTechnologies));
-    }
-  }, []);
-
-  // Save values to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('calculatorTechnologies', JSON.stringify(technologies));
-  }, [technologies]);
-  
   const getCurrencySymbol = (currency: string) => {
     switch (currency) {
       case 'EUR':
@@ -63,16 +49,18 @@ export function TechnologyParameters({
   };
 
   const handleCostChange = (id: string, value: string) => {
-    // Allow decimal input
-    const sanitizedValue = value.replace(/[^\d.]/g, '');
+    // Remove any non-numeric characters except decimal point
+    let sanitizedValue = value.replace(/[^\d.]/g, '');
     
     // Handle multiple decimal points
-    const parts = sanitizedValue.split('.');
-    const cleanValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '');
-    
+    const decimalPoints = sanitizedValue.match(/\./g)?.length || 0;
+    if (decimalPoints > 1) {
+      const parts = sanitizedValue.split('.');
+      sanitizedValue = parts[0] + '.' + parts.slice(1).join('');
+    }
+
     // Convert to number and update state
-    const numValue = cleanValue === '' ? 0 : parseFloat(cleanValue);
-    
+    const numValue = sanitizedValue === '' ? 0 : parseFloat(sanitizedValue);
     if (!isNaN(numValue)) {
       const updatedTechs = technologies.map(tech =>
         tech.id === id ? { ...tech, costPerMinute: numValue } : tech
@@ -83,10 +71,7 @@ export function TechnologyParameters({
 
   const formatValue = (value: number) => {
     if (value === 0) return '';
-    // Format number to show up to 4 decimal places if they exist
-    return value.toString().includes('.') 
-      ? value.toFixed(Math.min(4, value.toString().split('.')[1].length))
-      : value.toString();
+    return value.toString();
   };
 
   return (
