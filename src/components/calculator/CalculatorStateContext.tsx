@@ -5,6 +5,7 @@ const CalculatorStateContext = createContext<ReturnType<typeof useCalculatorStat
 
 export function CalculatorStateProvider({ children }: { children: React.ReactNode }) {
   const state = useCalculatorState();
+  
   return (
     <CalculatorStateContext.Provider value={state}>
       {children}
