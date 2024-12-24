@@ -58,12 +58,28 @@ export function TechnologyParameters({
       return;
     }
 
-    // Only allow numbers and one decimal point
-    if (!/^\d*\.?\d*$/.test(value)) return;
+    // Improved regex for decimal validation
+    // Allows:
+    // - Optional leading zero(s)
+    // - Numbers starting with "0."
+    // - Optional decimal point
+    // - Optional trailing digits
+    if (!/^[0-9]*\.?[0-9]*$/.test(value)) {
+      return;
+    }
 
-    // Convert to number and update state
+    // Special cases handling
+    if (value === '.' || value === '0.') {
+      const updatedTechs = technologies.map(tech =>
+        tech.id === id ? { ...tech, costPerMinute: 0 } : tech
+      );
+      onTechnologyChange(updatedTechs);
+      return;
+    }
+
+    // Convert to number and validate
     const numValue = parseFloat(value);
-    if (!isNaN(numValue)) {
+    if (!isNaN(numValue) && numValue >= 0) {
       const updatedTechs = technologies.map(tech =>
         tech.id === id ? { ...tech, costPerMinute: numValue } : tech
       );
@@ -73,7 +89,16 @@ export function TechnologyParameters({
 
   const formatValue = (value: number) => {
     if (value === 0) return '';
-    return value.toString();
+    
+    // Convert to string while preserving leading zeros and decimal places
+    const stringValue = value.toString();
+    
+    // If it's a decimal number less than 1, ensure it starts with "0"
+    if (value < 1 && value > 0 && !stringValue.startsWith('0')) {
+      return `0${stringValue}`;
+    }
+    
+    return stringValue;
   };
 
   return (
