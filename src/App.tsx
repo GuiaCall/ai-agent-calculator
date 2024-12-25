@@ -16,11 +16,23 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Initial loading timer
+    const loadingTimer = setTimeout(() => {
       setIsLoading(false);
     }, 2000);
 
-    return () => clearTimeout(timer);
+    // Keep-alive functionality
+    const keepAlive = setInterval(() => {
+      fetch(window.location.href).catch(() => {
+        // Silent catch - just to prevent console errors
+      });
+    }, 240000); // 4 minutes
+
+    // Cleanup both timers
+    return () => {
+      clearTimeout(loadingTimer);
+      clearInterval(keepAlive);
+    };
   }, []);
 
   if (isLoading) {
