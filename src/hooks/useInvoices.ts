@@ -1,7 +1,102 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { InvoiceHistory } from "@/types/invoice";
+import { InvoiceHistory, ClientInfo, AgencyInfo } from "@/types/invoice";
 import { useToast } from "@/hooks/use-toast";
+import { Json } from "@/integrations/supabase/types";
+
+// Type guard to check if a value is a ClientInfo object
+function isClientInfo(value: Json): value is ClientInfo {
+  if (typeof value !== 'object' || value === null) return false;
+  const v = value as any;
+  return (
+    typeof v.name === 'string' &&
+    typeof v.address === 'string' &&
+    typeof v.tvaNumber === 'string' &&
+    typeof v.contactPerson === 'object' &&
+    typeof v.contactPerson.name === 'string' &&
+    typeof v.contactPerson.phone === 'string'
+  );
+}
+
+// Type guard to check if a value is an AgencyInfo object
+function isAgencyInfo(value: Json): value is AgencyInfo {
+  if (typeof value !== 'object' || value === null) return false;
+  const v = value as any;
+  return (
+    typeof v.name === 'string' &&
+    typeof v.phone === 'string' &&
+    typeof v.address === 'string' &&
+    typeof v.email === 'string' &&
+    typeof v.website === 'string'
+  );
+}
+
+// Transform raw data into proper types
+function transformInvoiceData(rawData: any): InvoiceHistory {
+  console.log('Transforming invoice data:', rawData);
+  
+  let clientInfo: ClientInfo;
+  let agencyInfo: AgencyInfo;
+
+  try {
+    // Parse JSON strings if needed
+    const parsedClientInfo = typeof rawData.client_info === 'string' 
+      ? JSON.parse(rawData.client_info) 
+      : rawData.client_info;
+    
+    const parsedAgencyInfo = typeof rawData.agency_info === 'string' 
+      ? JSON.parse(rawData.agency_info) 
+      : rawData.agency_info;
+
+    // Validate and assign client info
+    if (!isClientInfo(parsedClientInfo)) {
+      console.error('Invalid client info structure:', parsedClientInfo);
+      throw new Error('Invalid client info structure');
+    }
+    clientInfo = parsedClientInfo;
+
+    // Validate and assign agency info
+    if (!isAgencyInfo(parsedAgencyInfo)) {
+      console.error('Invalid agency info structure:', parsedAgencyInfo);
+      throw new Error('Invalid agency info structure');
+    }
+    agencyInfo = parsedAgencyInfo;
+
+  } catch (error) {
+    console.error('Error parsing invoice data:', error);
+    // Provide default values if parsing fails
+    clientInfo = {
+      name: '',
+      address: '',
+      tvaNumber: '',
+      contactPerson: { name: '', phone: '' }
+    };
+    agencyInfo = {
+      name: '',
+      phone: '',
+      address: '',
+      email: '',
+      website: ''
+    };
+  }
+
+  return {
+    id: rawData.id,
+    invoice_number: rawData.invoice_number,
+    created_at: rawData.created_at,
+    client_info: clientInfo,
+    agency_info: agencyInfo,
+    total_amount: Number(rawData.total_amount),
+    tax_rate: Number(rawData.tax_rate),
+    margin: Number(rawData.margin),
+    setup_cost: Number(rawData.setup_cost),
+    monthly_service_cost: Number(rawData.monthly_service_cost),
+    total_minutes: rawData.total_minutes,
+    call_duration: rawData.call_duration,
+    user_id: rawData.user_id,
+    is_deleted: rawData.is_deleted || false
+  };
+}
 
 export function useInvoices() {
   const [invoices, setInvoices] = useState<InvoiceHistory[]>([]);
@@ -35,23 +130,7 @@ export function useInvoices() {
       console.log('Raw invoice data:', data);
 
       if (data) {
-        const transformedData: InvoiceHistory[] = data.map(invoice => ({
-          id: invoice.id,
-          invoice_number: invoice.invoice_number,
-          created_at: invoice.created_at,
-          client_info: invoice.client_info,
-          agency_info: invoice.agency_info,
-          total_amount: Number(invoice.total_amount),
-          tax_rate: Number(invoice.tax_rate),
-          margin: Number(invoice.margin),
-          setup_cost: Number(invoice.setup_cost),
-          monthly_service_cost: Number(invoice.monthly_service_cost),
-          total_minutes: invoice.total_minutes,
-          call_duration: invoice.call_duration,
-          user_id: invoice.user_id,
-          is_deleted: invoice.is_deleted || false
-        }));
-        
+        const transformedData = data.map(transformInvoiceData);
         console.log('Transformed invoice data:', transformedData);
         setInvoices(transformedData);
       }
