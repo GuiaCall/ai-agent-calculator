@@ -21,32 +21,43 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!user) {
+          console.log('No user found');
+          return;
+        }
 
         setUserEmail(user.email || "");
 
         // Fetch subscription data
-        const { data: subscriptionData } = await supabase
+        const { data: subscriptionData, error: subscriptionError } = await supabase
           .from('subscriptions')
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
 
+        if (subscriptionError) {
+          console.error('Subscription error:', subscriptionError);
+          throw subscriptionError;
+        }
+
         if (subscriptionData) {
+          console.log('Subscription data:', subscriptionData);
           setSubscription(subscriptionData);
         }
 
         // Fetch non-deleted invoices count
         const { count, error: countError } = await supabase
           .from('invoices')
-          .select('*', { count: 'exact', head: true })
+          .select('*', { count: 'exact' })
           .eq('user_id', user.id)
           .eq('is_deleted', false);
 
         if (countError) {
+          console.error('Count error:', countError);
           throw countError;
         }
 
+        console.log('Invoice count:', count);
         setTotalInvoices(count || 0);
       } catch (error: any) {
         console.error('Error fetching dashboard data:', error);
@@ -70,7 +81,8 @@ export default function Dashboard() {
           schema: 'public',
           table: 'invoices'
         },
-        () => {
+        (payload) => {
+          console.log('Invoice change detected:', payload);
           fetchDashboardData(); // Refetch when changes occur
         }
       )
@@ -129,7 +141,7 @@ export default function Dashboard() {
             <div className="flex justify-between items-center">
               <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>
               {subscription.plan_type === 'free' && (
-                <Button onClick={handleUpgrade} variant="default">
+                <Button onClick={() => navigate('/pricing')} variant="default">
                   Upgrade Plan
                 </Button>
               )}
