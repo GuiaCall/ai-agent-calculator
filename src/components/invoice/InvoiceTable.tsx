@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/table";
 import { InvoiceHistory } from "@/types/invoice";
 import { InvoiceTableRow } from "./InvoiceTableRow";
-import { CurrencyType } from "@/components/calculator/CalculatorState";
 
 interface InvoiceTableProps {
   invoices: InvoiceHistory[];
@@ -23,6 +22,8 @@ export function InvoiceTable({
   onPrint,
   currencySymbol,
 }: InvoiceTableProps) {
+  console.log('Rendering InvoiceTable with invoices:', invoices);
+  
   return (
     <Table>
       <TableHeader>

@@ -10,68 +10,69 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const [totalInvoices, setTotalInvoices] = useState(0);
+  const [totalInvoices, setTotalInvoices] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState("");
   const [subscription, setSubscription] = useState({ plan_type: "free" });
   const [newPassword, setNewPassword] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          console.log('No user found');
-          return;
-        }
-
-        setUserEmail(user.email || "");
-
-        // Fetch subscription data
-        const { data: subscriptionData, error: subscriptionError } = await supabase
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (subscriptionError) {
-          console.error('Subscription error:', subscriptionError);
-          throw subscriptionError;
-        }
-
-        if (subscriptionData) {
-          console.log('Subscription data:', subscriptionData);
-          setSubscription(subscriptionData);
-        }
-
-        // Fetch non-deleted invoices count
-        const { count, error: countError } = await supabase
-          .from('invoices')
-          .select('*', { count: 'exact' })
-          .eq('user_id', user.id)
-          .eq('is_deleted', false);
-
-        if (countError) {
-          console.error('Count error:', countError);
-          throw countError;
-        }
-
-        console.log('Invoice count:', count);
-        setTotalInvoices(count || 0);
-      } catch (error: any) {
-        console.error('Error fetching dashboard data:', error);
-        toast({
-          title: "Error loading dashboard",
-          description: error.message,
-          variant: "destructive",
-        });
+  const fetchDashboardData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.log('No user found');
+        return;
       }
-    };
 
+      console.log('Fetching dashboard data for user:', user.id);
+      setUserEmail(user.email || "");
+
+      // Fetch subscription data
+      const { data: subscriptionData, error: subscriptionError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (subscriptionError) {
+        console.error('Subscription error:', subscriptionError);
+        throw subscriptionError;
+      }
+
+      if (subscriptionData) {
+        console.log('Subscription data:', subscriptionData);
+        setSubscription(subscriptionData);
+      }
+
+      // Fetch non-deleted invoices count
+      const { count, error: countError } = await supabase
+        .from('invoices')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_deleted', false);
+
+      if (countError) {
+        console.error('Count error:', countError);
+        throw countError;
+      }
+
+      console.log('Invoice count:', count);
+      setTotalInvoices(count || 0);
+    } catch (error: any) {
+      console.error('Error fetching dashboard data:', error);
+      toast({
+        title: "Error loading dashboard",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    console.log('Dashboard component mounted');
     fetchDashboardData();
 
-    // Subscribe to invoice changes
     const channel = supabase
       .channel('dashboard_changes')
       .on(
@@ -82,16 +83,17 @@ export default function Dashboard() {
           table: 'invoices'
         },
         (payload) => {
-          console.log('Invoice change detected:', payload);
-          fetchDashboardData(); // Refetch when changes occur
+          console.log('Invoice change detected in dashboard:', payload);
+          fetchDashboardData();
         }
       )
       .subscribe();
 
     return () => {
+      console.log('Cleaning up dashboard subscription');
       supabase.removeChannel(channel);
     };
-  }, [toast]);
+  }, []);
 
   const handlePasswordChange = async () => {
     try {
@@ -115,10 +117,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleUpgrade = () => {
-    navigate('/pricing');
-  };
-
   return (
     <CalculatorStateProvider>
       <Navbar />
@@ -128,8 +126,10 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-2">Total Invoices</h3>
-            <p className="text-3xl font-bold">{totalInvoices}</p>
-            {subscription.plan_type === 'free' && (
+            <p className="text-3xl font-bold">
+              {totalInvoices === null ? 'Loading...' : totalInvoices}
+            </p>
+            {subscription.plan_type === 'free' && totalInvoices !== null && (
               <p className="text-sm text-gray-500 mt-2">
                 {totalInvoices}/5 free invoices used
               </p>

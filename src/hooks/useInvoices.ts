@@ -12,7 +12,13 @@ export function useInvoices() {
     try {
       setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      
+      if (!user) {
+        console.log('No user found');
+        return;
+      }
+
+      console.log('Fetching invoices for user:', user.id);
 
       const { data, error } = await supabase
         .from('invoices')
@@ -21,19 +27,20 @@ export function useInvoices() {
         .eq('is_deleted', false)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching invoices:', error);
+        throw error;
+      }
+
+      console.log('Raw invoice data:', data);
 
       if (data) {
         const transformedData: InvoiceHistory[] = data.map(invoice => ({
           id: invoice.id,
           invoice_number: invoice.invoice_number,
-          created_at: invoice.created_at || '',
-          client_info: typeof invoice.client_info === 'string' 
-            ? JSON.parse(invoice.client_info)
-            : invoice.client_info,
-          agency_info: typeof invoice.agency_info === 'string'
-            ? JSON.parse(invoice.agency_info)
-            : invoice.agency_info,
+          created_at: invoice.created_at,
+          client_info: invoice.client_info,
+          agency_info: invoice.agency_info,
           total_amount: Number(invoice.total_amount),
           tax_rate: Number(invoice.tax_rate),
           margin: Number(invoice.margin),
@@ -45,10 +52,11 @@ export function useInvoices() {
           is_deleted: invoice.is_deleted || false
         }));
         
+        console.log('Transformed invoice data:', transformedData);
         setInvoices(transformedData);
       }
     } catch (error: any) {
-      console.error('Error fetching invoices:', error);
+      console.error('Error in fetchInvoices:', error);
       toast({
         title: "Error fetching invoices",
         description: error.message,
@@ -60,6 +68,7 @@ export function useInvoices() {
   };
 
   useEffect(() => {
+    console.log('useInvoices hook mounted');
     fetchInvoices();
 
     const channel = supabase
@@ -71,20 +80,22 @@ export function useInvoices() {
           schema: 'public',
           table: 'invoices'
         },
-        () => {
-          console.log('Invoice change detected, refreshing...');
+        (payload) => {
+          console.log('Invoice change detected:', payload);
           fetchInvoices();
         }
       )
       .subscribe();
 
     return () => {
+      console.log('Cleaning up invoice subscription');
       supabase.removeChannel(channel);
     };
   }, []);
 
   const handleDelete = async (id: string) => {
     try {
+      console.log('Deleting invoice:', id);
       const { error } = await supabase
         .from('invoices')
         .update({ is_deleted: true })
@@ -99,6 +110,7 @@ export function useInvoices() {
         description: "The invoice has been successfully deleted.",
       });
     } catch (error: any) {
+      console.error('Error deleting invoice:', error);
       toast({
         title: "Error deleting invoice",
         description: error.message,
