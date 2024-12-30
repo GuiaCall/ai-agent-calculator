@@ -14,6 +14,7 @@ import { Printer, Trash2 } from "lucide-react";
 import { CurrencyType } from "@/components/calculator/CalculatorState";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
 
 interface InvoiceHistoryListProps {
   invoices: InvoiceHistory[];
@@ -23,16 +24,62 @@ interface InvoiceHistoryListProps {
 }
 
 export function InvoiceHistoryList({
-  invoices,
+  invoices: propInvoices,
   onDelete,
   onPrint,
   currency,
 }: InvoiceHistoryListProps) {
   const { toast } = useToast();
+  const [localInvoices, setLocalInvoices] = useState<InvoiceHistory[]>(propInvoices);
+  
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_deleted', false)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching invoices:', error);
+        return;
+      }
+
+      if (data) {
+        setLocalInvoices(data);
+      }
+    };
+
+    fetchInvoices();
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('invoice_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'invoices'
+        },
+        (payload) => {
+          console.log('Change received!', payload);
+          fetchInvoices();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
   
   const handleDelete = async (id: string) => {
     try {
-      // Only soft delete by updating the is_deleted flag
       const { error } = await supabase
         .from('invoices')
         .update({ is_deleted: true })
@@ -40,7 +87,7 @@ export function InvoiceHistoryList({
 
       if (error) throw error;
 
-      // Update the UI by filtering out the deleted invoice
+      setLocalInvoices(prev => prev.filter(inv => inv.id !== id));
       onDelete(id);
       
       toast({
@@ -83,7 +130,7 @@ export function InvoiceHistoryList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices?.filter(invoice => !invoice.is_deleted).map((invoice) => (
+          {localInvoices.map((invoice) => (
             <TableRow key={invoice.id}>
               <TableCell>{invoice.invoice_number}</TableCell>
               <TableCell>

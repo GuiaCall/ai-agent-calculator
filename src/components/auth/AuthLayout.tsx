@@ -4,10 +4,13 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function AuthLayout() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [email, setEmail] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -43,6 +46,49 @@ export function AuthLayout() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const handlePasswordReset = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password reset email sent",
+        description: "Check your email for the password reset link",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleResendConfirmation = async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Confirmation email sent",
+        description: "Please check your email for the confirmation link",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -55,6 +101,11 @@ export function AuthLayout() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
+          <img 
+            src="/logo.svg" 
+            alt="Logo" 
+            className="mx-auto h-12 w-auto mb-4"
+          />
           <h2 className="text-3xl font-bold text-foreground">Welcome Back</h2>
           <p className="mt-2 text-muted-foreground">
             Sign in to your account to continue
@@ -63,10 +114,43 @@ export function AuthLayout() {
         <div className="bg-card p-6 rounded-lg shadow-lg">
           <Auth
             supabaseClient={supabase}
-            appearance={{ theme: ThemeSupa }}
+            appearance={{
+              theme: ThemeSupa,
+              variables: {
+                default: {
+                  colors: {
+                    brand: '#2563eb',
+                    brandAccent: '#1d4ed8',
+                  },
+                },
+              },
+            }}
             providers={[]}
             redirectTo={`${window.location.origin}/calculator`}
+            onlyThirdPartyProviders={false}
+            localization={{
+              variables: {
+                sign_in: {
+                  email_label: 'Email',
+                  password_label: 'Password',
+                },
+              },
+            }}
           />
+          <div className="mt-4 text-center space-y-2">
+            <button
+              onClick={() => handlePasswordReset(email)}
+              className="text-sm text-primary hover:underline"
+            >
+              Forgot password?
+            </button>
+            <button
+              onClick={() => handleResendConfirmation(email)}
+              className="block w-full text-sm text-primary hover:underline"
+            >
+              Resend confirmation email
+            </button>
+          </div>
         </div>
       </div>
     </div>
