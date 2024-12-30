@@ -46,11 +46,15 @@ export function InvoiceHistoryList({
 
       if (error) {
         console.error('Error fetching invoices:', error);
+        toast({
+          title: "Error fetching invoices",
+          description: error.message,
+          variant: "destructive",
+        });
         return;
       }
 
       if (data) {
-        // Transform the data to match InvoiceHistory type
         const transformedData: InvoiceHistory[] = data.map(invoice => ({
           id: invoice.id,
           invoice_number: invoice.invoice_number,
@@ -88,9 +92,8 @@ export function InvoiceHistoryList({
           schema: 'public',
           table: 'invoices'
         },
-        (payload) => {
-          console.log('Change received!', payload);
-          fetchInvoices();
+        () => {
+          fetchInvoices(); // Refetch when changes occur
         }
       )
       .subscribe();
@@ -98,7 +101,7 @@ export function InvoiceHistoryList({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [toast]);
   
   const handleDelete = async (id: string) => {
     try {
@@ -152,38 +155,46 @@ export function InvoiceHistoryList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {localInvoices.map((invoice) => (
-            <TableRow key={invoice.id}>
-              <TableCell>{invoice.invoice_number}</TableCell>
-              <TableCell>
-                {invoice.created_at ? format(new Date(invoice.created_at), 'dd/MM/yyyy') : 'N/A'}
-              </TableCell>
-              <TableCell>
-                {invoice.client_info?.name || 'Unknown Client'}
-              </TableCell>
-              <TableCell>
-                {currencySymbol}{invoice.total_amount?.toFixed(2) || '0.00'}
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => onPrint(invoice)}
-                  >
-                    <Printer className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => handleDelete(invoice.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+          {localInvoices.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-4">
+                No invoices found
               </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            localInvoices.map((invoice) => (
+              <TableRow key={invoice.id}>
+                <TableCell>{invoice.invoice_number}</TableCell>
+                <TableCell>
+                  {invoice.created_at ? format(new Date(invoice.created_at), 'dd/MM/yyyy') : 'N/A'}
+                </TableCell>
+                <TableCell>
+                  {invoice.client_info?.name || 'Unknown Client'}
+                </TableCell>
+                <TableCell>
+                  {currencySymbol}{invoice.total_amount?.toFixed(2) || '0.00'}
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => onPrint(invoice)}
+                    >
+                      <Printer className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleDelete(invoice.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </Card>

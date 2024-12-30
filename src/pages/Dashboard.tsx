@@ -25,6 +25,7 @@ export default function Dashboard() {
 
         setUserEmail(user.email || "");
 
+        // Fetch subscription data
         const { data: subscriptionData } = await supabase
           .from('subscriptions')
           .select('*')
@@ -35,21 +36,50 @@ export default function Dashboard() {
           setSubscription(subscriptionData);
         }
 
-        const { data: invoices } = await supabase
+        // Fetch non-deleted invoices count
+        const { count, error: countError } = await supabase
           .from('invoices')
-          .select('*', { count: 'exact' })
-          .eq('user_id', user.id);
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('is_deleted', false);
 
-        if (invoices) {
-          setTotalInvoices(invoices.length);
+        if (countError) {
+          throw countError;
         }
-      } catch (error) {
+
+        setTotalInvoices(count || 0);
+      } catch (error: any) {
         console.error('Error fetching dashboard data:', error);
+        toast({
+          title: "Error loading dashboard",
+          description: error.message,
+          variant: "destructive",
+        });
       }
     };
 
     fetchDashboardData();
-  }, []);
+
+    // Subscribe to invoice changes
+    const channel = supabase
+      .channel('dashboard_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'invoices'
+        },
+        () => {
+          fetchDashboardData(); // Refetch when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [toast]);
 
   const handlePasswordChange = async () => {
     try {
