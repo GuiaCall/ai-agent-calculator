@@ -33,7 +33,7 @@ function isAgencyInfo(value: Json): value is AgencyInfo {
 
 // Transform raw data into proper types
 function transformInvoiceData(rawData: any): InvoiceHistory {
-  console.log('Transforming invoice data:', rawData);
+  console.log('Processing invoice:', rawData.invoice_number);
   
   let clientInfo: ClientInfo;
   let agencyInfo: AgencyInfo;
@@ -51,16 +51,32 @@ function transformInvoiceData(rawData: any): InvoiceHistory {
     // Validate and assign client info
     if (!isClientInfo(parsedClientInfo)) {
       console.error('Invalid client info structure:', parsedClientInfo);
-      throw new Error('Invalid client info structure');
+      clientInfo = {
+        name: parsedClientInfo?.name || '',
+        address: parsedClientInfo?.address || '',
+        tvaNumber: parsedClientInfo?.tvaNumber || '',
+        contactPerson: {
+          name: parsedClientInfo?.contactPerson?.name || '',
+          phone: parsedClientInfo?.contactPerson?.phone || ''
+        }
+      };
+    } else {
+      clientInfo = parsedClientInfo;
     }
-    clientInfo = parsedClientInfo;
 
     // Validate and assign agency info
     if (!isAgencyInfo(parsedAgencyInfo)) {
       console.error('Invalid agency info structure:', parsedAgencyInfo);
-      throw new Error('Invalid agency info structure');
+      agencyInfo = {
+        name: parsedAgencyInfo?.name || '',
+        phone: parsedAgencyInfo?.phone || '',
+        address: parsedAgencyInfo?.address || '',
+        email: parsedAgencyInfo?.email || '',
+        website: parsedAgencyInfo?.website || ''
+      };
+    } else {
+      agencyInfo = parsedAgencyInfo;
     }
-    agencyInfo = parsedAgencyInfo;
 
   } catch (error) {
     console.error('Error parsing invoice data:', error);
