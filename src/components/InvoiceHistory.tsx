@@ -24,18 +24,21 @@ interface InvoiceHistoryListProps {
 }
 
 export function InvoiceHistoryList({
-  invoices: propInvoices,
   onDelete,
   onPrint,
   currency,
 }: InvoiceHistoryListProps) {
   const { toast } = useToast();
-  const [localInvoices, setLocalInvoices] = useState<InvoiceHistory[]>(propInvoices);
+  const [localInvoices, setLocalInvoices] = useState<InvoiceHistory[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  useEffect(() => {
-    const fetchInvoices = async () => {
+  const fetchInvoices = async () => {
+    try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       const { data, error } = await supabase
         .from('invoices')
@@ -78,8 +81,19 @@ export function InvoiceHistoryList({
         
         setLocalInvoices(transformedData);
       }
-    };
+    } catch (error: any) {
+      console.error('Error in fetchInvoices:', error);
+      toast({
+        title: "Error fetching invoices",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchInvoices();
 
     // Subscribe to realtime changes
@@ -101,7 +115,7 @@ export function InvoiceHistoryList({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [toast]);
+  }, []);
   
   const handleDelete = async (id: string) => {
     try {
@@ -117,7 +131,7 @@ export function InvoiceHistoryList({
       
       toast({
         title: "Invoice deleted",
-        description: "The invoice has been successfully deleted from view.",
+        description: "The invoice has been successfully deleted.",
       });
     } catch (error: any) {
       toast({
@@ -140,6 +154,14 @@ export function InvoiceHistoryList({
   };
   
   const currencySymbol = getCurrencySymbol(currency);
+
+  if (loading) {
+    return (
+      <Card className="p-6">
+        <div className="text-center">Loading invoices...</div>
+      </Card>
+    );
+  }
   
   return (
     <Card className="p-6 space-y-4">
