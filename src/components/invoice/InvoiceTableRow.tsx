@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Printer, Trash2 } from "lucide-react";
 import { InvoiceHistory } from "@/types/invoice";
-import { CurrencyType } from "@/components/calculator/CalculatorState";
 
 interface InvoiceTableRowProps {
   invoice: InvoiceHistory;

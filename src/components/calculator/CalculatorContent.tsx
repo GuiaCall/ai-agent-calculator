@@ -6,7 +6,7 @@ import { useCalculatorLogic } from "./CalculatorLogic";
 import { useCalculatorStateContext } from "./CalculatorStateContext";
 import { CalculatorHeader } from "./CalculatorHeader";
 import { CalculatorActions } from "./CalculatorActions";
-import { InvoiceHistoryList } from "../InvoiceHistory";
+import { InvoiceHistoryList } from "../invoice/InvoiceHistory";
 import { Navbar } from "../layout/Navbar";
 import { Footer } from "../layout/Footer";
 import { Disclaimer } from "../Disclaimer";
