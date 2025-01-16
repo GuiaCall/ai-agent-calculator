@@ -99,7 +99,6 @@ export function CalculatorContent() {
         <PreviewSection />
 
         <InvoiceHistoryList
-          invoices={state.invoices}
           onDelete={(id) => state.setInvoices(state.invoices.filter((inv) => inv.id !== id))}
           onPrint={logic.exportPDF}
           currency={state.currency}
