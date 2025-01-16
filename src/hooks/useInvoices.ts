@@ -1,33 +1,29 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { InvoiceHistory, ClientInfo, AgencyInfo } from "@/types/invoice";
-import { useToast } from "@/hooks/use-toast";
-import { Json } from "@/integrations/supabase/types";
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { InvoiceHistory, ClientInfo, AgencyInfo } from '@/types/invoice';
 
-// Type guard to check if a value is a ClientInfo object
-function isClientInfo(value: Json): value is ClientInfo {
-  if (typeof value !== 'object' || value === null) return false;
-  const v = value as any;
+// Type guard for ClientInfo
+function isClientInfo(obj: any): obj is ClientInfo {
   return (
-    typeof v.name === 'string' &&
-    typeof v.address === 'string' &&
-    typeof v.tvaNumber === 'string' &&
-    typeof v.contactPerson === 'object' &&
-    typeof v.contactPerson.name === 'string' &&
-    typeof v.contactPerson.phone === 'string'
+    obj &&
+    typeof obj.name === 'string' &&
+    typeof obj.address === 'string' &&
+    typeof obj.tvaNumber === 'string' &&
+    obj.contactPerson &&
+    typeof obj.contactPerson.name === 'string' &&
+    typeof obj.contactPerson.phone === 'string'
   );
 }
 
-// Type guard to check if a value is an AgencyInfo object
-function isAgencyInfo(value: Json): value is AgencyInfo {
-  if (typeof value !== 'object' || value === null) return false;
-  const v = value as any;
+// Type guard for AgencyInfo
+function isAgencyInfo(obj: any): obj is AgencyInfo {
   return (
-    typeof v.name === 'string' &&
-    typeof v.phone === 'string' &&
-    typeof v.address === 'string' &&
-    typeof v.email === 'string' &&
-    typeof v.website === 'string'
+    obj &&
+    typeof obj.name === 'string' &&
+    typeof obj.phone === 'string' &&
+    typeof obj.address === 'string' &&
+    typeof obj.email === 'string' &&
+    typeof obj.website === 'string'
   );
 }
 
@@ -41,11 +37,11 @@ function transformInvoiceData(rawData: any): InvoiceHistory {
   try {
     // Parse JSON strings if needed
     const parsedClientInfo = typeof rawData.client_info === 'string' 
-      ? JSON.parse(rawData.client_info) 
+      ? JSON.parse(rawData.client_info)
       : rawData.client_info;
-    
-    const parsedAgencyInfo = typeof rawData.agency_info === 'string' 
-      ? JSON.parse(rawData.agency_info) 
+
+    const parsedAgencyInfo = typeof rawData.agency_info === 'string'
+      ? JSON.parse(rawData.agency_info)
       : rawData.agency_info;
 
     // Validate and assign client info
@@ -98,15 +94,15 @@ function transformInvoiceData(rawData: any): InvoiceHistory {
 
   return {
     id: rawData.id,
+    date: new Date(rawData.created_at),
     invoice_number: rawData.invoice_number,
-    created_at: rawData.created_at,
     client_info: clientInfo,
     agency_info: agencyInfo,
-    total_amount: Number(rawData.total_amount),
-    tax_rate: Number(rawData.tax_rate),
-    margin: Number(rawData.margin),
-    setup_cost: Number(rawData.setup_cost),
-    monthly_service_cost: Number(rawData.monthly_service_cost),
+    total_amount: rawData.total_amount,
+    tax_rate: rawData.tax_rate,
+    margin: rawData.margin,
+    setup_cost: rawData.setup_cost,
+    monthly_service_cost: rawData.monthly_service_cost,
     total_minutes: rawData.total_minutes,
     call_duration: rawData.call_duration,
     user_id: rawData.user_id,
@@ -116,56 +112,47 @@ function transformInvoiceData(rawData: any): InvoiceHistory {
 
 export function useInvoices() {
   const [invoices, setInvoices] = useState<InvoiceHistory[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
-
-  const fetchInvoices = async () => {
-    try {
-      setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        console.log('No user found');
-        return;
-      }
-
-      console.log('Fetching invoices for user:', user.id);
-
-      const { data, error } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_deleted', false)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching invoices:', error);
-        throw error;
-      }
-
-      console.log('Raw invoice data:', data);
-
-      if (data) {
-        const transformedData = data.map(transformInvoiceData);
-        console.log('Transformed invoice data:', transformedData);
-        setInvoices(transformedData);
-      }
-    } catch (error: any) {
-      console.error('Error in fetchInvoices:', error);
-      toast({
-        title: "Error fetching invoices",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('useInvoices hook mounted');
+    console.log('Fetching invoices...');
+    const fetchInvoices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('invoices')
+          .select('*')
+          .eq('is_deleted', false)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching invoices:', error);
+          setError(error.message);
+          return;
+        }
+
+        console.log('Raw invoice data:', data);
+        
+        if (!data) {
+          console.log('No invoices found');
+          setInvoices([]);
+          return;
+        }
+
+        const transformedInvoices = data.map(invoice => transformInvoiceData(invoice));
+        console.log('Transformed invoices:', transformedInvoices);
+        setInvoices(transformedInvoices);
+      } catch (err) {
+        console.error('Unexpected error in useInvoices:', err);
+        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchInvoices();
 
+    // Subscribe to changes
     const channel = supabase
       .channel('invoice_changes')
       .on(
@@ -176,48 +163,18 @@ export function useInvoices() {
           table: 'invoices'
         },
         (payload) => {
-          console.log('Invoice change detected:', payload);
-          fetchInvoices();
+          console.log('Received invoice change:', payload);
+          fetchInvoices(); // Refresh the invoices when there's a change
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
-      console.log('Cleaning up invoice subscription');
-      supabase.removeChannel(channel);
+      channel.unsubscribe();
     };
   }, []);
 
-  const handleDelete = async (id: string) => {
-    try {
-      console.log('Deleting invoice:', id);
-      const { error } = await supabase
-        .from('invoices')
-        .update({ is_deleted: true })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setInvoices(prev => prev.filter(inv => inv.id !== id));
-      
-      toast({
-        title: "Invoice deleted",
-        description: "The invoice has been successfully deleted.",
-      });
-    } catch (error: any) {
-      console.error('Error deleting invoice:', error);
-      toast({
-        title: "Error deleting invoice",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  return {
-    invoices,
-    isLoading,
-    handleDelete,
-    refreshInvoices: fetchInvoices
-  };
+  return { invoices, loading, error };
 }
