@@ -8,6 +8,8 @@ import {
   calculateSetupCost,
   calculateTotalCostPerMinute,
 } from "@/utils/costCalculations";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export function useCalculatorLogic({
   technologies,
@@ -133,11 +135,49 @@ export function useCalculatorLogic({
     });
   };
 
+  const exportPDF = async () => {
+    const element = document.getElementById('invoice-preview');
+    if (!element) {
+      toast({
+        title: "Error",
+        description: "Preview not found. Please calculate cost first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const canvas = await html2canvas(element);
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`invoice-${new Date().toISOString()}.pdf`);
+
+      toast({
+        title: "Success",
+        description: "PDF exported successfully",
+      });
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to export PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     handleCalcomPlanSelect,
     handleTwilioRateSelect,
     calculateCost,
     handleEdit,
     handleSave,
+    exportPDF, // Added exportPDF to the return object
   };
 }
