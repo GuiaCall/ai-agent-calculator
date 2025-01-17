@@ -149,46 +149,81 @@ export function useCalculatorLogic({
 
     try {
       const canvas = await html2canvas(element, {
-        scale: 2, // Increase quality
+        scale: 2,
         useCORS: true,
         logging: true,
-        windowWidth: 1200, // Set a fixed width for consistency
+        windowWidth: 1200,
         windowHeight: element.scrollHeight
       });
       
       // Calculate dimensions to fit on A4
       const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
+      // Create PDF with proper orientation
       const pdf = new jsPDF({
-        orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
+        orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
 
-      // Calculate positioning to center the content
-      const xPosition = 0;
-      const yPosition = 0;
+      // Calculate number of pages needed
+      const pagesNeeded = Math.ceil(imgHeight / pageHeight);
       
-      pdf.addImage(
-        canvas.toDataURL('image/png'),
-        'PNG',
-        xPosition,
-        yPosition,
-        imgWidth,
-        imgHeight
-      );
+      // Split the canvas into pages
+      for (let page = 0; page < pagesNeeded; page++) {
+        if (page > 0) {
+          pdf.addPage();
+        }
+        
+        // Calculate the portion of the image to use for this page
+        const sourceY = page * canvas.height / pagesNeeded;
+        const sourceHeight = canvas.height / pagesNeeded;
+        
+        // Create a temporary canvas for this portion
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = sourceHeight;
+        
+        const ctx = tempCanvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(
+            canvas,
+            0,
+            sourceY,
+            canvas.width,
+            sourceHeight,
+            0,
+            0,
+            tempCanvas.width,
+            tempCanvas.height
+          );
+        }
+        
+        // Add this portion to the PDF
+        const imgData = tempCanvas.toDataURL('image/png');
+        pdf.addImage(
+          imgData,
+          'PNG',
+          0,
+          0,
+          imgWidth,
+          (sourceHeight * imgWidth) / canvas.width
+        );
+      }
 
       pdf.save(`invoice-${new Date().toISOString()}.pdf`);
 
       // Update last_exported_at in Supabase
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
+      if (user && invoices.length > 0) {
+        const latestInvoice = invoices[invoices.length - 1];
         const { error } = await supabase
           .from('invoices')
           .update({ last_exported_at: new Date().toISOString() })
           .eq('user_id', user.id)
-          .eq('id', invoices[invoices.length - 1].id);
+          .eq('id', latestInvoice.id);
 
         if (error) {
           console.error('Error updating export timestamp:', error);

@@ -76,16 +76,25 @@ export function useInvoices() {
       total_minutes: Number(data.total_minutes),
       call_duration: Number(data.call_duration),
       user_id: data.user_id,
-      is_deleted: Boolean(data.is_deleted)
+      is_deleted: Boolean(data.is_deleted),
+      last_exported_at: data.last_exported_at
     };
   };
 
   const fetchInvoices = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError('User not authenticated');
+        setLoading(false);
+        return;
+      }
+
       console.log('Fetching invoices...');
       const { data, error: fetchError } = await supabase
         .from('invoices')
         .select('*')
+        .eq('user_id', user.id)
         .eq('is_deleted', false)
         .order('created_at', { ascending: false });
 
@@ -115,6 +124,26 @@ export function useInvoices() {
 
   useEffect(() => {
     fetchInvoices();
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('invoice_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'invoices'
+        },
+        () => {
+          fetchInvoices(); // Refetch when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return { invoices, loading, error };
