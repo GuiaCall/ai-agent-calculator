@@ -35,4 +35,5 @@ export interface InvoiceHistory {
   call_duration: number;
   user_id: string;
   is_deleted?: boolean;
+  last_exported_at?: string;
 }
