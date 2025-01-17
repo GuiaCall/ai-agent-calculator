@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Printer, Trash2 } from "lucide-react";
 import { InvoiceHistory } from "@/types/invoice";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface InvoiceTableRowProps {
   invoice: InvoiceHistory;
@@ -28,6 +29,18 @@ export function InvoiceTableRow({
       </TableCell>
       <TableCell>
         {currencySymbol}{invoice.total_amount?.toFixed(2) || '0.00'}
+      </TableCell>
+      <TableCell>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              {invoice.last_exported_at ? format(new Date(invoice.last_exported_at), 'dd/MM/yyyy HH:mm') : 'Never exported'}
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Last PDF export date</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </TableCell>
       <TableCell>
         <div className="flex space-x-2">

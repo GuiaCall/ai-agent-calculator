@@ -22,8 +22,6 @@ export function InvoiceTable({
   onPrint,
   currencySymbol,
 }: InvoiceTableProps) {
-  console.log('Rendering InvoiceTable with invoices:', invoices);
-  
   return (
     <Table>
       <TableHeader>
@@ -32,13 +30,14 @@ export function InvoiceTable({
           <TableHead>Date</TableHead>
           <TableHead>Client</TableHead>
           <TableHead>Amount</TableHead>
+          <TableHead>Last Export</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {invoices.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={5} className="text-center py-4">
+            <TableCell colSpan={6} className="text-center py-4">
               No invoices found
             </TableCell>
           </TableRow>

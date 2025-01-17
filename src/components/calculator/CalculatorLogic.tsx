@@ -10,6 +10,7 @@ import {
 } from "@/utils/costCalculations";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { supabase } from "@/integrations/supabase/client";
 
 export function useCalculatorLogic({
   technologies,
@@ -158,6 +159,20 @@ export function useCalculatorLogic({
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
       pdf.save(`invoice-${new Date().toISOString()}.pdf`);
 
+      // Update last_exported_at in Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('invoices')
+          .update({ last_exported_at: new Date().toISOString() })
+          .eq('user_id', user.id)
+          .eq('id', invoices[invoices.length - 1].id);
+
+        if (error) {
+          console.error('Error updating export timestamp:', error);
+        }
+      }
+
       toast({
         title: "Success",
         description: "PDF exported successfully",
@@ -178,6 +193,6 @@ export function useCalculatorLogic({
     calculateCost,
     handleEdit,
     handleSave,
-    exportPDF, // Added exportPDF to the return object
+    exportPDF,
   };
 }
