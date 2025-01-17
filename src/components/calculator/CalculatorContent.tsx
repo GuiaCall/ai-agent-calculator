@@ -6,7 +6,6 @@ import { useCalculatorLogic } from "./CalculatorLogic";
 import { useCalculatorStateContext } from "./CalculatorStateContext";
 import { CalculatorHeader } from "./CalculatorHeader";
 import { CalculatorActions } from "./CalculatorActions";
-import { InvoiceHistoryList } from "../invoice/InvoiceHistory";
 import { Navbar } from "../layout/Navbar";
 import { Footer } from "../layout/Footer";
 import { Disclaimer } from "../Disclaimer";
@@ -97,12 +96,6 @@ export function CalculatorContent() {
         />
 
         <PreviewSection />
-
-        <InvoiceHistoryList
-          onDelete={(id) => state.setInvoices(state.invoices.filter((inv) => inv.id !== id))}
-          onPrint={logic.exportPDF}
-          currency={state.currency}
-        />
       </div>
       <Footer />
     </>
