@@ -46,38 +46,40 @@ export function InvoicePreview({
   const total = (totalCost || 0) * (1 + taxRate / 100) + (setupCost || 0);
   
   return (
-    <div className="space-y-6 p-6 bg-background text-foreground border rounded-lg shadow-lg dark:bg-slate-900">
-      <div className="flex justify-between items-center">
+    <div className="max-w-[210mm] mx-auto p-6 bg-background text-foreground border rounded-lg shadow-lg dark:bg-slate-900">
+      <div className="flex justify-between items-center mb-8">
         <h2 className="text-2xl font-bold">Invoice Preview</h2>
       </div>
 
-      <div className="space-y-2">
-        <h3 className="font-semibold">Agency Information</h3>
-        <p>{agencyInfo.name}</p>
-        <p>{agencyInfo.phone}</p>
-        <p>{agencyInfo.address}</p>
-        <p>{agencyInfo.email}</p>
-        <p>{agencyInfo.website}</p>
-      </div>
+      <div className="grid grid-cols-2 gap-8 mb-8">
+        <div className="space-y-2">
+          <h3 className="font-semibold text-lg">Agency Information</h3>
+          <p className="text-sm">{agencyInfo.name}</p>
+          <p className="text-sm">{agencyInfo.phone}</p>
+          <p className="text-sm">{agencyInfo.address}</p>
+          <p className="text-sm">{agencyInfo.email}</p>
+          <p className="text-sm">{agencyInfo.website}</p>
+        </div>
 
-      <div className="space-y-2">
-        <h3 className="font-semibold">Client Information</h3>
-        <p>{clientInfo.name}</p>
-        <p>{clientInfo.address}</p>
-        <p>TVA Number: {clientInfo.tvaNumber}</p>
-        <p>Contact Person: {clientInfo.contactPerson.name} ({clientInfo.contactPerson.phone})</p>
+        <div className="space-y-2">
+          <h3 className="font-semibold text-lg">Client Information</h3>
+          <p className="text-sm">{clientInfo.name}</p>
+          <p className="text-sm">{clientInfo.address}</p>
+          <p className="text-sm">TVA Number: {clientInfo.tvaNumber}</p>
+          <p className="text-sm">Contact Person: {clientInfo.contactPerson.name} ({clientInfo.contactPerson.phone})</p>
+        </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="font-semibold">Invoice Details</h3>
+        <h3 className="font-semibold text-lg">Invoice Details</h3>
         <div className="rounded-lg border bg-card text-card-foreground">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Description</TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead>Rate</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="w-1/3">Description</TableHead>
+                <TableHead className="w-1/6">Quantity</TableHead>
+                <TableHead className="w-1/4">Rate</TableHead>
+                <TableHead className="text-right w-1/4">Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

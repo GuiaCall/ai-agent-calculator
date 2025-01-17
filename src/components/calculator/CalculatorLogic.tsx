@@ -148,15 +148,37 @@ export function useCalculatorLogic({
     }
 
     try {
-      const canvas = await html2canvas(element);
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
+      const canvas = await html2canvas(element, {
+        scale: 2, // Increase quality
+        useCORS: true,
+        logging: true,
+        windowWidth: 1200, // Set a fixed width for consistency
+        windowHeight: element.scrollHeight
       });
       
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      // Calculate dimensions to fit on A4
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      const pdf = new jsPDF({
+        orientation: imgHeight > imgWidth ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // Calculate positioning to center the content
+      const xPosition = 0;
+      const yPosition = 0;
+      
+      pdf.addImage(
+        canvas.toDataURL('image/png'),
+        'PNG',
+        xPosition,
+        yPosition,
+        imgWidth,
+        imgHeight
+      );
+
       pdf.save(`invoice-${new Date().toISOString()}.pdf`);
 
       // Update last_exported_at in Supabase

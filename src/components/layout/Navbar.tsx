@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { CurrencyDropdown } from "@/components/calculator/CurrencyDropdown";
 import { 
   Calculator, 
   LayoutDashboard, 
@@ -12,7 +11,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
-import { CalculatorStateProvider } from "../calculator/CalculatorStateContext";
 
 export function Navbar() {
   const navigate = useNavigate();
@@ -38,9 +36,6 @@ export function Navbar() {
 
   const NavItems = () => (
     <>
-      <CalculatorStateProvider>
-        <CurrencyDropdown />
-      </CalculatorStateProvider>
       <Button
         variant="ghost"
         size="icon"
