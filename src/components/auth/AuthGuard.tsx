@@ -10,19 +10,23 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error("Auth error:", error);
-          // Clear any existing session data
-          await supabase.auth.signOut();
-          navigate("/login");
+          if (mounted) {
+            // Clear any existing session data
+            await supabase.auth.signOut();
+            navigate("/login");
+          }
           return;
         }
 
-        if (!session) {
+        if (!session && mounted) {
           navigate("/login");
           return;
         }
@@ -32,33 +36,39 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         
         if (userError || !user) {
           console.error("User validation error:", userError);
-          await supabase.auth.signOut();
-          navigate("/login");
-          toast({
-            title: "Session expired",
-            description: "Please sign in again to continue.",
-            variant: "destructive",
-          });
+          if (mounted) {
+            await supabase.auth.signOut();
+            navigate("/login");
+            toast({
+              title: "Session expired",
+              description: "Please sign in again to continue.",
+              variant: "destructive",
+            });
+          }
           return;
         }
 
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error("Session check error:", error);
-        await supabase.auth.signOut();
-        navigate("/login");
+        if (mounted) {
+          await supabase.auth.signOut();
+          navigate("/login");
+        }
       }
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_OUT" || event === "TOKEN_REFRESHED") {
-        if (!session) {
+      if (event === "SIGNED_OUT" || !session) {
+        if (mounted) {
           navigate("/login");
-          return;
         }
+        return;
       }
       
-      if (event === "SIGNED_IN" && session) {
+      if (event === "SIGNED_IN" && session && mounted) {
         setIsLoading(false);
       }
     });
@@ -66,6 +76,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     checkAuth();
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate, toast]);

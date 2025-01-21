@@ -10,7 +10,14 @@ import { useState, useEffect } from "react";
 import { PageLoader } from "@/components/layout/PageLoader";
 import Pricing from "@/pages/Pricing";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -23,9 +30,14 @@ function App() {
 
     // Keep-alive functionality
     const keepAlive = setInterval(() => {
-      fetch(window.location.href).catch(() => {
-        // Silent catch - just to prevent console errors
-      });
+      const currentUrl = window.location.origin; // Use origin instead of href
+      if (currentUrl) {
+        fetch(currentUrl)
+          .catch(() => {
+            // Silent catch - just to prevent console errors
+            console.debug('Keep-alive ping failed, but this is not critical');
+          });
+      }
     }, 240000); // 4 minutes
 
     // Cleanup both timers
