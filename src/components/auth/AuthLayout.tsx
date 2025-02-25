@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
@@ -101,12 +102,17 @@ export function AuthLayout() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <img 
-            src="/logo.svg" 
-            alt="Logo" 
-            className="mx-auto h-12 w-auto mb-4"
-          />
-          <h2 className="text-3xl font-bold text-foreground">Welcome Back</h2>
+          <div className="bg-white p-4 rounded-lg shadow-sm inline-block">
+            <img 
+              src="/logo.svg" 
+              alt="Logo" 
+              className="mx-auto h-12 w-auto"
+              style={{
+                filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))'
+              }}
+            />
+          </div>
+          <h2 className="mt-6 text-3xl font-bold text-foreground">Welcome Back</h2>
           <p className="mt-2 text-muted-foreground">
             Sign in to your account to continue
           </p>
