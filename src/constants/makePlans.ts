@@ -129,7 +129,7 @@ export const MAKE_PLANS: MakePlan[] = [
 
 // Calculate savings percentage between monthly and yearly pricing
 export const calculateSavingsPercentage = (monthlyPrice: number, yearlyPrice: number): number => {
-  return Math.round(((monthlyPrice - yearlyPrice) / monthlyPrice) * 100);
+  return Math.round(((monthlyPrice * 12 - yearlyPrice * 12) / (monthlyPrice * 12)) * 100);
 };
 
 export const MAKE_PRICING_URL = "https://rb.gy/8nusbv";

@@ -19,6 +19,8 @@ export function MakePlanSelector({
   selectedPlanType,
   onPlanSelect,
 }: MakePlanSelectorProps) {
+  const isPricePerYear = selectedPlanType === 'yearly';
+  
   return (
     <div className="space-y-4">
       <p className="font-semibold">Available Plans:</p>
@@ -46,7 +48,7 @@ export function MakePlanSelector({
                 )}
               </div>
               <span className="font-semibold">
-                ${plan.price.toFixed(2)}/{selectedPlanType === "monthly" ? "month" : "year"}
+                ${plan.price.toFixed(2)}/{isPricePerYear ? "year" : "month"}
               </span>
             </div>
             <p className="text-sm text-gray-600 mt-1">

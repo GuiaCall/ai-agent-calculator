@@ -50,8 +50,8 @@ export function MakeCalculator({
     const adaptedPlan: MakePlan = {
       name: optimalPlan.name,
       operationsPerMonth: optimalPlan.operationsPerMonth,
-      monthlyPrice: selectedPlanType === 'monthly' ? optimalPlan.price : optimalPlan.price,
-      yearlyPrice: selectedPlanType === 'yearly' ? optimalPlan.price : optimalPlan.price
+      monthlyPrice: selectedPlanType === 'monthly' ? optimalPlan.price : optimalPlan.price / 12,
+      yearlyPrice: selectedPlanType === 'yearly' ? optimalPlan.price : optimalPlan.price * 12
     };
 
     setCalculation({
@@ -76,8 +76,8 @@ export function MakeCalculator({
     const adaptedPlan: MakePlan = {
       name: plan.name,
       operationsPerMonth: plan.operationsPerMonth,
-      monthlyPrice: selectedPlanType === 'monthly' ? plan.price : plan.price,
-      yearlyPrice: selectedPlanType === 'yearly' ? plan.price : plan.price
+      monthlyPrice: selectedPlanType === 'monthly' ? plan.price : plan.price / 12,
+      yearlyPrice: selectedPlanType === 'yearly' ? plan.price : plan.price * 12
     };
 
     // Calculate cost per minute based on the selected plan
