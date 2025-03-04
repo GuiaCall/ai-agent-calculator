@@ -24,6 +24,9 @@ export function MakeFormula() {
       <p className="text-sm text-gray-500">
         Annual billing plans offer significant savings compared to monthly billing (up to 15-20%).
       </p>
+      <p className="text-sm text-gray-500 mt-1">
+        All operation limits shown are per month. Selecting a different plan will update your cost calculations accordingly.
+      </p>
     </div>
   );
 }
