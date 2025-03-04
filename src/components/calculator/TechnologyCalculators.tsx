@@ -1,4 +1,5 @@
-import { MakeCalculator } from "../MakeCalculator";
+
+import { MakeCalculator } from "./make/MakeCalculator";
 import { SynthflowCalculator } from "../SynthflowCalculator";
 import { CalcomCalculator } from "../CalcomCalculator";
 import { TwilioCalculator } from "../TwilioCalculator";
