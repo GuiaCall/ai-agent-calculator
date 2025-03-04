@@ -1,8 +1,10 @@
 
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ExternalLink } from "lucide-react";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 
 export function VapiCalculator() {
@@ -59,9 +61,19 @@ export function VapiCalculator() {
 
   return (
     <Card className="p-4 space-y-4">
-      <h3 className="text-lg font-semibold">Vapi Configuration</h3>
+      <CardHeader className="flex flex-row items-center justify-between p-0">
+        <CardTitle>Vapi Configuration</CardTitle>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => window.open("https://vapi.ai/?aff=christiankams", '_blank')}
+          className="flex items-center gap-1"
+        >
+          View Pricing <ExternalLink className="h-3 w-3" />
+        </Button>
+      </CardHeader>
       
-      <div className="space-y-4">
+      <CardContent className="p-0 space-y-4">
         <div className="space-y-2">
           <Label>Cost Per Minute ({getCurrencySymbol(currency)})</Label>
           <Input
@@ -83,7 +95,7 @@ export function VapiCalculator() {
             </li>
           </ul>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 }

@@ -8,7 +8,10 @@ export function VapiFormula() {
           Monthly Cost = Cost Per Minute × Total Minutes
         </p>
         <p className="text-sm text-gray-500 mt-1">
-          The cost per minute is set by the user, and the total minutes are taken from the calculator settings.
+          The cost per minute is set by the user based on Vapi pricing, and the total minutes are taken from the calculator settings.
+        </p>
+        <p className="text-sm text-gray-500">
+          Visit the Vapi website for current pricing information.
         </p>
       </div>
     </div>
