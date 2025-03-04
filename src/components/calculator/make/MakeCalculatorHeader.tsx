@@ -6,7 +6,7 @@ import { MAKE_PRICING_URL } from "@/constants/makePlans";
 export function MakeCalculatorHeader() {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mb-4">
-      <h3 className="text-xl md:text-2xl font-semibold flex items-center gap-2">
+      <h3 className="text-lg font-semibold flex items-center gap-2">
         <div className="bg-indigo-100 p-2 rounded-full">
           <Workflow className="h-5 w-5 text-indigo-600" />
         </div>

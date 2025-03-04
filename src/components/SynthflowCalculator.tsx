@@ -125,7 +125,7 @@ export function SynthflowCalculator({
   return (
     <Card className="mb-6">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2 text-xl md:text-2xl font-semibold">
+        <CardTitle className="flex items-center gap-2 text-lg font-semibold">
           <div className="bg-indigo-100 p-2 rounded-full">
             <Activity className="h-5 w-5 text-indigo-600" />
           </div>
