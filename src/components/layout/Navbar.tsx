@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,8 @@ import {
   LayoutDashboard, 
   LogOut,
   Menu,
-  X
+  X,
+  ChevronRight
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -38,41 +40,51 @@ export function Navbar() {
     <>
       <Button
         variant="ghost"
-        size="icon"
         onClick={() => {
           navigate("/calculator");
           setIsOpen(false);
         }}
-        className="hover:bg-accent"
+        className="flex items-center gap-2 text-gray-700 hover:text-indigo-700 hover:bg-indigo-50 transition-all"
       >
         <Calculator className="h-5 w-5" />
+        <span className="hidden md:inline">Calculator</span>
       </Button>
       <Button
         variant="ghost"
-        size="icon"
         onClick={() => {
           navigate("/dashboard");
           setIsOpen(false);
         }}
-        className="hover:bg-accent"
+        className="flex items-center gap-2 text-gray-700 hover:text-indigo-700 hover:bg-indigo-50 transition-all"
       >
         <LayoutDashboard className="h-5 w-5" />
+        <span className="hidden md:inline">Dashboard</span>
       </Button>
       <Button
         variant="outline"
         onClick={handleLogout}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-all"
       >
         <LogOut className="h-4 w-4" />
-        Logout
+        <span>Logout</span>
       </Button>
     </>
   );
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-indigo-100 shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="font-bold text-xl">AI-agent Calculator</div>
+        <div 
+          className="flex items-center cursor-pointer" 
+          onClick={() => navigate("/")}
+        >
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-lg mr-2">
+            <Calculator className="h-5 w-5" />
+          </div>
+          <div className="font-bold text-xl bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
+            AI-agent Calculator
+          </div>
+        </div>
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-4">
@@ -83,7 +95,7 @@ export function Navbar() {
         <div className="md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-gray-700">
                 {isOpen ? (
                   <X className="h-6 w-6" />
                 ) : (
@@ -91,8 +103,14 @@ export function Navbar() {
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[240px] sm:w-[300px]">
+            <SheetContent side="right" className="w-[240px] sm:w-[300px] bg-white border-l border-indigo-100">
               <div className="flex flex-col space-y-4 mt-8">
+                <div className="flex items-center gap-2 mb-6 p-2 bg-indigo-50 rounded-lg">
+                  <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-lg">
+                    <Calculator className="h-5 w-5" />
+                  </div>
+                  <span className="font-semibold text-indigo-800">AI-agent Menu</span>
+                </div>
                 <NavItems />
               </div>
             </SheetContent>
