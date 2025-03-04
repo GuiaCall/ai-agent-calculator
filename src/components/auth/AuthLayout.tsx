@@ -131,14 +131,6 @@ export function AuthLayout() {
             }
           }
         }} />
-          <div className="mt-4 text-center space-y-2">
-            <button onClick={() => handlePasswordReset(email)} className="text-sm text-primary hover:underline">
-              Forgot password?
-            </button>
-            <button onClick={() => handleResendConfirmation(email)} className="block w-full text-sm text-primary hover:underline">
-              Resend confirmation email
-            </button>
-          </div>
         </div>
       </div>
     </div>;
