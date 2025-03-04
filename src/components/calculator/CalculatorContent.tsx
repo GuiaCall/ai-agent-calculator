@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ import { CalculatorSettingsSection } from "./sections/CalculatorSettingsSection"
 import { TechnologySection } from "./sections/TechnologySection";
 import { PreviewSection } from "./sections/PreviewSection";
 import { CurrencyToggle } from "./CurrencyToggle";
+import { Loader2 } from "lucide-react";
 
 export function CalculatorContent() {
   const { toast } = useToast();
@@ -65,6 +67,19 @@ export function CalculatorContent() {
     }
     logic.calculateCost();
   };
+
+  if (state.isLoading) {
+    return (
+      <>
+        <Navbar />
+        <div className="w-full h-[80vh] flex flex-col items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <p className="text-lg text-muted-foreground">Loading your calculator data...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

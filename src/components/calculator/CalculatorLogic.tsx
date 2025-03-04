@@ -30,11 +30,12 @@ export function useCalculatorLogic({
   invoices,
   setInvoices,
   currency,
-  setShowPreview
+  setShowPreview,
+  callDuration
 }: any) {
   const { toast } = useToast();
 
-  const calculateCost = () => {
+  const calculateCost = async () => {
     const selectedTechs = technologies.filter((tech) => tech.isSelected);
     if (selectedTechs.length === 0) {
       toast({
@@ -59,10 +60,63 @@ export function useCalculatorLogic({
     setSetupCost(setupCostValue);
     setShowPreview(true);
 
-    toast({
-      title: "Success",
-      description: "Cost calculation completed",
-    });
+    try {
+      // Save the calculation to Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Generate a simple invoice number based on timestamp and user
+        const timestamp = new Date().getTime().toString().slice(-6);
+        const userFragment = user.id.substring(0, 4);
+        const invoiceNumber = `INV-${userFragment}-${timestamp}`;
+        
+        const newInvoice = {
+          user_id: user.id,
+          agency_info: agencyInfo,
+          client_info: clientInfo,
+          setup_cost: setupCostValue,
+          total_amount: monthlyCost,
+          tax_rate: taxRate,
+          margin: margin,
+          total_minutes: totalMinutes,
+          call_duration: callDuration,
+          invoice_number: invoiceNumber,
+          monthly_service_cost: monthlyCost
+        };
+        
+        const { data, error } = await supabase
+          .from('invoices')
+          .insert(newInvoice)
+          .select();
+          
+        if (error) {
+          console.error('Error saving invoice:', error);
+          toast({
+            title: "Error",
+            description: "Failed to save calculation to your account",
+            variant: "destructive",
+          });
+        } else if (data) {
+          // Add the new invoice to the local state
+          setInvoices([...invoices, data[0]]);
+          
+          toast({
+            title: "Success",
+            description: "Cost calculation completed and saved",
+          });
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Cost calculation completed",
+        });
+      }
+    } catch (error) {
+      console.error('Error in calculation save:', error);
+      toast({
+        title: "Success",
+        description: "Cost calculation completed",
+      });
+    }
   };
 
   const handleCalcomPlanSelect = (plan: CalcomPlan, users: number) => {
