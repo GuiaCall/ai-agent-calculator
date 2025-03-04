@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -5,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Check, X } from "lucide-react";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export interface Technology {
   id: string;
@@ -139,7 +140,7 @@ export function TechnologyParameters({
                   )}
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  {t('perMinute')}
+                  {t('perMonth')}
                 </span>
               </div>
             )}

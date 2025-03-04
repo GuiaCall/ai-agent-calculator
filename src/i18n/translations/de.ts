@@ -1,3 +1,4 @@
+
 export const de = {
   translation: {
     // General
@@ -41,6 +42,7 @@ export const de = {
     "technologyParameters": "Technologie-Parameter",
     "pleaseAddValue": "Bitte Wert hinzufügen",
     "perMinute": "/Minute",
+    "perMonth": "/Monat",
     
     // Make.com Calculator
     "makeCalculator": "Make.com Operationen Rechner",

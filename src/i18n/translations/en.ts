@@ -1,3 +1,4 @@
+
 export const en = {
   translation: {
     // General
@@ -41,6 +42,7 @@ export const en = {
     "technologyParameters": "Technology Parameters",
     "pleaseAddValue": "Please add a value",
     "perMinute": "/minute",
+    "perMonth": "/month",
     
     // Make.com Calculator
     "makeCalculator": "Make.com Operations Calculator",
