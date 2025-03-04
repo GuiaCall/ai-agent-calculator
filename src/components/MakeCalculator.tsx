@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MAKE_PRICING_URL } from "@/constants/makePlans";
 import { ExternalLink } from "lucide-react";
-import { MakePlan, OperationsCalculation } from "@/types/make";
+import { MakePlan, MakeRecommendedPlan, OperationsCalculation } from "@/types/make";
 import { calculateMakeOperations, calculateRequiredPlanPrice } from "@/utils/makeCalculations";
+import { Badge } from "./ui/badge";
 
 export function MakeCalculator({
   totalMinutes,
@@ -23,6 +25,8 @@ export function MakeCalculator({
   const [operationsPerScenario, setOperationsPerScenario] = useState<number>(100);
   const [selectedPlanType, setSelectedPlanType] = useState<string>("monthly");
   const [calculation, setCalculation] = useState<OperationsCalculation | null>(null);
+  const [recommendations, setRecommendations] = useState<MakeRecommendedPlan[]>([]);
+  const [recommendedPlan, setRecommendedPlan] = useState<MakeRecommendedPlan | null>(null);
 
   const calculateOperations = () => {
     const { totalCalls, totalOperations } = calculateMakeOperations(
@@ -31,30 +35,37 @@ export function MakeCalculator({
       operationsPerScenario
     );
     
-    const { totalPrice, operationsIncluded, costPerMinute } = calculateRequiredPlanPrice(
+    const { 
+      totalPrice, 
+      operationsIncluded,
+      costPerMinute,
+      recommendations: planRecommendations,
+      recommendedPlan: optimalPlan
+    } = calculateRequiredPlanPrice(
       totalOperations,
       selectedPlanType,
       totalMinutes
     );
 
-    const plansNeeded = Math.ceil(totalOperations / 10000);
-    const planName = plansNeeded === 1 ? "Core" : `${plansNeeded}x Core`;
-
-    const recommendedPlan: MakePlan = {
-      name: planName,
-      operationsPerMonth: operationsIncluded,
-      monthlyPrice: totalPrice,
-      yearlyPrice: totalPrice * 0.85 // 15% discount for yearly
+    // Create adapter for legacy MakePlan format
+    const adaptedPlan: MakePlan = {
+      name: optimalPlan.name,
+      operationsPerMonth: optimalPlan.operationsPerMonth,
+      monthlyPrice: selectedPlanType === 'monthly' ? optimalPlan.price : optimalPlan.price * 1.18, // Estimate monthly price
+      yearlyPrice: selectedPlanType === 'yearly' ? optimalPlan.price : optimalPlan.price * 0.85 // Estimate yearly price
     };
 
     setCalculation({
       totalCalls,
       operationsPerScenario,
       totalOperations,
-      recommendedPlan
+      recommendedPlan: adaptedPlan
     });
 
-    onPlanSelect(recommendedPlan);
+    setRecommendations(planRecommendations);
+    setRecommendedPlan(optimalPlan);
+
+    onPlanSelect(adaptedPlan);
     onCostPerMinuteChange(costPerMinute);
   };
 
@@ -110,35 +121,56 @@ export function MakeCalculator({
           <div className="space-y-4 p-4 bg-secondary rounded-lg">
             <div className="space-y-2">
               <p className="text-sm text-gray-600">
-                Estimated Total Calls: {calculation.totalCalls}
+                Estimated Total Calls: {calculation.totalCalls.toLocaleString()}
               </p>
               <p className="text-sm text-gray-600">
                 Operations per Call: {calculation.operationsPerScenario}
               </p>
               <p className="text-sm text-gray-600">
-                Total Operations Needed (including 20% buffer): {calculation.totalOperations}
+                Total Operations Needed (including 20% buffer): {calculation.totalOperations.toLocaleString()}
               </p>
             </div>
 
-            {calculation.recommendedPlan && (
-              <div className="space-y-2">
-                <p className="font-semibold">Recommended Plan: {calculation.recommendedPlan.name}</p>
-                <p className="text-sm text-gray-600">
-                  Operations Included: {calculation.recommendedPlan.operationsPerMonth}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Price: ${selectedPlanType === "monthly" 
-                    ? calculation.recommendedPlan.monthlyPrice 
-                    : calculation.recommendedPlan.yearlyPrice
-                  }/{selectedPlanType === "monthly" ? "month" : "month (billed yearly)"}
-                </p>
-                <Button 
-                  variant="outline" 
-                  className="w-full mt-4"
-                  onClick={() => window.open('https://rb.gy/8nusbv', '_blank')}
-                >
-                  Get This Plan <ExternalLink className="ml-2 h-4 w-4" />
-                </Button>
+            {recommendations.length > 0 && (
+              <div className="space-y-4 pt-2 border-t border-gray-200">
+                <p className="font-semibold">Available Plans:</p>
+                <div className="grid grid-cols-1 gap-3">
+                  {recommendations.map((plan, index) => (
+                    <div 
+                      key={index}
+                      className={`p-3 rounded-lg ${plan.name === recommendedPlan?.name ? 'bg-primary/20 border border-primary/30' : 'bg-background'}`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="font-semibold">{plan.name}</span>
+                          {plan.name === recommendedPlan?.name && (
+                            <Badge variant="outline" className="ml-2 bg-primary/10 text-primary">
+                              Recommended
+                            </Badge>
+                          )}
+                        </div>
+                        <span className="font-semibold">
+                          ${plan.price.toFixed(2)}/{selectedPlanType === "monthly" ? "month" : "month (billed yearly)"}
+                        </span>
+                      </div>
+                      {plan.savingsPercentage && (
+                        <p className="text-sm text-green-600 mt-1">
+                          Save {plan.savingsPercentage}% vs monthly billing
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {recommendedPlan && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full mt-2"
+                    onClick={() => window.open('https://rb.gy/8nusbv', '_blank')}
+                  >
+                    Get Recommended Plan <ExternalLink className="ml-2 h-4 w-4" />
+                  </Button>
+                )}
               </div>
             )}
           </div>

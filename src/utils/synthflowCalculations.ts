@@ -19,3 +19,10 @@ export const calculateSynthflowCost = (totalMinutes: number, plan: SynthflowPlan
 
   return baseCost + extraCost;
 };
+
+export const calculateSynthflowCostPerMinute = (totalMinutes: number, plan: SynthflowPlan | null): number => {
+  if (!plan || totalMinutes === 0) return 0;
+  
+  const totalCost = calculateSynthflowCost(totalMinutes, plan);
+  return totalCost / totalMinutes;
+};

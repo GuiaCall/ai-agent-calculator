@@ -1,5 +1,111 @@
-import { MakePlan } from "@/types/make";
 
+import { MakePlan, MakePricingTier } from "@/types/make";
+
+// Core plan pricing tiers (monthly)
+export const MAKE_CORE_MONTHLY_TIERS: MakePricingTier[] = [
+  { operationsPerMonth: 10000, price: 10.59 },
+  { operationsPerMonth: 20000, price: 18.82 },
+  { operationsPerMonth: 40000, price: 34.12 },
+  { operationsPerMonth: 80000, price: 64.71 },
+  { operationsPerMonth: 150000, price: 116.47 },
+  { operationsPerMonth: 300000, price: 214.31 },
+  { operationsPerMonth: 500000, price: 338.13 },
+  { operationsPerMonth: 750000, price: 486.90 },
+  { operationsPerMonth: 1000000, price: 631.89 },
+  { operationsPerMonth: 1500000, price: 909.92 },
+  { operationsPerMonth: 2000000, price: 1162.68 }
+];
+
+// Core plan pricing tiers (yearly)
+export const MAKE_CORE_YEARLY_TIERS: MakePricingTier[] = [
+  { operationsPerMonth: 10000, price: 9.00 },
+  { operationsPerMonth: 20000, price: 16.00 },
+  { operationsPerMonth: 40000, price: 29.00 },
+  { operationsPerMonth: 80000, price: 55.00 },
+  { operationsPerMonth: 150000, price: 99.00 },
+  { operationsPerMonth: 300000, price: 182.16 },
+  { operationsPerMonth: 500000, price: 287.41 },
+  { operationsPerMonth: 750000, price: 413.87 },
+  { operationsPerMonth: 1000000, price: 537.11 },
+  { operationsPerMonth: 1500000, price: 773.44 },
+  { operationsPerMonth: 2000000, price: 988.28 }
+];
+
+// Pro plan pricing tiers (monthly)
+export const MAKE_PRO_MONTHLY_TIERS: MakePricingTier[] = [
+  { operationsPerMonth: 10000, price: 18.82 },
+  { operationsPerMonth: 20000, price: 34.12 },
+  { operationsPerMonth: 40000, price: 62.35 },
+  { operationsPerMonth: 80000, price: 107.06 },
+  { operationsPerMonth: 150000, price: 180.53 },
+  { operationsPerMonth: 300000, price: 315.93 },
+  { operationsPerMonth: 500000, price: 482.67 },
+  { operationsPerMonth: 750000, price: 678.75 },
+  { operationsPerMonth: 1000000, price: 880.86 },
+  { operationsPerMonth: 1500000, price: 1268.44 },
+  { operationsPerMonth: 2000000, price: 1620.79 }
+];
+
+// Pro plan pricing tiers (yearly)
+export const MAKE_PRO_YEARLY_TIERS: MakePricingTier[] = [
+  { operationsPerMonth: 10000, price: 16.00 },
+  { operationsPerMonth: 20000, price: 29.00 },
+  { operationsPerMonth: 40000, price: 53.00 },
+  { operationsPerMonth: 80000, price: 91.00 },
+  { operationsPerMonth: 150000, price: 153.45 },
+  { operationsPerMonth: 300000, price: 268.54 },
+  { operationsPerMonth: 500000, price: 410.27 },
+  { operationsPerMonth: 750000, price: 576.94 },
+  { operationsPerMonth: 1000000, price: 748.73 },
+  { operationsPerMonth: 1500000, price: 1078.18 },
+  { operationsPerMonth: 2000000, price: 1377.67 }
+];
+
+// Teams plan pricing tiers (monthly)
+export const MAKE_TEAMS_MONTHLY_TIERS: MakePricingTier[] = [
+  { operationsPerMonth: 10000, price: 34.12 },
+  { operationsPerMonth: 20000, price: 62.35 },
+  { operationsPerMonth: 40000, price: 116.47 },
+  { operationsPerMonth: 80000, price: 203.41 },
+  { operationsPerMonth: 150000, price: 343.01 },
+  { operationsPerMonth: 300000, price: 600.26 },
+  { operationsPerMonth: 500000, price: 917.06 },
+  { operationsPerMonth: 750000, price: 1289.62 },
+  { operationsPerMonth: 1000000, price: 1647.85 },
+  { operationsPerMonth: 1500000, price: 2317.29 },
+  { operationsPerMonth: 2000000, price: 2883.74 },
+  { operationsPerMonth: 2500000, price: 3540.30 },
+  { operationsPerMonth: 3000000, price: 4055.26 },
+  { operationsPerMonth: 4000000, price: 5181.72 },
+  { operationsPerMonth: 5000000, price: 6274.73 },
+  { operationsPerMonth: 6000000, price: 7461.67 },
+  { operationsPerMonth: 7000000, price: 8503.52 },
+  { operationsPerMonth: 8000000, price: 9683.59 }
+];
+
+// Teams plan pricing tiers (yearly)
+export const MAKE_TEAMS_YEARLY_TIERS: MakePricingTier[] = [
+  { operationsPerMonth: 10000, price: 29.00 },
+  { operationsPerMonth: 20000, price: 53.00 },
+  { operationsPerMonth: 40000, price: 99.00 },
+  { operationsPerMonth: 80000, price: 172.90 },
+  { operationsPerMonth: 150000, price: 291.56 },
+  { operationsPerMonth: 300000, price: 510.22 },
+  { operationsPerMonth: 500000, price: 779.50 },
+  { operationsPerMonth: 750000, price: 1096.18 },
+  { operationsPerMonth: 1000000, price: 1400.67 },
+  { operationsPerMonth: 1500000, price: 1969.70 },
+  { operationsPerMonth: 2000000, price: 2451.18 },
+  { operationsPerMonth: 2500000, price: 3009.26 },
+  { operationsPerMonth: 3000000, price: 3446.97 },
+  { operationsPerMonth: 4000000, price: 4404.46 },
+  { operationsPerMonth: 5000000, price: 5333.52 },
+  { operationsPerMonth: 6000000, price: 6342.42 },
+  { operationsPerMonth: 7000000, price: 7227.99 },
+  { operationsPerMonth: 8000000, price: 8231.05 }
+];
+
+// Original legacy plans (kept for backwards compatibility)
 export const MAKE_PLANS: MakePlan[] = [
   {
     name: "Core",
@@ -20,5 +126,10 @@ export const MAKE_PLANS: MakePlan[] = [
     yearlyPrice: 29.00
   }
 ];
+
+// Calculate savings percentage between monthly and yearly pricing
+export const calculateSavingsPercentage = (monthlyPrice: number, yearlyPrice: number): number => {
+  return Math.round(((monthlyPrice - yearlyPrice) / monthlyPrice) * 100);
+};
 
 export const MAKE_PRICING_URL = "https://rb.gy/8nusbv";

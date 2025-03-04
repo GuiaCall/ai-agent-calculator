@@ -1,3 +1,4 @@
+
 export interface MakePlan {
   name: string;
   operationsPerMonth: number;
@@ -5,9 +6,23 @@ export interface MakePlan {
   yearlyPrice: number;
 }
 
+export interface MakePricingTier {
+  operationsPerMonth: number;
+  price: number;
+}
+
 export interface OperationsCalculation {
   totalCalls: number;
   operationsPerScenario: number;
   totalOperations: number;
   recommendedPlan: MakePlan | null;
+}
+
+export interface MakeRecommendedPlan {
+  name: string;
+  planType: 'Core' | 'Pro' | 'Teams';
+  billingType: 'monthly' | 'yearly';
+  operationsPerMonth: number;
+  price: number;
+  savingsPercentage?: number;
 }
