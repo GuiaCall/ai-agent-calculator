@@ -52,8 +52,8 @@ export function MakeCalculator({
     const adaptedPlan: MakePlan = {
       name: optimalPlan.name,
       operationsPerMonth: optimalPlan.operationsPerMonth,
-      monthlyPrice: selectedPlanType === 'monthly' ? optimalPlan.price : optimalPlan.price * 1.18, // Estimate monthly price
-      yearlyPrice: selectedPlanType === 'yearly' ? optimalPlan.price : optimalPlan.price * 0.85 // Estimate yearly price
+      monthlyPrice: selectedPlanType === 'monthly' ? optimalPlan.price : optimalPlan.price,
+      yearlyPrice: selectedPlanType === 'yearly' ? optimalPlan.price : optimalPlan.price
     };
 
     setCalculation({
@@ -78,8 +78,8 @@ export function MakeCalculator({
     const adaptedPlan: MakePlan = {
       name: plan.name,
       operationsPerMonth: plan.operationsPerMonth,
-      monthlyPrice: selectedPlanType === 'monthly' ? plan.price : plan.price * 1.18, // Estimate monthly price
-      yearlyPrice: selectedPlanType === 'yearly' ? plan.price : plan.price * 0.85 // Estimate yearly price
+      monthlyPrice: selectedPlanType === 'monthly' ? plan.price : plan.price,
+      yearlyPrice: selectedPlanType === 'yearly' ? plan.price : plan.price
     };
 
     // Calculate cost per minute based on the selected plan
@@ -87,6 +87,15 @@ export function MakeCalculator({
     
     onPlanSelect(adaptedPlan);
     onCostPerMinuteChange(costPerMinute);
+  };
+
+  const handleBillingTypeChange = (value: string) => {
+    setSelectedPlanType(value);
+    
+    // Recalculate if we already have operations calculated
+    if (calculation) {
+      calculateOperations();
+    }
   };
 
   return (
@@ -121,7 +130,7 @@ export function MakeCalculator({
           <Label>Billing Cycle</Label>
           <Select
             value={selectedPlanType}
-            onValueChange={setSelectedPlanType}
+            onValueChange={handleBillingTypeChange}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select billing cycle" />
