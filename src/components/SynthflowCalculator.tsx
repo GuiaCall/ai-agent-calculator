@@ -125,7 +125,7 @@ export function SynthflowCalculator({
   return (
     <Card className="mb-6">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-xl md:text-2xl font-semibold">
           <div className="bg-indigo-100 p-2 rounded-full">
             <Activity className="h-5 w-5 text-indigo-600" />
           </div>
@@ -147,7 +147,7 @@ export function SynthflowCalculator({
       <CardContent>
         <div className="space-y-6">
           <div>
-            <Label>Select a Plan</Label>
+            <Label className="text-base font-medium">Select a Plan</Label>
             <RadioGroup 
               className="grid gap-4 mt-3"
               value={selectedPlanId || ''}
@@ -156,14 +156,18 @@ export function SynthflowCalculator({
               {enhancedPlans.map((plan) => (
                 <div 
                   key={plan.name} 
-                  className={`p-4 rounded-lg border ${
-                    plan.isRecommended ? 'border-primary/50 bg-primary/5' : 'border-border'
+                  className={`p-4 rounded-lg border transition-all duration-200 ${
+                    selectedPlanId === plan.name 
+                      ? 'border-indigo-400 bg-indigo-50 shadow-md transform -translate-y-1' 
+                      : plan.isRecommended 
+                        ? 'border-primary/50 bg-primary/5 hover:border-indigo-300 hover:bg-indigo-50/50' 
+                        : 'border-border hover:border-indigo-200 hover:bg-indigo-50/30'
                   }`}
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value={plan.name} id={plan.name} />
+                    <RadioGroupItem value={plan.name} id={plan.name} className={selectedPlanId === plan.name ? 'text-indigo-600' : ''} />
                     <Label htmlFor={plan.name} className="flex items-center space-x-2">
-                      <span className="font-medium">{plan.name}</span>
+                      <span className={`font-medium ${selectedPlanId === plan.name ? 'text-indigo-700' : ''}`}>{plan.name}</span>
                       {plan.isRecommended && (
                         <Badge variant="outline" className="bg-primary/10 text-primary">
                           Recommended
@@ -189,7 +193,9 @@ export function SynthflowCalculator({
                     
                     <div className="flex justify-between font-medium pt-1 border-t border-border">
                       <span>Total monthly cost:</span>
-                      <span className="text-primary">{getCurrencySymbol(currency)}{getCurrencyConversion(plan.totalCost).toFixed(2)}</span>
+                      <span className={`${selectedPlanId === plan.name ? 'text-indigo-600 font-bold' : 'text-primary'}`}>
+                        {getCurrencySymbol(currency)}{getCurrencyConversion(plan.totalCost).toFixed(2)}
+                      </span>
                     </div>
                     
                     <div className="flex justify-between text-muted-foreground">
@@ -202,7 +208,7 @@ export function SynthflowCalculator({
             </RadioGroup>
           </div>
           
-          <div className="flex justify-between items-center pt-3 border-t border-border">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-border">
             <div>
               <p className="text-sm text-muted-foreground">
                 Based on your usage: <span className="font-medium">{totalMinutes.toLocaleString()} minutes/month</span>
@@ -212,9 +218,10 @@ export function SynthflowCalculator({
               variant="outline" 
               size="sm"
               onClick={() => window.open(SYNTHFLOW_PRICING_URL, '_blank')}
-              className="flex items-center gap-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 hover:from-indigo-600 hover:to-purple-600 shadow-md transition-all"
+              className="w-full sm:w-auto flex items-center gap-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 hover:from-indigo-600 hover:to-purple-600 shadow-md transition-all"
             >
-              View Pricing <ExternalLink className="h-3 w-3 ml-1" />
+              <ExternalLink className="h-4 w-4 mr-1" />
+              View Pricing
             </Button>
           </div>
         </div>
