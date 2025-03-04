@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { ExternalLink } from "lucide-react";
 import { useToast } from "./ui/use-toast";
+import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 
 interface CalcomCalculatorProps {
   onPlanSelect: (plan: CalcomPlan, numberOfUsers: number) => void;
@@ -20,6 +22,29 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
   const [numberOfUsers, setNumberOfUsers] = useState<number>(1);
   const [monthlyTotal, setMonthlyTotal] = useState<number>(0);
   const { toast } = useToast();
+  const { currency } = useCalculatorStateContext();
+
+  const getCurrencyConversion = (amount: number): number => {
+    switch (currency) {
+      case 'EUR':
+        return amount * 0.948231;
+      case 'GBP':
+        return amount * 0.814;
+      default:
+        return amount;
+    }
+  };
+
+  const getCurrencySymbol = (currency: string) => {
+    switch (currency) {
+      case 'EUR':
+        return '€';
+      case 'GBP':
+        return '£';
+      default:
+        return '$';
+    }
+  };
 
   useEffect(() => {
     if (selectedPlan && totalMinutes > 0) {
@@ -65,10 +90,9 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
     
     toast({
       title: "Monthly Cost Calculated",
-      description: `Base Plan Cost: $${selectedPlan.basePrice}
-Team Members Cost: $${teamMemberCost}
-Total Monthly Cost: $${totalCost}
-Cost Per Minute: $${costPerMinute}`,
+      description: `Base Plan Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(selectedPlan.basePrice).toFixed(2)}
+Team Members Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(teamMemberCost).toFixed(2)}
+Total Monthly Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalCost).toFixed(2)}`,
     });
   };
 
@@ -96,7 +120,7 @@ Cost Per Minute: $${costPerMinute}`,
           <div key={plan.name} className="flex items-center space-x-2">
             <RadioGroupItem value={plan.name} id={`calcom-${plan.name}`} />
             <Label htmlFor={`calcom-${plan.name}`}>
-              {plan.name} (${plan.basePrice}/month)
+              {plan.name} ({getCurrencySymbol(currency)}{getCurrencyConversion(plan.basePrice).toFixed(2)}/month)
             </Label>
           </div>
         ))}
@@ -113,7 +137,7 @@ Cost Per Minute: $${costPerMinute}`,
             onChange={(e) => setNumberOfUsers(Math.max(0, parseInt(e.target.value) || 0))}
           />
           <p className="text-sm text-muted-foreground">
-            Team members cost $12/month each
+            Team members cost {getCurrencySymbol(currency)}{getCurrencyConversion(12).toFixed(2)}/month each
           </p>
         </div>
       ) : null}
@@ -131,13 +155,10 @@ Cost Per Minute: $${costPerMinute}`,
       {monthlyTotal > 0 && (
         <div className="mt-4 p-4 bg-primary/10 rounded-lg space-y-2">
           <p className="text-sm font-medium">
-            Setup Cost: ${(selectedPlan?.basePrice + (selectedPlan?.allowsTeam ? numberOfUsers * selectedPlan.pricePerUser : 0)).toFixed(2)}
+            Setup Cost: {getCurrencySymbol(currency)}{getCurrencyConversion(selectedPlan?.basePrice + (selectedPlan?.allowsTeam ? numberOfUsers * selectedPlan.pricePerUser : 0)).toFixed(2)}
           </p>
           <p className="text-sm font-medium">
-            Monthly Cost: ${monthlyTotal.toFixed(2)}
-          </p>
-          <p className="text-sm font-medium">
-            Monthly Cost Per Minute: ${(monthlyTotal / totalMinutes).toFixed(3)}
+            Monthly Cost: {getCurrencySymbol(currency)}{getCurrencyConversion(monthlyTotal).toFixed(2)}
           </p>
         </div>
       )}

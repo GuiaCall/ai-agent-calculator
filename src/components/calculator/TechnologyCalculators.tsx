@@ -12,13 +12,20 @@ export function TechnologyCalculators() {
   const handleCalcomPlanSelect = (plan: CalcomPlan, users: number) => {
     state.setSelectedCalcomPlan(plan);
     state.setNumberOfUsers(users);
-    if (plan.costPerMinute !== undefined) {
-      state.setTechnologies((techs) =>
-        techs.map((tech) =>
-          tech.id === "calcom" ? { ...tech, costPerMinute: plan.costPerMinute || 0 } : tech
-        )
-      );
-    }
+    
+    // Calculate monthly cost (not cost per minute) for the technology parameter
+    const teamMemberCost = (plan.name === "Team" || plan.name === "Organization") && users > 0
+      ? users * plan.pricePerUser
+      : 0;
+    
+    const monthlyCost = plan.basePrice + teamMemberCost;
+    
+    // Update the technology parameter with the monthly cost
+    state.setTechnologies((techs) =>
+      techs.map((tech) =>
+        tech.id === "calcom" ? { ...tech, costPerMinute: monthlyCost } : tech
+      )
+    );
   };
 
   return (
@@ -29,11 +36,7 @@ export function TechnologyCalculators() {
           averageCallDuration={state.callDuration}
           onPlanSelect={state.setSelectedMakePlan}
           onCostPerMinuteChange={(cost) => {
-            state.setTechnologies((techs) =>
-              techs.map((tech) =>
-                tech.id === "make" ? { ...tech, costPerMinute: cost } : tech
-              )
-            );
+            // This is handled in MakeCalculator directly now
           }}
         />
       )}

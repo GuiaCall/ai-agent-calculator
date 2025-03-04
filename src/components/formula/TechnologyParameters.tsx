@@ -14,20 +14,29 @@ export function TechnologyParametersFormula() {
         <p className="text-gray-600">
           <span className="font-medium">Make.com:</span> Monthly Plan Cost
         </p>
+        <p className="text-sm text-gray-500">
+          Based on required operations calculated from total minutes and call duration
+        </p>
         
         <p className="text-gray-600">
           <span className="font-medium">Synthflow:</span> Base Monthly Cost + Overage Costs
         </p>
         <p className="text-sm text-gray-500">
-          Overage Costs = Extra Minutes × $0.13/minute
+          Overage Costs = Extra Minutes × $0.13/minute (when total minutes exceed plan limits)
         </p>
         
         <p className="text-gray-600">
-          <span className="font-medium">Twilio:</span> Monthly Cost for Voice + SMS Services
+          <span className="font-medium">Twilio:</span> Phone Number Cost + Voice Usage
+        </p>
+        <p className="text-sm text-gray-500">
+          Voice Usage = Total Minutes × Selected Rate
         </p>
         
         <p className="text-gray-600">
           <span className="font-medium">Vapi:</span> Fixed Monthly Cost
+        </p>
+        <p className="text-sm text-gray-500 mt-3 font-medium">
+          All costs in Technology Parameters are monthly costs in your selected currency.
         </p>
       </div>
     </div>

@@ -5,11 +5,11 @@ import { SYNTHFLOW_PLANS, SYNTHFLOW_PRICING_URL } from "@/constants/synthflowPla
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { calculateSynthflowCost } from "@/utils/synthflowCalculations";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
+import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 
 interface SynthflowCalculatorProps {
   totalMinutes: number;
@@ -22,6 +22,29 @@ export function SynthflowCalculator({
 }: SynthflowCalculatorProps) {
   const [billingType, setBillingType] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const { currency, setTechnologies } = useCalculatorStateContext();
+  
+  const getCurrencySymbol = (currency: string) => {
+    switch (currency) {
+      case 'EUR':
+        return '€';
+      case 'GBP':
+        return '£';
+      default:
+        return '$';
+    }
+  };
+
+  const getCurrencyConversion = (amount: number): number => {
+    switch (currency) {
+      case 'EUR':
+        return amount * 0.948231;
+      case 'GBP':
+        return amount * 0.814;
+      default:
+        return amount;
+    }
+  };
   
   // Calculate costs for all plans based on minutes and billing type
   const plansWithCosts = SYNTHFLOW_PLANS.map(plan => {
@@ -62,8 +85,15 @@ export function SynthflowCalculator({
       };
       
       onPlanSelect(selectedPlanWithCost);
+      
+      // Update technology parameter with monthly cost
+      setTechnologies(techs => 
+        techs.map(tech => 
+          tech.id === 'synthflow' ? { ...tech, costPerMinute: recommendedPlan.totalCost } : tech
+        )
+      );
     }
-  }, [recommendedPlan, selectedPlanId, onPlanSelect]);
+  }, [recommendedPlan, selectedPlanId, onPlanSelect, setTechnologies]);
 
   const handlePlanChange = (planName: string) => {
     setSelectedPlanId(planName);
@@ -74,6 +104,13 @@ export function SynthflowCalculator({
         ...selectedPlan,
         costPerMinute: selectedPlan.costPerMinute
       });
+      
+      // Update technology parameter with monthly cost
+      setTechnologies(techs => 
+        techs.map(tech => 
+          tech.id === 'synthflow' ? { ...tech, costPerMinute: selectedPlan.totalCost } : tech
+        )
+      );
     }
   };
 
@@ -134,25 +171,25 @@ export function SynthflowCalculator({
                     <div className="flex justify-between">
                       <span>Base plan ({plan.minutesPerMonth.toLocaleString()} minutes):</span>
                       <span className="font-medium">
-                        ${billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice} per {billingType === 'monthly' ? 'month' : 'year'}
+                        {getCurrencySymbol(currency)}{getCurrencyConversion(billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice).toFixed(2)} per {billingType === 'monthly' ? 'month' : 'year'}
                       </span>
                     </div>
                     
                     {plan.overageMinutes > 0 && (
                       <div className="flex justify-between text-amber-700">
-                        <span>Overage ({plan.overageMinutes.toLocaleString()} minutes at $0.13/min):</span>
-                        <span className="font-medium">${plan.overageCost.toFixed(2)}</span>
+                        <span>Overage ({plan.overageMinutes.toLocaleString()} minutes at {getCurrencySymbol(currency)}{getCurrencyConversion(0.13).toFixed(2)}/min):</span>
+                        <span className="font-medium">{getCurrencySymbol(currency)}{getCurrencyConversion(plan.overageCost).toFixed(2)}</span>
                       </div>
                     )}
                     
                     <div className="flex justify-between font-medium pt-1 border-t border-border">
-                      <span>Total {billingType === 'monthly' ? 'monthly' : 'yearly'} cost:</span>
-                      <span className="text-primary">${plan.totalCost.toFixed(2)}</span>
+                      <span>Total monthly cost:</span>
+                      <span className="text-primary">{getCurrencySymbol(currency)}{getCurrencyConversion(plan.totalCost).toFixed(2)}</span>
                     </div>
                     
                     <div className="flex justify-between text-muted-foreground">
                       <span>Effective cost per minute:</span>
-                      <span>${plan.costPerMinute.toFixed(4)}</span>
+                      <span>{getCurrencySymbol(currency)}{getCurrencyConversion(plan.costPerMinute).toFixed(4)}</span>
                     </div>
                   </div>
                 </div>

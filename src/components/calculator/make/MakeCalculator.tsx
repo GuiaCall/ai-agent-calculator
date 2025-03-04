@@ -6,8 +6,8 @@ import { MakeCalculatorHeader } from "./MakeCalculatorHeader";
 import { MakeOperationsInput } from "./MakeOperationsInput";
 import { MakeBillingCycleSelector } from "./MakeBillingCycleSelector";
 import { MakeCalculationResults } from "./MakeCalculationResults";
-import { MakePlanSelector } from "./MakePlanSelector";
 import { calculateMakeOperations, calculateRequiredPlanPrice } from "@/utils/makeCalculations";
+import { useCalculatorStateContext } from "../CalculatorStateContext";
 
 export function MakeCalculator({
   totalMinutes,
@@ -26,6 +26,7 @@ export function MakeCalculator({
   const [recommendations, setRecommendations] = useState<MakeRecommendedPlan[]>([]);
   const [recommendedPlan, setRecommendedPlan] = useState<MakeRecommendedPlan | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<MakeRecommendedPlan | null>(null);
+  const { setTechnologies } = useCalculatorStateContext();
 
   const calculateOperations = () => {
     const { totalCalls, totalOperations } = calculateMakeOperations(
@@ -66,7 +67,17 @@ export function MakeCalculator({
     setSelectedPlan(optimalPlan); // Set the recommended plan as the initial selected plan
 
     onPlanSelect(adaptedPlan);
+    
+    // Use monthly price for technology parameters
+    const monthlyPrice = selectedPlanType === 'monthly' ? optimalPlan.price : optimalPlan.price / 12;
     onCostPerMinuteChange(costPerMinute);
+    
+    // Update technology parameter with monthly cost
+    setTechnologies(techs => 
+      techs.map(tech => 
+        tech.id === 'make' ? { ...tech, costPerMinute: monthlyPrice } : tech
+      )
+    );
   };
 
   const handlePlanSelect = (plan: MakeRecommendedPlan) => {
@@ -85,6 +96,14 @@ export function MakeCalculator({
     
     onPlanSelect(adaptedPlan);
     onCostPerMinuteChange(costPerMinute);
+    
+    // Update technology parameter with monthly cost
+    const monthlyPrice = selectedPlanType === 'monthly' ? plan.price : plan.price / 12;
+    setTechnologies(techs => 
+      techs.map(tech => 
+        tech.id === 'make' ? { ...tech, costPerMinute: monthlyPrice } : tech
+      )
+    );
   };
 
   const handleBillingTypeChange = (value: string) => {

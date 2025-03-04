@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +40,23 @@ export function TechnologyParameters({
     }
   };
   
+  const getCurrencyConversion = (amount: number): number => {
+    switch (currency) {
+      case 'EUR':
+        return amount * 0.948231;
+      case 'GBP':
+        return amount * 0.814;
+      default:
+        return amount;
+    }
+  };
+  
   const currencySymbol = getCurrencySymbol(currency);
+
+  useEffect(() => {
+    // Clear input values when currency changes to force refresh
+    setInputValues({});
+  }, [currency]);
 
   const handleToggle = (id: string) => {
     const updatedTechs = technologies.map(tech =>
@@ -90,11 +105,13 @@ export function TechnologyParameters({
       return inputValues[tech.id];
     }
 
-    // Otherwise format the stored value
-    if (tech.costPerMinute === 0) return '';
+    // Otherwise format the stored value (converted to current currency)
+    const convertedValue = getCurrencyConversion(tech.costPerMinute);
     
-    const stringValue = tech.costPerMinute.toString();
-    if (tech.costPerMinute < 1 && !stringValue.startsWith('0')) {
+    if (convertedValue === 0) return '';
+    
+    const stringValue = convertedValue.toString();
+    if (convertedValue < 1 && !stringValue.startsWith('0')) {
       return `0${stringValue}`;
     }
     
