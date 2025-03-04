@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { CALCOM_PLANS, CALCOM_PRICING_URL } from "@/constants/calcomPlans";
 import { CalcomPlan } from "@/types/calcom";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Calendar } from "lucide-react";
 import { useToast } from "./ui/use-toast";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 
@@ -99,9 +98,19 @@ Total Monthly Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalC
   return (
     <Card className="p-4 space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Cal.com Plan</h3>
-        <Button variant="ghost" size="sm" onClick={() => window.open(CALCOM_PRICING_URL, '_blank')}>
-          View Pricing <ExternalLink className="ml-2 h-4 w-4" />
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <div className="bg-indigo-100 p-2 rounded-full">
+            <Calendar className="h-5 w-5 text-indigo-600" />
+          </div>
+          Cal.com Plan
+        </h3>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => window.open(CALCOM_PRICING_URL, '_blank')}
+          className="flex items-center gap-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 hover:from-indigo-600 hover:to-purple-600 shadow-md transition-all"
+        >
+          View Pricing <ExternalLink className="h-3 w-3 ml-1" />
         </Button>
       </div>
 

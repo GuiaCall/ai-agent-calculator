@@ -38,7 +38,7 @@ export function CalculatorActions({
         <Button 
           onClick={onPreviewToggle} 
           variant="outline"
-          className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-medium px-6 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1"
+          className="border-indigo-200 text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white font-medium px-6 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1"
         >
           <Eye className="mr-2 h-4 w-4" />
           Toggle Preview
@@ -46,7 +46,7 @@ export function CalculatorActions({
         <Button 
           onClick={onExportPDF} 
           variant="outline"
-          className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-medium px-6 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1"
+          className="border-indigo-200 text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white font-medium px-6 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1"
         >
           <FileDown className="mr-2 h-4 w-4" />
           Export PDF

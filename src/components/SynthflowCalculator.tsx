@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Activity } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 
@@ -125,7 +125,12 @@ export function SynthflowCalculator({
   return (
     <Card className="mb-6">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Synthflow Plan Calculator</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <div className="bg-indigo-100 p-2 rounded-full">
+            <Activity className="h-5 w-5 text-indigo-600" />
+          </div>
+          Synthflow Plan Calculator
+        </CardTitle>
         <div className="flex items-center space-x-2">
           <span className={`text-sm ${billingType === 'monthly' ? 'font-medium' : 'text-muted-foreground'}`}>
             Monthly
@@ -207,9 +212,9 @@ export function SynthflowCalculator({
               variant="outline" 
               size="sm"
               onClick={() => window.open(SYNTHFLOW_PRICING_URL, '_blank')}
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 hover:from-indigo-600 hover:to-purple-600 shadow-md transition-all"
             >
-              View Pricing <ExternalLink className="h-3 w-3" />
+              View Pricing <ExternalLink className="h-3 w-3 ml-1" />
             </Button>
           </div>
         </div>
