@@ -11,6 +11,7 @@ export function AuthLayout() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [email, setEmail] = useState("");
+  const [logoError, setLogoError] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -102,17 +103,19 @@ export function AuthLayout() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <div className="bg-white p-6 rounded-lg shadow-sm inline-block mb-4">
-            <img 
-              src="/logo.svg" 
-              alt="Logo" 
-              className="mx-auto h-12 w-auto"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = '/placeholder.svg';
-                target.onerror = null;
-              }}
-            />
+          <div className="bg-white p-8 rounded-lg shadow-sm inline-block mb-6">
+            {logoError ? (
+              <div className="w-16 h-16 bg-primary/10 rounded flex items-center justify-center text-primary font-bold text-xl">
+                App
+              </div>
+            ) : (
+              <img 
+                src={`${window.location.origin}/placeholder.svg`}
+                alt="Logo" 
+                className="mx-auto h-16 w-auto"
+                onError={() => setLogoError(true)}
+              />
+            )}
           </div>
           <h2 className="mt-6 text-3xl font-bold text-foreground">Welcome Back</h2>
           <p className="mt-2 text-muted-foreground">
