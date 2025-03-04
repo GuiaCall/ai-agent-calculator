@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, ExternalLink } from "lucide-react";
 import { MakeRecommendedPlan } from "@/types/make";
 
 interface MakePlanSelectorProps {
