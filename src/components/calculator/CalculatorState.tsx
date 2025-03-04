@@ -17,6 +17,27 @@ const initialTechnologies = [
   { id: "vapi", name: "Vapi", isSelected: true, costPerMinute: 0.005 },
 ];
 
+// Helper function to safely parse JSON data with fallback
+const safelyParseJSON = <T extends {}>(jsonData: any, defaultValue: T): T => {
+  if (!jsonData) return defaultValue;
+  
+  try {
+    // If it's already an object, just validate it has the right shape
+    if (typeof jsonData === 'object' && jsonData !== null) {
+      return { ...defaultValue, ...jsonData };
+    }
+    
+    // If it's a string, parse it
+    if (typeof jsonData === 'string') {
+      return { ...defaultValue, ...JSON.parse(jsonData) };
+    }
+  } catch (error) {
+    console.error("Error parsing JSON data:", error);
+  }
+  
+  return defaultValue;
+};
+
 export function useCalculatorState() {
   const [callDuration, setCallDuration] = useState<number>(5);
   const [totalMinutes, setTotalMinutes] = useState<number>(1000);
@@ -95,22 +116,48 @@ export function useCalculatorState() {
           setMargin(latestInvoice.margin || 20);
           setTaxRate(latestInvoice.tax_rate || 20);
           
-          // Restore agency and client info
+          // Restore agency and client info with proper type checking
           if (latestInvoice.agency_info) {
-            setAgencyInfo(latestInvoice.agency_info);
+            // Parse and validate agency_info
+            const defaultAgencyInfo: AgencyInfo = {
+              name: "",
+              phone: "",
+              address: "",
+              email: "",
+              website: "",
+            };
+            const parsedAgencyInfo = safelyParseJSON<AgencyInfo>(
+              latestInvoice.agency_info, 
+              defaultAgencyInfo
+            );
+            setAgencyInfo(parsedAgencyInfo);
           }
           
           if (latestInvoice.client_info) {
-            setClientInfo(latestInvoice.client_info);
+            // Parse and validate client_info
+            const defaultClientInfo: ClientInfo = {
+              name: "",
+              address: "",
+              tvaNumber: "",
+              contactPerson: {
+                name: "",
+                phone: ""
+              }
+            };
+            const parsedClientInfo = safelyParseJSON<ClientInfo>(
+              latestInvoice.client_info, 
+              defaultClientInfo
+            );
+            setClientInfo(parsedClientInfo);
           }
           
           // Restore costs
           if (latestInvoice.setup_cost) {
-            setSetupCost(latestInvoice.setup_cost);
+            setSetupCost(Number(latestInvoice.setup_cost));
           }
           
           if (latestInvoice.total_amount) {
-            setTotalCost(latestInvoice.total_amount);
+            setTotalCost(Number(latestInvoice.total_amount));
           }
         }
 
@@ -123,7 +170,37 @@ export function useCalculatorState() {
           .order('created_at', { ascending: false });
 
         if (allInvoices) {
-          setInvoices(allInvoices);
+          // Transform all invoices to the correct type
+          const typedInvoices: InvoiceHistory[] = allInvoices.map(invoice => {
+            const defaultAgencyInfo: AgencyInfo = {
+              name: "",
+              phone: "",
+              address: "",
+              email: "",
+              website: "",
+            };
+            
+            const defaultClientInfo: ClientInfo = {
+              name: "",
+              address: "",
+              tvaNumber: "",
+              contactPerson: {
+                name: "",
+                phone: ""
+              }
+            };
+            
+            return {
+              ...invoice,
+              agency_info: safelyParseJSON<AgencyInfo>(invoice.agency_info, defaultAgencyInfo),
+              client_info: safelyParseJSON<ClientInfo>(invoice.client_info, defaultClientInfo),
+              total_amount: Number(invoice.total_amount),
+              setup_cost: Number(invoice.setup_cost),
+              monthly_service_cost: Number(invoice.monthly_service_cost),
+            } as InvoiceHistory;
+          });
+          
+          setInvoices(typedInvoices);
         }
       } catch (error) {
         console.error('Error loading calculator state:', error);
