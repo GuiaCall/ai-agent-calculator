@@ -45,47 +45,18 @@ export function useCalculatorLogic({
       return;
     }
 
-    // Calculate setup costs
-    const makeSetupCost = selectedMakePlan?.monthlyPrice || 0;
-    const synthflowSetupCost = selectedSynthflowPlan?.monthlyPrice || 0;
-    const calcomSetupCost = selectedCalcomPlan 
-      ? (selectedCalcomPlan.basePrice + (selectedCalcomPlan.allowsTeam ? (numberOfUsers - 1) * selectedCalcomPlan.pricePerUser : 0))
-      : 0;
-    const twilioSetupCost = (selectedTwilioRate?.phoneNumberPrice || 0) * 2; // 2 months of phone number cost
+    // Calculate the total cost from all technology parameters
+    const { monthlyCost, costPerMinute } = calculateTotalCostPerMinute(
+      technologies,
+      totalMinutes,
+      margin
+    );
 
-    const totalSetupCost = (makeSetupCost + synthflowSetupCost + calcomSetupCost + twilioSetupCost) * (1 + margin / 100);
-
-    const updatedTechnologies = technologies.map(tech => {
-      switch (tech.id) {
-        case 'make':
-          if (selectedMakePlan) {
-            const costPerMinute = calculateCalcomCostPerMinute(selectedCalcomPlan, numberOfUsers, totalMinutes);
-            return { ...tech, costPerMinute };
-          }
-          break;
-        case 'calcom':
-          if (selectedCalcomPlan) {
-            const costPerMinute = calculateCalcomCostPerMinute(selectedCalcomPlan, numberOfUsers, totalMinutes);
-            return { ...tech, costPerMinute };
-          }
-          break;
-        case 'twilio':
-          if (selectedTwilioRate) {
-            const costPerMinute = calculateTwilioCostPerMinute(selectedTwilioRate);
-            return { ...tech, costPerMinute };
-          }
-          break;
-      }
-      return tech;
-    });
-
-    setTechnologies(updatedTechnologies);
-
-    const finalCostPerMinute = calculateTotalCostPerMinute(updatedTechnologies, margin);
-    const finalCost = finalCostPerMinute * totalMinutes;
+    // Set the setup cost to be equal to the monthly cost
+    const setupCostValue = monthlyCost;
     
-    setTotalCost(finalCost);
-    setSetupCost(totalSetupCost);
+    setTotalCost(monthlyCost);
+    setSetupCost(setupCostValue);
     setShowPreview(true);
 
     toast({

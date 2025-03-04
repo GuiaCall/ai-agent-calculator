@@ -3,6 +3,7 @@ import { MakeCalculator } from "./make/MakeCalculator";
 import { SynthflowCalculator } from "../SynthflowCalculator";
 import { CalcomCalculator } from "../CalcomCalculator";
 import { TwilioCalculator } from "../TwilioCalculator";
+import { VapiCalculator } from "../VapiCalculator";
 import { useCalculatorStateContext } from "./CalculatorStateContext";
 import { CalcomPlan } from "@/types/calcom";
 
@@ -57,6 +58,10 @@ export function TechnologyCalculators() {
 
       {state.technologies.find((t) => t.id === "twilio")?.isSelected && (
         <TwilioCalculator onRateSelect={state.setSelectedTwilioRate} />
+      )}
+
+      {state.technologies.find((t) => t.id === "vapi")?.isSelected && (
+        <VapiCalculator />
       )}
     </>
   );

@@ -1,3 +1,4 @@
+
 import { CalcomPlan } from "@/types/calcom";
 import { TwilioSelection } from "@/types/twilio";
 
@@ -16,13 +17,18 @@ export const calculateCalcomCostPerMinute = (
   // Calculate total monthly cost including team members
   const monthlyTotal = plan.basePrice + teamMemberCost;
   
-  // Convert to cost per minute with 3 decimal places
-  return Number((monthlyTotal / totalMinutes).toFixed(3));
+  // Return the monthly cost (not the cost per minute)
+  return monthlyTotal;
 };
 
-export const calculateTwilioCostPerMinute = (selection: TwilioSelection | null): number => {
+export const calculateTwilioCostPerMinute = (selection: TwilioSelection | null, totalMinutes: number): number => {
   if (!selection) return 0;
-  return Math.ceil((selection.inboundVoicePrice + (selection.inboundSmsPrice || 0)) * 1000) / 1000;
+  
+  // Calculate the total monthly cost
+  const totalCostPerMinute = selection.inboundVoicePrice;
+  const monthlyCost = (totalMinutes * totalCostPerMinute) + selection.phoneNumberPrice;
+  
+  return monthlyCost;
 };
 
 export const calculateSetupCost = (
@@ -36,11 +42,22 @@ export const calculateSetupCost = (
 
 export const calculateTotalCostPerMinute = (
   technologies: Array<{ id: string; isSelected: boolean; costPerMinute: number }>,
+  totalMinutes: number,
   margin: number
-): number => {
-  const baseCost = technologies
+): { monthlyCost: number, costPerMinute: number } => {
+  // Sum up the monthly costs from all selected technologies
+  const monthlyBaseCost = technologies
     .filter(tech => tech.isSelected)
     .reduce((acc, tech) => acc + tech.costPerMinute, 0);
   
-  return Math.ceil(baseCost * (1 + margin / 100) * 1000) / 1000;
+  // Apply margin to the monthly cost
+  const totalMonthlyCost = monthlyBaseCost * (1 + margin / 100);
+  
+  // Calculate cost per minute
+  const costPerMinute = totalMinutes > 0 ? totalMonthlyCost / totalMinutes : 0;
+  
+  return {
+    monthlyCost: Math.ceil(totalMonthlyCost * 100) / 100,  // Round to 2 decimal places
+    costPerMinute: Math.ceil(costPerMinute * 100000) / 100000  // Round to 5 decimal places
+  };
 };

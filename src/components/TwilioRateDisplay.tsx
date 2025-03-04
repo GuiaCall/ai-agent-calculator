@@ -1,5 +1,6 @@
 
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
+import { useEffect } from "react";
 
 interface TwilioRateDisplayProps {
   selection: {
@@ -12,10 +13,8 @@ interface TwilioRateDisplayProps {
 }
 
 export function TwilioRateDisplay({ selection }: TwilioRateDisplayProps) {
-  const { totalMinutes, currency } = useCalculatorStateContext();
+  const { totalMinutes, currency, setTechnologies } = useCalculatorStateContext();
 
-  if (!selection) return null;
-  
   const getCurrencySymbol = (currency: string) => {
     switch (currency) {
       case 'EUR':
@@ -38,7 +37,23 @@ export function TwilioRateDisplay({ selection }: TwilioRateDisplayProps) {
     }
   };
 
-  const totalCostPerMinute = selection.inboundVoicePrice + (selection.inboundSmsPrice || 0);
+  useEffect(() => {
+    if (selection) {
+      const totalCostPerMinute = selection.inboundVoicePrice;
+      const monthlyCost = (totalMinutes * totalCostPerMinute) + selection.phoneNumberPrice;
+      
+      // Update the technology parameter with the monthly cost
+      setTechnologies(techs => 
+        techs.map(tech => 
+          tech.id === 'twilio' ? { ...tech, costPerMinute: monthlyCost } : tech
+        )
+      );
+    }
+  }, [selection, totalMinutes, setTechnologies]);
+
+  if (!selection) return null;
+  
+  const totalCostPerMinute = selection.inboundVoicePrice;
   const monthlyCost = (totalMinutes * totalCostPerMinute) + selection.phoneNumberPrice;
   const convertedMonthlyCost = getCurrencyConversion(monthlyCost);
   const phoneNumberCost = getCurrencyConversion(selection.phoneNumberPrice);

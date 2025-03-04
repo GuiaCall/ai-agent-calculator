@@ -16,7 +16,7 @@ export function SynthflowFormula() {
           <li>Total Monthly Cost = Base Cost + Extra Cost</li>
         </ul>
         <p className="text-gray-600">
-          Effective Cost per Minute = Total Monthly Cost ÷ Total Minutes
+          Monthly Cost = Total Monthly Cost
         </p>
         <p className="text-sm text-gray-500 mt-1">
           Additional minutes beyond your plan limit are charged at $0.13 per minute.

@@ -15,7 +15,7 @@ export function TechnologyParametersFormula() {
           <span className="font-medium">Make.com:</span> Monthly Plan Cost
         </p>
         <p className="text-sm text-gray-500">
-          Based on required operations calculated from total minutes and call duration
+          Based on selected plan and operations tier
         </p>
         
         <p className="text-gray-600">
@@ -33,7 +33,7 @@ export function TechnologyParametersFormula() {
         </p>
         
         <p className="text-gray-600">
-          <span className="font-medium">Vapi:</span> Fixed Monthly Cost
+          <span className="font-medium">Vapi:</span> Cost Per Minute × Total Minutes
         </p>
         <p className="text-sm text-gray-500 mt-3 font-medium">
           All costs in Technology Parameters are monthly costs in your selected currency.

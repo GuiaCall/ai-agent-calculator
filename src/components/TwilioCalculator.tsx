@@ -13,7 +13,7 @@ interface TwilioCalculatorProps {
 }
 
 export function TwilioCalculator({ onRateSelect }: TwilioCalculatorProps) {
-  const { totalMinutes, setTechnologies, technologies } = useCalculatorStateContext();
+  const { totalMinutes, setTechnologies } = useCalculatorStateContext();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
@@ -27,20 +27,6 @@ export function TwilioCalculator({ onRateSelect }: TwilioCalculatorProps) {
       setAvailableTypes(types);
     }
   }, [selectedCountry]);
-
-  useEffect(() => {
-    if (currentSelection) {
-      const totalCostPerMinute = currentSelection.inboundVoicePrice + (currentSelection.inboundSmsPrice || 0);
-      const monthlyCost = (totalMinutes * totalCostPerMinute) + currentSelection.phoneNumberPrice;
-      
-      // Update the technology parameter with the monthly cost
-      setTechnologies(techs => 
-        techs.map(tech => 
-          tech.id === 'twilio' ? { ...tech, costPerMinute: monthlyCost } : tech
-        )
-      );
-    }
-  }, [currentSelection, totalMinutes, setTechnologies]);
 
   const handleCountryChange = (country: string) => {
     setSelectedCountry(country);
@@ -63,16 +49,6 @@ export function TwilioCalculator({ onRateSelect }: TwilioCalculatorProps) {
         };
         setCurrentSelection(selection);
         onRateSelect(selection);
-        
-        // Calculate monthly cost and update technology parameter
-        const totalCostPerMinute = selection.inboundVoicePrice + (selection.inboundSmsPrice || 0);
-        const monthlyCost = (totalMinutes * totalCostPerMinute) + selection.phoneNumberPrice;
-        
-        setTechnologies(techs => 
-          techs.map(tech => 
-            tech.id === 'twilio' ? { ...tech, costPerMinute: monthlyCost } : tech
-          )
-        );
       }
     }
   };
