@@ -102,13 +102,15 @@ export function AuthLayout() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <div className="bg-white p-4 rounded-lg shadow-sm inline-block">
+          <div className="bg-white p-6 rounded-lg shadow-sm inline-block mb-4">
             <img 
               src="/logo.svg" 
               alt="Logo" 
               className="mx-auto h-12 w-auto"
-              style={{
-                filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1))'
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/placeholder.svg';
+                target.onerror = null;
               }}
             />
           </div>
@@ -130,6 +132,12 @@ export function AuthLayout() {
                   },
                 },
               },
+              className: {
+                input: "p-2 border rounded w-full text-foreground",
+                button: "p-2 rounded bg-primary text-white w-full hover:bg-primary/90",
+                anchor: "text-primary hover:text-primary/80",
+                message: "text-sm text-foreground/80",
+              }
             }}
             providers={[]}
             redirectTo={`${window.location.origin}/calculator`}
