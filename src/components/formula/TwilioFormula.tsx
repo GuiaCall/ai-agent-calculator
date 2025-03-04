@@ -1,7 +1,15 @@
+
+import { Phone } from "lucide-react";
+
 export function TwilioFormula() {
   return (
     <div>
-      <h3 className="text-lg font-semibold text-gray-800">Twilio Cost Calculation</h3>
+      <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+        <div className="bg-indigo-100 p-2 rounded-full">
+          <Phone className="h-5 w-5 text-indigo-600" />
+        </div>
+        Twilio Cost Calculation
+      </h3>
       <p className="text-gray-600">
         Base Cost = Selected Rate × Total Minutes
       </p>

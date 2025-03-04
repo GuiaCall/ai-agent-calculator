@@ -7,6 +7,7 @@ import { getUniqueCountries, getTypesForCountry, getRateForCountryAndType } from
 import { TwilioSelection } from "@/types/twilio";
 import { TwilioRateDisplay } from "./TwilioRateDisplay";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
+import { Phone } from "lucide-react";
 
 interface TwilioCalculatorProps {
   onRateSelect: (selection: TwilioSelection | null) => void;
@@ -55,7 +56,12 @@ export function TwilioCalculator({ onRateSelect }: TwilioCalculatorProps) {
 
   return (
     <Card className="p-4 space-y-4">
-      <h3 className="text-lg font-semibold">Twilio Configuration</h3>
+      <h3 className="text-lg font-semibold flex items-center gap-2">
+        <div className="bg-indigo-100 p-2 rounded-full">
+          <Phone className="h-5 w-5 text-indigo-600" />
+        </div>
+        Twilio Configuration
+      </h3>
       
       <div className="space-y-4">
         <div className="space-y-2">
