@@ -40,8 +40,8 @@ export function InvoicePreview({
   const taxAmount = (totalCost || 0) * (taxRate / 100);
   const total = (totalCost || 0) * (1 + taxRate / 100) + (setupCost || 0);
   
-  // Generate invoice number and date for the design
-  const invoiceNumber = `INV-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+  // Use fixed invoice number instead of randomly generating it
+  const invoiceNumber = `INV-2023-0001`;
   const currentDate = format(new Date(), 'dd MMM yyyy');
   const dueDate = format(new Date(new Date().setDate(new Date().getDate() + 30)), 'dd MMM yyyy');
   
