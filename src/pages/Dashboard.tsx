@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -154,8 +154,10 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 gap-6">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">{t("accountInformation")}</h3>
-            <div className="space-y-4">
+            <CardHeader className="p-0 pb-4">
+              <CardTitle className="text-lg font-semibold">{t("accountInformation")}</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 space-y-4">
               <div>
                 <p className="text-sm text-gray-500">{t("email")}</p>
                 <p className="font-medium">{userEmail}</p>
@@ -168,9 +170,11 @@ export default function Dashboard() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder={t("newPasswordPlaceholder")}
                 />
-                <Button onClick={handlePasswordChange}>{t("updatePassword")}</Button>
+                <Button onClick={handlePasswordChange}>
+                  {t("updatePassword")}
+                </Button>
               </div>
-            </div>
+            </CardContent>
           </Card>
         </div>
       </div>
