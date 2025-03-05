@@ -75,6 +75,14 @@ export const technologies = {
   "viewPricing": "View Pricing",
   
   // Bland AI translations
+  "blandAi": "Bland AI",
   "blandAiCalculator": "Bland AI Configuration",
-  "blandAiMonthlyCost": "Bland AI Monthly Cost"
+  "blandAiMonthlyCost": "Bland AI Monthly Cost",
+  "viewPricing": "View Pricing",
+  "fixedRate": "Fixed Rate",
+  "perMinute": "per minute",
+  "costPerMinute": "Cost Per Minute",
+  "totalMinutes": "Total Minutes",
+  "monthlyCost": "Monthly Cost",
+  "chargesFixedRate": "charges a fixed rate of $0.09 per minute for voice calls."
 };

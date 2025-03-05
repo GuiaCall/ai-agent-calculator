@@ -1,11 +1,14 @@
+
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExternalLink, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { Label } from "./ui/label";
+import { useTranslation } from "react-i18next";
 
 export function BlandAICalculator() {
+  const { t } = useTranslation();
   const { totalMinutes, setTechnologies, technologies, currency } = useCalculatorStateContext();
   const [monthlyCost, setMonthlyCost] = useState<number>(0);
   
@@ -51,7 +54,7 @@ export function BlandAICalculator() {
           <div className="bg-indigo-100 p-2 rounded-full">
             <MessageSquare className="h-5 w-5 text-indigo-600" />
           </div>
-          Bland AI Configuration
+          {t("blandAiCalculator")}
         </CardTitle>
         <Button 
           variant="outline" 
@@ -59,31 +62,31 @@ export function BlandAICalculator() {
           onClick={() => window.open("https://www.bland.ai/pricing", '_blank')}
           className="flex items-center gap-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 hover:from-indigo-600 hover:to-purple-600 shadow-md transition-all"
         >
-          View Pricing <ExternalLink className="h-3 w-3 ml-1" />
+          {t("viewPricing")} <ExternalLink className="h-3 w-3 ml-1" />
         </Button>
       </CardHeader>
       
       <CardContent className="p-0 space-y-4 fade-in">
         <div className="space-y-2">
-          <Label className="text-gray-700 font-medium">Fixed Rate</Label>
+          <Label className="text-gray-700 font-medium">{t("fixedRate")}</Label>
           <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium">{getCurrencySymbol(currency)}{convertedCostPerMinute.toFixed(2)} per minute</span>
+            <span className="text-sm font-medium">{getCurrencySymbol(currency)}{convertedCostPerMinute.toFixed(2)} {t("perMinute")}</span>
           </div>
         </div>
 
         <div className="bg-gradient-to-br from-white to-indigo-50 rounded-lg p-5 shadow-sm border border-indigo-100">
-          <p className="font-semibold text-indigo-800 mb-3">Bland AI Monthly Cost</p>
+          <p className="font-semibold text-indigo-800 mb-3">{t("blandAiMonthlyCost")}</p>
           <ul className="list-none space-y-2">
             <li className="flex items-center justify-between py-1 border-b border-gray-100">
-              <span className="text-gray-600">Cost Per Minute</span>
+              <span className="text-gray-600">{t("costPerMinute")}</span>
               <span className="font-medium">{getCurrencySymbol(currency)}{convertedCostPerMinute.toFixed(2)}</span>
             </li>
             <li className="flex items-center justify-between py-1 border-b border-gray-100">
-              <span className="text-gray-600">Total Minutes</span>
+              <span className="text-gray-600">{t("totalMinutes")}</span>
               <span className="font-medium">{totalMinutes}</span>
             </li>
             <li className="flex items-center justify-between py-2 mt-1 bg-indigo-50 rounded-md px-3">
-              <span className="font-semibold text-indigo-900">Monthly Cost</span>
+              <span className="font-semibold text-indigo-900">{t("monthlyCost")}</span>
               <span className="font-bold text-lg text-indigo-900">{getCurrencySymbol(currency)}{convertedMonthlyCost.toFixed(2)}</span>
             </li>
           </ul>
