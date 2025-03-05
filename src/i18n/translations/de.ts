@@ -1,4 +1,3 @@
-
 export const de = {
   translation: {
     // General
@@ -157,7 +156,6 @@ export const de = {
     
     // Pricing page
     "freePlan": "Kostenlos",
-    "proPlan": "Pro",
     "enterprisePlan": "Enterprise",
     "monthly": "Monatlich",
     "yearly": "Jährlich",

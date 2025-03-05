@@ -127,7 +127,7 @@ export const fr = {
     
     // Pricing page
     "freePlan": "Gratuit",
-    "proPlan": "Pro",
+    // The duplicate "proPlan" key was here, now removed
     "enterprisePlan": "Entreprise",
     "monthly": "Mensuel",
     "yearly": "Annuel",
