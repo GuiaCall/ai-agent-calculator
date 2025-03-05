@@ -72,7 +72,6 @@ export const technologies = {
   "vapi": "Vapi",
   "vapiCalculator": "Vapi Configuration",
   "vapiMonthlyCost": "Vapi Monthly Cost",
-  "viewPricing": "View Pricing",
   
   // Bland AI translations
   "blandAi": "Bland AI",
