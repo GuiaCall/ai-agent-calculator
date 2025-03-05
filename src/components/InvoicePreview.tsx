@@ -1,6 +1,8 @@
+
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
 import { CurrencyType } from "@/components/calculator/CalculatorState";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 interface InvoicePreviewProps {
   agencyInfo: AgencyInfo;
@@ -25,6 +27,8 @@ export function InvoicePreview({
   currency,
   invoiceNumber,
 }: InvoicePreviewProps) {
+  const { t } = useTranslation();
+  
   const getCurrencySymbol = (currency: CurrencyType) => {
     switch (currency) {
       case 'EUR':
@@ -50,7 +54,7 @@ export function InvoicePreview({
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">INVOICE</h1>
+            <h1 className="text-3xl font-bold">{t("invoice")}</h1>
             <p className="text-indigo-100 mt-1">#{dynamicInvoiceNumber}</p>
           </div>
           <div className="text-right">
@@ -63,28 +67,28 @@ export function InvoicePreview({
       <div className="p-8 bg-white">
         <div className="grid grid-cols-2 gap-8 mb-8">
           <div>
-            <h3 className="text-lg font-semibold mb-3 text-gray-700">Bill To:</h3>
+            <h3 className="text-lg font-semibold mb-3 text-gray-700">{t("billTo")}:</h3>
             <div className="space-y-1 text-gray-600">
               <p className="font-medium text-gray-800">{clientInfo.name}</p>
               <p>{clientInfo.address}</p>
-              <p>TVA: {clientInfo.tvaNumber}</p>
-              <p>Contact: {clientInfo.contactPerson.name}</p>
-              <p>Phone: {clientInfo.contactPerson.phone}</p>
+              <p>{t("tvaNumber")}: {clientInfo.tvaNumber}</p>
+              <p>{t("contact")}: {clientInfo.contactPerson.name}</p>
+              <p>{t("phone")}: {clientInfo.contactPerson.phone}</p>
             </div>
           </div>
           
           <div className="text-right">
             <div className="space-y-3">
               <div>
-                <h3 className="text-sm font-semibold mb-1 text-gray-500">INVOICE DATE</h3>
+                <h3 className="text-sm font-semibold mb-1 text-gray-500">{t("invoiceDate").toUpperCase()}</h3>
                 <p className="text-gray-800">{currentDate}</p>
               </div>
               <div>
-                <h3 className="text-sm font-semibold mb-1 text-gray-500">DUE DATE</h3>
+                <h3 className="text-sm font-semibold mb-1 text-gray-500">{t("dueDate").toUpperCase()}</h3>
                 <p className="text-gray-800">{dueDate}</p>
               </div>
               <div>
-                <h3 className="text-sm font-semibold mb-1 text-gray-500">AMOUNT DUE</h3>
+                <h3 className="text-sm font-semibold mb-1 text-gray-500">{t("amountDue").toUpperCase()}</h3>
                 <p className="text-xl font-bold text-indigo-600">{currencySymbol}{total.toFixed(2)}</p>
               </div>
             </div>
@@ -95,18 +99,18 @@ export function InvoicePreview({
           <table className="w-full text-left">
             <thead>
               <tr className="bg-gray-50 text-gray-600 text-sm font-medium">
-                <th className="py-3 px-4 border-b border-gray-200">DESCRIPTION</th>
-                <th className="py-3 px-4 border-b border-gray-200">QUANTITY</th>
-                <th className="py-3 px-4 border-b border-gray-200">RATE</th>
-                <th className="py-3 px-4 border-b border-gray-200 text-right">AMOUNT</th>
+                <th className="py-3 px-4 border-b border-gray-200">{t("description").toUpperCase()}</th>
+                <th className="py-3 px-4 border-b border-gray-200">{t("quantity").toUpperCase()}</th>
+                <th className="py-3 px-4 border-b border-gray-200">{t("rate").toUpperCase()}</th>
+                <th className="py-3 px-4 border-b border-gray-200 text-right">{t("amount").toUpperCase()}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {setupCost && setupCost > 0 && (
                 <tr className="text-gray-700">
                   <td className="py-4 px-4">
-                    <div className="font-medium">Setup Cost</div>
-                    <div className="text-sm text-gray-500">One-time implementation and setup</div>
+                    <div className="font-medium">{t("setupCost")}</div>
+                    <div className="text-sm text-gray-500">{t("setupDescription")}</div>
                   </td>
                   <td className="py-4 px-4">1</td>
                   <td className="py-4 px-4">{currencySymbol}{setupCost.toFixed(2)}</td>
@@ -115,11 +119,11 @@ export function InvoicePreview({
               )}
               <tr className="text-gray-700">
                 <td className="py-4 px-4">
-                  <div className="font-medium">AI Voice Service</div>
-                  <div className="text-sm text-gray-500">Monthly subscription</div>
+                  <div className="font-medium">{t("aiVoiceService")}</div>
+                  <div className="text-sm text-gray-500">{t("monthlySubscription")}</div>
                 </td>
-                <td className="py-4 px-4">{totalMinutes} minutes</td>
-                <td className="py-4 px-4">{currencySymbol}{costPerMinute.toFixed(4)}/min</td>
+                <td className="py-4 px-4">{totalMinutes} {t("minutes")}</td>
+                <td className="py-4 px-4">{currencySymbol}{costPerMinute.toFixed(4)}/{t("min")}</td>
                 <td className="py-4 px-4 text-right">{currencySymbol}{(totalCost || 0).toFixed(2)}</td>
               </tr>
             </tbody>
@@ -130,15 +134,15 @@ export function InvoicePreview({
           <div className="flex justify-end">
             <div className="w-1/2 space-y-3">
               <div className="flex justify-between text-gray-600">
-                <span>Subtotal</span>
+                <span>{t("subtotal")}</span>
                 <span>{currencySymbol}{((totalCost || 0) + (setupCost || 0)).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600">
-                <span>Tax ({taxRate}%)</span>
+                <span>{t("tax")} ({taxRate}%)</span>
                 <span>{currencySymbol}{taxAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-xl font-bold text-indigo-600 pt-3 border-t border-gray-200">
-                <span>Total</span>
+                <span>{t("total")}</span>
                 <span>{currencySymbol}{total.toFixed(2)}</span>
               </div>
             </div>
@@ -147,7 +151,7 @@ export function InvoicePreview({
 
         <div className="mt-12 pt-8 border-t border-gray-200">
           <div className="text-center text-gray-500 text-sm space-y-2">
-            <p className="font-medium text-gray-600">Thank you for your business!</p>
+            <p className="font-medium text-gray-600">{t("thankYou")}</p>
             <div className="pt-2">
               <p>{agencyInfo.name}</p>
               <p>{agencyInfo.address}</p>

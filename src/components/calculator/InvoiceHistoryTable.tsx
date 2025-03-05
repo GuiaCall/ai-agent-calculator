@@ -13,6 +13,7 @@ import {
 import { format } from "date-fns";
 import { InvoiceHistory } from "@/types/invoice";
 import { CurrencyType } from "./CalculatorState";
+import { useTranslation } from "react-i18next";
 
 interface InvoiceHistoryTableProps {
   invoices: InvoiceHistory[];
@@ -32,11 +33,12 @@ export function InvoiceHistoryTable({
   currency
 }: InvoiceHistoryTableProps) {
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const { t } = useTranslation();
   
   if (!invoices || invoices.length === 0) {
     return (
       <div className="py-8 text-center text-gray-500">
-        <p>No invoices found. Create your first invoice by calculating a cost.</p>
+        <p>{t("noInvoicesFound")}</p>
       </div>
     );
   }
@@ -55,11 +57,11 @@ export function InvoiceHistoryTable({
         <table className="w-full">
           <thead>
             <tr className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-              <th className="py-3 px-4 text-left">Invoice #</th>
-              <th className="py-3 px-4 text-left">Date</th>
-              <th className="py-3 px-4 text-left">Client</th>
-              <th className="py-3 px-4 text-right">Amount</th>
-              <th className="py-3 px-4 text-center">Actions</th>
+              <th className="py-3 px-4 text-left">{t("invoiceNumber")}</th>
+              <th className="py-3 px-4 text-left">{t("date")}</th>
+              <th className="py-3 px-4 text-left">{t("client")}</th>
+              <th className="py-3 px-4 text-right">{t("amount")}</th>
+              <th className="py-3 px-4 text-center">{t("actions")}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -126,29 +128,29 @@ export function InvoiceHistoryTable({
                     <td colSpan={5} className="py-4 px-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                          <h4 className="font-medium text-gray-700 mb-1">Client Details</h4>
+                          <h4 className="font-medium text-gray-700 mb-1">{t("clientDetails")}</h4>
                           <p className="text-sm text-gray-600">{invoice.client_info.name}</p>
                           <p className="text-sm text-gray-600">{invoice.client_info.address}</p>
-                          <p className="text-sm text-gray-600">TVA: {invoice.client_info.tvaNumber}</p>
+                          <p className="text-sm text-gray-600">{t("tvaNumber")}: {invoice.client_info.tvaNumber}</p>
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-700 mb-1">Invoice Details</h4>
+                          <h4 className="font-medium text-gray-700 mb-1">{t("invoiceDetails")}</h4>
                           <p className="text-sm text-gray-600 flex items-center">
-                            <CalendarDays size={14} className="mr-1" /> Created: {format(new Date(invoice.created_at), 'PPP')}
+                            <CalendarDays size={14} className="mr-1" /> {t("created")}: {format(new Date(invoice.created_at), 'PPP')}
                           </p>
                           {invoice.last_exported_at && (
                             <p className="text-sm text-gray-600 flex items-center">
-                              <Clock size={14} className="mr-1" /> Last exported: {format(new Date(invoice.last_exported_at), 'PPP')}
+                              <Clock size={14} className="mr-1" /> {t("lastExported")}: {format(new Date(invoice.last_exported_at), 'PPP')}
                             </p>
                           )}
-                          <p className="text-sm text-gray-600">Setup cost: {getCurrencySymbol(currency)} {invoice.setup_cost.toFixed(2)}</p>
+                          <p className="text-sm text-gray-600">{t("setupCost")}: {getCurrencySymbol(currency)} {invoice.setup_cost.toFixed(2)}</p>
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-700 mb-1">Summary</h4>
-                          <p className="text-sm text-gray-600">Total minutes: {invoice.total_minutes}</p>
-                          <p className="text-sm text-gray-600">Call duration: {invoice.call_duration} min</p>
-                          <p className="text-sm text-gray-600">Margin: {invoice.margin}%</p>
-                          <p className="text-sm text-gray-600">Tax rate: {invoice.tax_rate}%</p>
+                          <h4 className="font-medium text-gray-700 mb-1">{t("summary")}</h4>
+                          <p className="text-sm text-gray-600">{t("totalMinutes")}: {invoice.total_minutes}</p>
+                          <p className="text-sm text-gray-600">{t("callDuration")}: {invoice.call_duration} min</p>
+                          <p className="text-sm text-gray-600">{t("margin")}: {invoice.margin}%</p>
+                          <p className="text-sm text-gray-600">{t("taxRate")}: {invoice.tax_rate}%</p>
                         </div>
                       </div>
                     </td>

@@ -13,24 +13,27 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import { LanguageSelector } from "./LanguageSelector";
+import { useTranslation } from "react-i18next";
 
 export function Navbar() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
       navigate("/login");
       toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account",
+        title: t("loggedOutSuccessfully"),
+        description: t("loggedOutMessage"),
       });
     } catch (error) {
       toast({
-        title: "Error logging out",
-        description: "There was an error logging out. Please try again.",
+        title: t("errorLoggingOut"),
+        description: t("errorLoggingOutMessage"),
         variant: "destructive",
       });
     }
@@ -47,7 +50,7 @@ export function Navbar() {
         className="flex items-center gap-2 text-gray-700 hover:text-indigo-700 hover:bg-indigo-50 transition-all"
       >
         <Calculator className="h-5 w-5" />
-        <span className="hidden md:inline">Calculator</span>
+        <span className="hidden md:inline">{t("calculator")}</span>
       </Button>
       <Button
         variant="ghost"
@@ -58,7 +61,7 @@ export function Navbar() {
         className="flex items-center gap-2 text-gray-700 hover:text-indigo-700 hover:bg-indigo-50 transition-all"
       >
         <LayoutDashboard className="h-5 w-5" />
-        <span className="hidden md:inline">Dashboard</span>
+        <span className="hidden md:inline">{t("dashboard")}</span>
       </Button>
       <Button
         variant="outline"
@@ -66,7 +69,7 @@ export function Navbar() {
         className="flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-all"
       >
         <LogOut className="h-4 w-4" />
-        <span>Logout</span>
+        <span>{t("logout")}</span>
       </Button>
     </>
   );
@@ -82,17 +85,19 @@ export function Navbar() {
             <Calculator className="h-5 w-5" />
           </div>
           <div className="font-bold text-xl bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
-            AI-agent Calculator
+            {t("aiAgentCalculator")}
           </div>
         </div>
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-4">
+          <LanguageSelector />
           <NavItems />
         </div>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center space-x-2">
+          <LanguageSelector />
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="text-gray-700">
@@ -109,7 +114,7 @@ export function Navbar() {
                   <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-lg">
                     <Calculator className="h-5 w-5" />
                   </div>
-                  <span className="font-semibold text-indigo-800">AI-agent Menu</span>
+                  <span className="font-semibold text-indigo-800">{t("aiAgentMenu")}</span>
                 </div>
                 <NavItems />
               </div>
