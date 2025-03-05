@@ -9,7 +9,6 @@ export const technologies = {
   "cal.com": "Cal.com",
   "twilio": "Twilio",
   "vapi": "Vapi",
-  "technologyParameters": "Paramètres Technologiques",
   "serviceType": "Type de Service",
   "selectServiceType": "Sélectionner un type de service",
   "costPerMinute": "Coût par Minute"
