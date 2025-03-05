@@ -64,9 +64,8 @@ export function InvoiceHistoryTable({
           </thead>
           <tbody className="divide-y divide-gray-200">
             {invoices.map((invoice) => (
-              <>
+              <React.Fragment key={invoice.id}>
                 <tr 
-                  key={invoice.id}
                   className={`hover:bg-gray-50 ${editingInvoiceId === invoice.id ? 'bg-indigo-50' : ''}`}
                 >
                   <td className="py-3 px-4">
@@ -155,7 +154,7 @@ export function InvoiceHistoryTable({
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>

@@ -48,8 +48,6 @@ export function InvoiceHistoryList({
     switch (currency) {
       case 'EUR':
         return '€';
-      case 'GBP':
-        return '£';
       default:
         return '$';
     }
