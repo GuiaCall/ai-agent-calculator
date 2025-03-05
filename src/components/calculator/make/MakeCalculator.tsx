@@ -51,8 +51,12 @@ export function MakeCalculator({
     const adaptedPlan: MakePlan = {
       name: optimalPlan.name,
       operationsPerMonth: optimalPlan.operationsPerMonth,
-      monthlyPrice: selectedPlanType === 'monthly' ? optimalPlan.price : optimalPlan.price / 12,
-      yearlyPrice: selectedPlanType === 'yearly' ? optimalPlan.price : optimalPlan.price * 12
+      monthlyPrice: selectedPlanType === 'monthly' 
+        ? optimalPlan.price 
+        : optimalPlan.price / 12, // Convert yearly price to monthly equivalent
+      yearlyPrice: selectedPlanType === 'yearly' 
+        ? optimalPlan.price 
+        : optimalPlan.price * 12
     };
 
     setCalculation({
@@ -68,8 +72,11 @@ export function MakeCalculator({
 
     onPlanSelect(adaptedPlan);
     
-    // Use monthly price for technology parameters
-    const monthlyPrice = selectedPlanType === 'monthly' ? optimalPlan.price : optimalPlan.price / 12;
+    // Always use monthly equivalent price for technology parameters
+    const monthlyPrice = selectedPlanType === 'monthly' 
+      ? optimalPlan.price 
+      : optimalPlan.price / 12; // For yearly billing, convert to monthly equivalent
+    
     onCostPerMinuteChange(costPerMinute);
     
     // Update technology parameter with monthly cost
@@ -83,22 +90,26 @@ export function MakeCalculator({
   const handlePlanSelect = (plan: MakeRecommendedPlan) => {
     setSelectedPlan(plan);
     
+    // Always use monthly equivalent price for calculations
+    const monthlyPrice = selectedPlanType === 'monthly' 
+      ? plan.price 
+      : plan.price / 12; // For yearly billing, convert to monthly equivalent
+    
     // Create adapter for legacy MakePlan format
     const adaptedPlan: MakePlan = {
       name: plan.name,
       operationsPerMonth: plan.operationsPerMonth,
-      monthlyPrice: selectedPlanType === 'monthly' ? plan.price : plan.price / 12,
+      monthlyPrice: monthlyPrice,
       yearlyPrice: selectedPlanType === 'yearly' ? plan.price : plan.price * 12
     };
 
     // Calculate cost per minute based on the selected plan
-    const costPerMinute = totalMinutes > 0 ? plan.price / totalMinutes : 0;
+    const costPerMinute = totalMinutes > 0 ? monthlyPrice / totalMinutes : 0;
     
     onPlanSelect(adaptedPlan);
     onCostPerMinuteChange(costPerMinute);
     
     // Update technology parameter with monthly cost
-    const monthlyPrice = selectedPlanType === 'monthly' ? plan.price : plan.price / 12;
     setTechnologies(techs => 
       techs.map(tech => 
         tech.id === 'make' ? { ...tech, costPerMinute: monthlyPrice } : tech
