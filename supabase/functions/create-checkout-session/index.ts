@@ -68,6 +68,7 @@ serve(async (req) => {
       mode: 'subscription',
       success_url: `${req.headers.get('origin')}/dashboard`,
       cancel_url: `${req.headers.get('origin')}/pricing`,
+      allow_promotion_codes: true,  // Allow users to enter coupon codes directly in the Stripe checkout page
     };
 
     // Add coupon code if provided
