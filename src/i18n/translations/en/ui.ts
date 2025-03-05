@@ -69,5 +69,17 @@ export const ui = {
   "perMinute": "per minute",
   "basedOnUsage": "Based on your estimated usage of",
   "minutesPerMonth": "minutes per month",
-  "operationsHelp": "Enter the number of operations consumed by your Make.com scenarios"
+  "operationsHelp": "Enter the number of operations consumed by your Make.com scenarios",
+  "twilioCalculator": "Twilio Configuration",
+  "country": "Country",
+  "selectCountry": "Select a country",
+  "serviceType": "Service Type",
+  "selectServiceType": "Select Service Type",
+  "twilioCostCalculation": "Twilio Cost Calculation",
+  "baseCost": "Base Cost",
+  "selectedRate": "Selected Rate",
+  "twilioRateExplanation": "The rate is determined by the selected country and number type. Different rates apply for local, mobile, and toll-free numbers.",
+  "vapiCalculator": "Vapi Configuration",
+  "blandAiCalculator": "Bland AI Configuration",
+  "inboundSms": "Inbound SMS"
 };

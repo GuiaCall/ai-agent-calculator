@@ -64,5 +64,21 @@ export const ui = {
   "costPerMinute": "Kosten pro Minute",
   "totalMinutes": "Gesamtminuten",
   "monthlyBilling": "Monatliche Abrechnung",
-  "yearlyBilling": "Jährliche Abrechnung"
+  "yearlyBilling": "Jährliche Abrechnung",
+  "perMinute": "pro Minute",
+  "basedOnUsage": "Basierend auf Ihrer geschätzten Nutzung von",
+  "minutesPerMonth": "Minuten pro Monat",
+  "operationsHelp": "Geben Sie die Anzahl der von Ihren Make.com-Szenarien verbrauchten Operationen ein",
+  "twilioCalculator": "Twilio Konfiguration",
+  "country": "Land",
+  "selectCountry": "Land auswählen",
+  "serviceType": "Dienstart",
+  "selectServiceType": "Dienstart auswählen",
+  "twilioCostCalculation": "Twilio Kostenberechnung",
+  "baseCost": "Grundkosten",
+  "selectedRate": "Gewählter Tarif",
+  "twilioRateExplanation": "Der Tarif wird durch das ausgewählte Land und den Nummerntyp bestimmt. Unterschiedliche Tarife gelten für lokale, mobile und gebührenfreie Nummern.",
+  "vapiCalculator": "Vapi Konfiguration",
+  "blandAiCalculator": "Bland AI Konfiguration",
+  "inboundSms": "Eingehende SMS"
 };

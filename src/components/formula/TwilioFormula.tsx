@@ -1,20 +1,23 @@
 
 import { Phone } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function TwilioFormula() {
+  const { t } = useTranslation();
+  
   return (
     <div>
       <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
         <div className="bg-indigo-100 p-2 rounded-full">
           <Phone className="h-5 w-5 text-indigo-600" />
         </div>
-        Twilio Cost Calculation
+        {t("twilioCostCalculation")}
       </h3>
       <p className="text-gray-600">
-        Base Cost = Selected Rate × Total Minutes
+        {t("baseCost")} = {t("selectedRate")} × {t("totalMinutes")}
       </p>
       <p className="text-sm text-gray-500 mt-1">
-        The rate is determined by the selected country and number type. Different rates apply for local, mobile, and toll-free numbers.
+        {t("twilioRateExplanation")}
       </p>
     </div>
   );
