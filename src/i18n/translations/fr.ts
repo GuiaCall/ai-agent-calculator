@@ -162,8 +162,7 @@ export const fr = {
     // Pricing page
     "freePlan": "Gratuit",
     "enterprisePlan": "Entreprise",
-    "monthly": "Mensuel",
-    "yearly": "Annuel",
+    "yearlyPlan": "Annuel",
     "getStarted": "Commencer",
     "contactSales": "Contacter les Ventes",
     "currentPlan": "Plan Actuel",
