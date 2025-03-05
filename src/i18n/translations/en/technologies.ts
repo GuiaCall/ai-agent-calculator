@@ -67,6 +67,8 @@ export const technologies = {
   "twilioCalculator": "Twilio Configuration",
   "country": "Country",
   "selectCountry": "Select a country",
+  "serviceType": "Service Type",
+  "selectServiceType": "Select Service Type",
   
   // Vapi translations
   "vapi": "Vapi",

@@ -1,6 +1,7 @@
 
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 interface TwilioRateDisplayProps {
   selection: {
@@ -14,6 +15,7 @@ interface TwilioRateDisplayProps {
 
 export function TwilioRateDisplay({ selection }: TwilioRateDisplayProps) {
   const { totalMinutes, currency, setTechnologies } = useCalculatorStateContext();
+  const { t } = useTranslation();
 
   const getCurrencySymbol = (currency: string) => {
     switch (currency) {
@@ -57,16 +59,16 @@ export function TwilioRateDisplay({ selection }: TwilioRateDisplayProps) {
 
   return (
     <div className="mt-2 space-y-1 bg-white text-gray-900 rounded-lg p-4 shadow-sm border border-border">
-      <p className="font-medium">Selected rates for {selection.country} ({selection.type}):</p>
+      <p className="font-medium">{t("selectedRatesFor")} {selection.country} ({selection.type}):</p>
       <ul className="list-disc pl-5">
-        <li>Phone Number Cost: {getCurrencySymbol(currency)}{phoneNumberCost.toFixed(2)}/month</li>
-        <li>Inbound Voice: {getCurrencySymbol(currency)}{getCurrencyConversion(selection.inboundVoicePrice).toFixed(4)}/minute</li>
+        <li>{t("phoneNumberCost")}: {getCurrencySymbol(currency)}{phoneNumberCost.toFixed(2)}/{t("month")}</li>
+        <li>{t("inboundVoice")}: {getCurrencySymbol(currency)}{getCurrencyConversion(selection.inboundVoicePrice).toFixed(4)}/{t("perMinute")}</li>
         {selection.inboundSmsPrice && (
           <li>Inbound SMS: {getCurrencySymbol(currency)}{getCurrencyConversion(selection.inboundSmsPrice).toFixed(4)}/message</li>
         )}
-        <li>Usage Cost ({totalMinutes} minutes): {getCurrencySymbol(currency)}{totalMinutesCost.toFixed(2)}</li>
+        <li>{t("usageCost")} ({totalMinutes} {t("totalMinutes").toLowerCase()}): {getCurrencySymbol(currency)}{totalMinutesCost.toFixed(2)}</li>
         <li className="font-semibold flex items-center gap-2">
-          Total Monthly Cost: {getCurrencySymbol(currency)}{convertedMonthlyCost.toFixed(2)}
+          {t("totalMonthlyTwilioCost")}: {getCurrencySymbol(currency)}{convertedMonthlyCost.toFixed(2)}
         </li>
       </ul>
     </div>
