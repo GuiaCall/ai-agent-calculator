@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { SynthflowPlan } from "@/types/synthflow";
 import { SYNTHFLOW_PLANS, SYNTHFLOW_PRICING_URL } from "@/constants/synthflowPlans";
@@ -28,8 +27,6 @@ export function SynthflowCalculator({
     switch (currency) {
       case 'EUR':
         return '€';
-      case 'GBP':
-        return '£';
       default:
         return '$';
     }
@@ -39,14 +36,11 @@ export function SynthflowCalculator({
     switch (currency) {
       case 'EUR':
         return amount * 0.948231;
-      case 'GBP':
-        return amount * 0.814;
       default:
         return amount;
     }
   };
   
-  // Calculate costs for all plans based on minutes and billing type
   const plansWithCosts = SYNTHFLOW_PLANS.map(plan => {
     const basePrice = billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
     const overageMinutes = Math.max(0, totalMinutes - plan.minutesPerMonth);
@@ -64,21 +58,17 @@ export function SynthflowCalculator({
     };
   });
   
-  // Find recommended plan (lowest total cost)
   const recommendedPlan = [...plansWithCosts].sort((a, b) => a.totalCost - b.totalCost)[0];
   
-  // Apply recommended flag
   const enhancedPlans = plansWithCosts.map(plan => ({
     ...plan,
     isRecommended: plan.name === recommendedPlan.name
   }));
 
   useEffect(() => {
-    // Set recommended plan as default selection if no plan is selected
     if (!selectedPlanId && recommendedPlan) {
       setSelectedPlanId(recommendedPlan.name);
       
-      // Update parent component with selected plan data
       const selectedPlanWithCost = {
         ...recommendedPlan,
         costPerMinute: recommendedPlan.costPerMinute
@@ -86,7 +76,6 @@ export function SynthflowCalculator({
       
       onPlanSelect(selectedPlanWithCost);
       
-      // Update technology parameter with monthly cost
       setTechnologies(techs => 
         techs.map(tech => 
           tech.id === 'synthflow' ? { ...tech, costPerMinute: recommendedPlan.totalCost } : tech
@@ -105,7 +94,6 @@ export function SynthflowCalculator({
         costPerMinute: selectedPlan.costPerMinute
       });
       
-      // Update technology parameter with monthly cost
       setTechnologies(techs => 
         techs.map(tech => 
           tech.id === 'synthflow' ? { ...tech, costPerMinute: selectedPlan.totalCost } : tech
@@ -118,7 +106,6 @@ export function SynthflowCalculator({
     const newBillingType = billingType === 'monthly' ? 'yearly' : 'monthly';
     setBillingType(newBillingType);
     
-    // Reset selected plan to trigger recalculation
     setSelectedPlanId(null);
   };
 

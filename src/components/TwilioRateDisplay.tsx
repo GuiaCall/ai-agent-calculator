@@ -1,4 +1,3 @@
-
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { useEffect } from "react";
 
@@ -19,8 +18,6 @@ export function TwilioRateDisplay({ selection }: TwilioRateDisplayProps) {
     switch (currency) {
       case 'EUR':
         return '€';
-      case 'GBP':
-        return '£';
       default:
         return '$';
     }
@@ -30,8 +27,6 @@ export function TwilioRateDisplay({ selection }: TwilioRateDisplayProps) {
     switch (currency) {
       case 'EUR':
         return amount * 0.948231;
-      case 'GBP':
-        return amount * 0.814;
       default:
         return amount;
     }

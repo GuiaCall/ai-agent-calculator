@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { useCalculatorStateContext } from "./CalculatorStateContext";
 import { Currency, DollarSign, Euro } from "lucide-react";
@@ -7,8 +6,7 @@ import { CurrencyType } from "./CalculatorState";
 
 const CONVERSION_RATES: Record<CurrencyType, number> = {
   USD: 1,
-  EUR: 0.92,
-  GBP: 0.79
+  EUR: 0.92
 };
 
 const CURRENCY_ICONS = {
@@ -28,7 +26,7 @@ export function CurrencyToggle() {
   const { toast } = useToast();
   
   const handleCurrencyToggle = () => {
-    const currencies: CurrencyType[] = ['USD', 'EUR']; // Removed GBP
+    const currencies: CurrencyType[] = ['USD', 'EUR'];
     const currentIndex = currencies.indexOf(currency);
     const newIndex = (currentIndex + 1) % currencies.length;
     const newCurrency = currencies[newIndex];

@@ -29,8 +29,6 @@ export function InvoicePreview({
     switch (currency) {
       case 'EUR':
         return '€';
-      case 'GBP':
-        return '£';
       default:
         return '$';
     }
@@ -41,7 +39,6 @@ export function InvoicePreview({
   const taxAmount = (totalCost || 0) * (taxRate / 100);
   const total = (totalCost || 0) * (1 + taxRate / 100) + (setupCost || 0);
   
-  // Generate dynamic invoice number with current year and sequence
   const currentYear = new Date().getFullYear();
   const dynamicInvoiceNumber = invoiceNumber || `INV-${currentYear}-0001`;
   
@@ -50,7 +47,6 @@ export function InvoicePreview({
   
   return (
     <div className="max-w-[210mm] mx-auto bg-white text-gray-800 rounded-xl shadow-2xl overflow-hidden print:shadow-none">
-      {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white">
         <div className="flex justify-between items-center">
           <div>
@@ -64,7 +60,6 @@ export function InvoicePreview({
         </div>
       </div>
       
-      {/* Invoice Info */}
       <div className="p-8 bg-white">
         <div className="grid grid-cols-2 gap-8 mb-8">
           <div>
@@ -96,7 +91,6 @@ export function InvoicePreview({
           </div>
         </div>
 
-        {/* Invoice Items Table */}
         <div className="mt-10">
           <table className="w-full text-left">
             <thead>
@@ -132,7 +126,6 @@ export function InvoicePreview({
           </table>
         </div>
 
-        {/* Totals */}
         <div className="mt-8 border-t border-gray-200 pt-8">
           <div className="flex justify-end">
             <div className="w-1/2 space-y-3">
@@ -152,7 +145,6 @@ export function InvoicePreview({
           </div>
         </div>
 
-        {/* Footer */}
         <div className="mt-12 pt-8 border-t border-gray-200">
           <div className="text-center text-gray-500 text-sm space-y-2">
             <p className="font-medium text-gray-600">Thank you for your business!</p>

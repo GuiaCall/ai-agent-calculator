@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExternalLink, MessageSquare } from "lucide-react";
@@ -14,8 +13,6 @@ export function BlandAICalculator() {
     switch (currency) {
       case 'EUR':
         return '€';
-      case 'GBP':
-        return '£';
       default:
         return '$';
     }
@@ -25,14 +22,11 @@ export function BlandAICalculator() {
     switch (currency) {
       case 'EUR':
         return amount * 0.948231;
-      case 'GBP':
-        return amount * 0.814;
       default:
         return amount;
     }
   };
 
-  // Calculate the monthly cost based on total minutes
   useEffect(() => {
     const costPerMinute = 0.09; // $0.09 per minute for Bland AI
     const cost = costPerMinute * totalMinutes;

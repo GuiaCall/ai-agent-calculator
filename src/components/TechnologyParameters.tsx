@@ -33,8 +33,6 @@ export function TechnologyParameters({
     switch (currency) {
       case 'EUR':
         return '€';
-      case 'GBP':
-        return '£';
       default:
         return '$';
     }
@@ -44,8 +42,6 @@ export function TechnologyParameters({
     switch (currency) {
       case 'EUR':
         return amount * 0.948231;
-      case 'GBP':
-        return amount * 0.814;
       default:
         return amount;
     }
@@ -54,7 +50,6 @@ export function TechnologyParameters({
   const currencySymbol = getCurrencySymbol(currency);
 
   useEffect(() => {
-    // Clear input values when currency changes to force refresh
     setInputValues({});
   }, [currency]);
 
@@ -67,10 +62,8 @@ export function TechnologyParameters({
   };
 
   const handleCostChange = (id: string, value: string) => {
-    // First, update the input value state to maintain the current input
     setInputValues(prev => ({ ...prev, [id]: value }));
 
-    // Handle empty input
     if (value === '') {
       const updatedTechs = technologies.map(tech =>
         tech.id === id ? { ...tech, costPerMinute: 0 } : tech
@@ -79,17 +72,14 @@ export function TechnologyParameters({
       return;
     }
 
-    // Validate input format
     if (!/^\d*\.?\d*$/.test(value)) {
       return;
     }
 
-    // Handle special cases
     if (value === '.') {
-      return; // Keep the dot but don't update the value yet
+      return;
     }
 
-    // Convert to number and validate
     const numValue = parseFloat(value);
     if (!isNaN(numValue) && numValue >= 0) {
       const updatedTechs = technologies.map(tech =>
@@ -100,12 +90,10 @@ export function TechnologyParameters({
   };
 
   const getDisplayValue = (tech: Technology) => {
-    // If there's an active input value, use that
     if (inputValues[tech.id] !== undefined) {
       return inputValues[tech.id];
     }
 
-    // Otherwise format the stored value (converted to current currency)
     const convertedValue = getCurrencyConversion(tech.costPerMinute);
     
     if (convertedValue === 0) return '';

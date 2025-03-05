@@ -27,8 +27,6 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
     switch (currency) {
       case 'EUR':
         return amount * 0.948231;
-      case 'GBP':
-        return amount * 0.814;
       default:
         return amount;
     }
@@ -38,8 +36,6 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
     switch (currency) {
       case 'EUR':
         return '€';
-      case 'GBP':
-        return '£';
       default:
         return '$';
     }

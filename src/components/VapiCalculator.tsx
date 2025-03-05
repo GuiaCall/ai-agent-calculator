@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -15,8 +14,6 @@ export function VapiCalculator() {
     switch (currency) {
       case 'EUR':
         return '€';
-      case 'GBP':
-        return '£';
       default:
         return '$';
     }
@@ -26,14 +23,11 @@ export function VapiCalculator() {
     switch (currency) {
       case 'EUR':
         return amount * 0.948231;
-      case 'GBP':
-        return amount * 0.814;
       default:
         return amount;
     }
   };
 
-  // Calculate total monthly cost whenever input or total minutes change
   useEffect(() => {
     const numValue = parseFloat(costPerMinute);
     if (!isNaN(numValue) && numValue >= 0) {
@@ -48,7 +42,6 @@ export function VapiCalculator() {
   }, [costPerMinute, totalMinutes, setTechnologies]);
 
   const handleCostChange = (value: string) => {
-    // Validate input format
     if (!/^\d*\.?\d*$/.test(value) && value !== '') {
       return;
     }
