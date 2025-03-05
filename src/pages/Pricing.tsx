@@ -8,10 +8,13 @@ import { Footer } from "@/components/layout/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Pricing() {
   const [loading, setLoading] = useState(false);
   const [invoiceCount, setInvoiceCount] = useState(0);
+  const [couponCode, setCouponCode] = useState("");
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -34,7 +37,9 @@ export default function Pricing() {
   const handleSubscribe = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('create-checkout-session');
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { couponCode: couponCode.trim() || undefined }
+      });
       
       if (error) throw error;
       if (!data?.url) throw new Error('No checkout URL returned');
@@ -123,6 +128,20 @@ export default function Pricing() {
                   <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                   <span>{t("accessToAllSavedInvoices")}</span>
                 </div>
+              </div>
+              
+              {/* Coupon Code Input */}
+              <div className="mb-4">
+                <Label htmlFor="couponCode" className="mb-2 block">
+                  {t("couponCode")}
+                </Label>
+                <Input
+                  id="couponCode"
+                  placeholder={t("enterCouponCode")}
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="mb-4"
+                />
               </div>
 
               <Button 

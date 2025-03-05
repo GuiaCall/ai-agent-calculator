@@ -1,3 +1,4 @@
+
 export const ui = {
   "success": "Succès",
   "error": "Erreur",
@@ -83,5 +84,7 @@ export const ui = {
   "overage": "Dépassement ({{count}} minutes à {{rate}}/min)",
   "synthflowCalculator": "Calculateur de Plan Synthflow",
   "billingType": "facturation annuelle",
-  "teamMembersCostInfo": "Les membres d'équipe coûtent {{cost}}/mois chacun"
+  "teamMembersCostInfo": "Les membres d'équipe coûtent {{cost}}/mois chacun",
+  "couponCode": "Code Promo",
+  "enterCouponCode": "Entrez un code promo (optionnel)"
 };

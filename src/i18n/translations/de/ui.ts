@@ -1,3 +1,4 @@
+
 export const ui = {
   "footer": "© 2024 KI-Sprachagent Rechner. Alle Rechte vorbehalten.",
   "aiAgentCalculator": "KI-Agent Rechner",
@@ -91,5 +92,7 @@ export const ui = {
   "selectPlan": "Plan auswählen",
   "recommendedPlan": "Empfohlener Plan",
   "billingType": "jährlich abgerechnet",
-  "teamMembersCostInfo": "Teammitglieder kosten {{cost}}/Monat pro Person"
+  "teamMembersCostInfo": "Teammitglieder kosten {{cost}}/Monat pro Person",
+  "couponCode": "Gutscheincode",
+  "enterCouponCode": "Gutscheincode eingeben (optional)"
 };
