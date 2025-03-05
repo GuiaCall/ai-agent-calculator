@@ -1,4 +1,3 @@
-
 export const fr = {
   translation: {
     // General
@@ -50,18 +49,24 @@ export const fr = {
     "operationsPerScenario": "Opérations par Scénario",
     "operationsHelp": "Entrez le nombre d'opérations consommées par vos scénarios Make.com",
     "billingCycle": "Cycle de Facturation",
-    "calculateOperations": "Calculer les Opérations",
+    "calculateOperations": "Calculer les Opérations Requises",
     "makeOperationsCalculation": "Calcul des Opérations Make.com",
     "totalCallsFormula": "Appels Totaux = Minutes Totales ÷ Durée Moyenne d'Appel",
     "requiredOperationsFormula": "Opérations Requises = Appels Totaux × Opérations par Scénario × 1,2",
     "pricingTiersDetermined": "Les niveaux de prix sont déterminés par le total des opérations requises par mois :",
     "operationsRange": "10 000 à 8 000 000 opérations par mois disponibles",
     "corePlan": "Core : Pour les individus automatisant un travail simple",
+    "proPlan": "Pro : Pour les individus bénéficiant d'automatisations plus sophistiquées",
     "teamsPlan": "Teams : Pour les départements introduisant l'automatisation pour plusieurs utilisateurs",
     "multiplyBuffer": "Nous multiplions par 1,2 pour ajouter un tampon de 20% pour les opérations incomplètes qui consomment toujours votre quota Make.com.",
     "annualBillingPlans": "Les plans de facturation annuelle offrent des économies significatives par rapport à la facturation mensuelle (jusqu'à 15-20%).",
     "operationLimits": "Toutes les limites d'opérations indiquées sont par mois. Pour la facturation annuelle, le prix indiqué est l'équivalent mensuel pour une comparaison facile, mais vous serez facturé annuellement pour le montant annuel complet.",
     "yearlyPricesNote": "Remarque : Les prix annuels sont affichés en équivalents mensuels avec une notation \"facturation annuelle\".",
+    "operationsPerMonth": "opérations par mois",
+    "save": "Économisez",
+    "vsMonthlyBilling": "par rapport à la facturation mensuelle",
+    "monthly": "mois",
+    "billingType": "facturation annuelle",
     
     // Synthflow Calculator
     "synthflowCalculator": "Calculateur de Plan Synthflow",

@@ -1,6 +1,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
 
 interface MakeOperationsInputProps {
   operationsPerScenario: number;
@@ -11,9 +12,11 @@ export function MakeOperationsInput({
   operationsPerScenario,
   setOperationsPerScenario,
 }: MakeOperationsInputProps) {
+  const { t } = useTranslation();
+  
   return (
     <div className="space-y-2">
-      <Label htmlFor="operations">Operations per Scenario</Label>
+      <Label htmlFor="operations">{t("operationsPerScenario")}</Label>
       <Input
         id="operations"
         type="number"
@@ -22,7 +25,7 @@ export function MakeOperationsInput({
         min="1"
       />
       <p className="text-sm text-gray-500">
-        Enter the number of operations consumed by your Make.com scenarios
+        {t("operationsHelp")}
       </p>
     </div>
   );

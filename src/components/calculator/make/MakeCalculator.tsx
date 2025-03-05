@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { MakePlan, MakeRecommendedPlan, OperationsCalculation } from "@/types/make";
@@ -8,6 +7,7 @@ import { MakeBillingCycleSelector } from "./MakeBillingCycleSelector";
 import { MakeCalculationResults } from "./MakeCalculationResults";
 import { calculateMakeOperations, calculateRequiredPlanPrice } from "@/utils/makeCalculations";
 import { useCalculatorStateContext } from "../CalculatorStateContext";
+import { useTranslation } from "react-i18next";
 
 export function MakeCalculator({
   totalMinutes,
@@ -27,6 +27,7 @@ export function MakeCalculator({
   const [recommendedPlan, setRecommendedPlan] = useState<MakeRecommendedPlan | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<MakeRecommendedPlan | null>(null);
   const { setTechnologies } = useCalculatorStateContext();
+  const { t } = useTranslation();
 
   const calculateOperations = () => {
     const { totalCalls, totalOperations } = calculateMakeOperations(
@@ -48,10 +49,8 @@ export function MakeCalculator({
       totalMinutes
     );
 
-    // For adapter, always use monthly equivalent price
     const monthlyPriceEquivalent = optimalPlan.monthlyEquivalent;
 
-    // Create adapter for legacy MakePlan format
     const adaptedPlan: MakePlan = {
       name: optimalPlan.name,
       operationsPerMonth: optimalPlan.operationsPerMonth,
@@ -70,12 +69,11 @@ export function MakeCalculator({
 
     setRecommendations(planRecommendations);
     setRecommendedPlan(optimalPlan);
-    setSelectedPlan(optimalPlan); // Set the recommended plan as the initial selected plan
+    setSelectedPlan(optimalPlan);
 
     onPlanSelect(adaptedPlan);
     onCostPerMinuteChange(costPerMinute);
     
-    // Update technology parameter with monthly equivalent cost
     setTechnologies(techs => 
       techs.map(tech => 
         tech.id === 'make' ? { ...tech, costPerMinute: monthlyPriceEquivalent } : tech
@@ -86,10 +84,8 @@ export function MakeCalculator({
   const handlePlanSelect = (plan: MakeRecommendedPlan) => {
     setSelectedPlan(plan);
     
-    // Always use monthly equivalent price for calculations
     const monthlyPriceEquivalent = plan.monthlyEquivalent;
     
-    // Create adapter for legacy MakePlan format
     const adaptedPlan: MakePlan = {
       name: plan.name,
       operationsPerMonth: plan.operationsPerMonth,
@@ -97,13 +93,11 @@ export function MakeCalculator({
       yearlyPrice: selectedPlanType === 'yearly' ? plan.price : plan.price * 12
     };
 
-    // Calculate cost per minute based on the selected plan
     const costPerMinute = totalMinutes > 0 ? monthlyPriceEquivalent / totalMinutes : 0;
     
     onPlanSelect(adaptedPlan);
     onCostPerMinuteChange(costPerMinute);
     
-    // Update technology parameter with monthly equivalent cost
     setTechnologies(techs => 
       techs.map(tech => 
         tech.id === 'make' ? { ...tech, costPerMinute: monthlyPriceEquivalent } : tech
@@ -114,7 +108,6 @@ export function MakeCalculator({
   const handleBillingTypeChange = (value: string) => {
     setSelectedPlanType(value);
     
-    // Recalculate if we already have operations calculated
     if (calculation) {
       calculateOperations();
     }
@@ -139,7 +132,7 @@ export function MakeCalculator({
           onClick={calculateOperations} 
           className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
         >
-          Calculate Required Operations
+          {t("calculateOperations")}
         </button>
 
         {calculation && (

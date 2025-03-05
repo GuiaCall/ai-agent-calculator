@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, ExternalLink } from "lucide-react";
 import { MakeRecommendedPlan } from "@/types/make";
+import { useTranslation } from "react-i18next";
 
 interface MakePlanSelectorProps {
   recommendations: MakeRecommendedPlan[];
@@ -19,11 +20,12 @@ export function MakePlanSelector({
   selectedPlanType,
   onPlanSelect,
 }: MakePlanSelectorProps) {
+  const { t } = useTranslation();
   const isPricePerYear = selectedPlanType === 'yearly';
   
   return (
     <div className="space-y-4">
-      <p className="font-semibold text-base">Available Plans:</p>
+      <p className="font-semibold text-base">{t("selectPlan")}:</p>
       <div className="grid grid-cols-1 gap-3">
         {recommendations.map((plan, index) => {
           // For display purposes, we always show the monthly equivalent price
@@ -49,23 +51,23 @@ export function MakePlanSelector({
                   <span className={`font-semibold ${selectedPlan?.name === plan.name ? 'text-indigo-700' : ''}`}>{plan.name}</span>
                   {plan.name === recommendedPlan?.name && (
                     <Badge variant="outline" className="ml-2 bg-primary/10 text-primary">
-                      Recommended
+                      {t("recommendedPlan")}
                     </Badge>
                   )}
                 </div>
                 <span className={`font-semibold ${selectedPlan?.name === plan.name ? 'text-indigo-700' : ''}`}>
-                  ${displayPrice}/month
+                  ${displayPrice}/{t("monthly")}
                   {isPricePerYear && (
-                    <span className="text-xs text-gray-500 ml-1">(billed yearly)</span>
+                    <span className="text-xs text-gray-500 ml-1">({t("billingType").toLowerCase()})</span>
                   )}
                 </span>
               </div>
               <p className="text-sm text-gray-600 mt-1">
-                {plan.operationsPerMonth.toLocaleString()} operations per month
+                {plan.operationsPerMonth.toLocaleString()} {t("operationsPerMonth")}
               </p>
               {plan.savingsPercentage && isPricePerYear && (
                 <p className="text-sm text-green-600 mt-1">
-                  Save {plan.savingsPercentage}% vs monthly billing
+                  {t("save")} {plan.savingsPercentage}% {t("vsMonthlyBilling")}
                 </p>
               )}
             </div>
@@ -80,7 +82,7 @@ export function MakePlanSelector({
           onClick={() => window.open('https://rb.gy/8nusbv', '_blank')}
         >
           <ExternalLink className="h-4 w-4 mr-1" />
-          Get Selected Plan
+          {t("getPlan")}
         </Button>
       )}
     </div>

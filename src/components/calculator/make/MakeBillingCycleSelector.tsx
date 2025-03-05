@@ -1,6 +1,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useTranslation } from "react-i18next";
 
 interface MakeBillingCycleSelectorProps {
   selectedPlanType: string;
@@ -11,19 +12,21 @@ export function MakeBillingCycleSelector({
   selectedPlanType,
   onBillingTypeChange,
 }: MakeBillingCycleSelectorProps) {
+  const { t } = useTranslation();
+  
   return (
     <div className="space-y-2">
-      <Label>Billing Cycle</Label>
+      <Label>{t("billingCycle")}</Label>
       <Select
         value={selectedPlanType}
         onValueChange={onBillingTypeChange}
       >
         <SelectTrigger>
-          <SelectValue placeholder="Select billing cycle" />
+          <SelectValue placeholder={t("billingCycle")} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="monthly">Monthly</SelectItem>
-          <SelectItem value="yearly">Yearly (Save up to 15%)</SelectItem>
+          <SelectItem value="monthly">{t("monthlyBilling")}</SelectItem>
+          <SelectItem value="yearly">{t("yearlyBilling")}</SelectItem>
         </SelectContent>
       </Select>
     </div>

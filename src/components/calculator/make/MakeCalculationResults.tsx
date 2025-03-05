@@ -3,6 +3,7 @@ import { ExternalLink } from "lucide-react";
 import { MakeRecommendedPlan, OperationsCalculation } from "@/types/make";
 import { MakeCalculationSummary } from "./MakeCalculationSummary";
 import { MakePlanSelector } from "./MakePlanSelector";
+import { useTranslation } from "react-i18next";
 
 interface MakeCalculationResultsProps {
   calculation: OperationsCalculation;
@@ -21,6 +22,8 @@ export function MakeCalculationResults({
   selectedPlanType,
   onPlanSelect
 }: MakeCalculationResultsProps) {
+  const { t } = useTranslation();
+  
   return (
     <div className="space-y-4 p-4 bg-secondary rounded-lg">
       <MakeCalculationSummary calculation={calculation} />

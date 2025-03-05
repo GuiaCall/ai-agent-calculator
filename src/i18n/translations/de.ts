@@ -1,4 +1,3 @@
-
 export const de = {
   translation: {
     // General
@@ -50,18 +49,24 @@ export const de = {
     "operationsPerScenario": "Operationen pro Szenario",
     "operationsHelp": "Geben Sie die Anzahl der von Ihren Make.com-Szenarien verbrauchten Operationen ein",
     "billingCycle": "Abrechnungszyklus",
-    "calculateOperations": "Operationen berechnen",
+    "calculateOperations": "Erforderliche Operationen berechnen",
     "makeOperationsCalculation": "Make.com Operationen Berechnung",
     "totalCallsFormula": "Gesamtanrufe = Gesamtminuten ÷ Durchschnittliche Anrufdauer",
     "requiredOperationsFormula": "Erforderliche Operationen = Gesamtanrufe × Operationen pro Szenario × 1,2",
     "pricingTiersDetermined": "Die Preisstufen werden durch die monatlich erforderlichen Gesamtoperationen bestimmt:",
     "operationsRange": "10.000 bis 8.000.000 Operationen pro Monat verfügbar",
     "corePlan": "Core: Für Personen, die einfache Arbeiten automatisieren",
+    "proPlan": "Pro: Für Personen, die von anspruchsvolleren Automatisierungen profitieren",
     "teamsPlan": "Teams: Für Abteilungen, die Automatisierung für mehrere Benutzer einführen",
     "multiplyBuffer": "Wir multiplizieren mit 1,2, um einen Puffer von 20% für unvollständige Operationen hinzuzufügen, die trotzdem Ihr Make.com-Kontingent verbrauchen.",
     "annualBillingPlans": "Jährliche Abrechnungspläne bieten im Vergleich zur monatlichen Abrechnung erhebliche Einsparungen (bis zu 15-20%).",
     "operationLimits": "Alle angezeigten Operationslimits gelten pro Monat. Bei jährlicher Abrechnung wird der angezeigte Preis als monatliches Äquivalent für einen einfachen Vergleich angezeigt, aber Sie werden jährlich für den gesamten Jahresbetrag abgerechnet.",
     "yearlyPricesNote": "Hinweis: Jährliche Preise werden als monatliche Äquivalente mit dem Hinweis \"jährlich abgerechnet\" angezeigt.",
+    "operationsPerMonth": "Operationen pro Monat",
+    "save": "Sparen Sie",
+    "vsMonthlyBilling": "gegenüber monatlicher Abrechnung",
+    "monthly": "Monat",
+    "billingType": "jährlich abgerechnet",
     
     // Synthflow Calculator
     "synthflowCalculator": "Synthflow Plan Rechner",

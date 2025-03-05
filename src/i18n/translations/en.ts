@@ -1,4 +1,3 @@
-
 export const en = {
   translation: {
     // General
@@ -63,6 +62,11 @@ export const en = {
     "annualBillingPlans": "Annual billing plans offer significant savings compared to monthly billing (up to 15-20%).",
     "operationLimits": "All operation limits shown are per month. For yearly billing, the price shown is the monthly equivalent for easy comparison, but you'll be billed annually for the full yearly amount.",
     "yearlyPricesNote": "Note: Yearly prices are displayed as monthly equivalents with a \"billed yearly\" notation.",
+    "operationsPerMonth": "operations per month",
+    "save": "Save",
+    "vsMonthlyBilling": "vs monthly billing",
+    "monthly": "month",
+    "billingType": "billed yearly",
     
     // Synthflow Calculator
     "synthflowCalculator": "Synthflow Plan Calculator",
