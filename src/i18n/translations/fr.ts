@@ -57,7 +57,6 @@ export const fr = {
     "pricingTiersDetermined": "Les niveaux de prix sont déterminés par le total des opérations requises par mois :",
     "operationsRange": "10 000 à 8 000 000 opérations par mois disponibles",
     "corePlan": "Core : Pour les individus automatisant un travail simple",
-    "proPlan": "Pro : Pour les individus bénéficiant d'automatisations plus sophistiquées",
     "teamsPlan": "Teams : Pour les départements introduisant l'automatisation pour plusieurs utilisateurs",
     "multiplyBuffer": "Nous multiplions par 1,2 pour ajouter un tampon de 20% pour les opérations incomplètes qui consomment toujours votre quota Make.com.",
     "annualBillingPlans": "Les plans de facturation annuelle offrent des économies significatives par rapport à la facturation mensuelle (jusqu'à 15-20%).",
@@ -157,7 +156,7 @@ export const fr = {
     
     // Pricing page
     "freePlan": "Gratuit",
-    "proPlan": "Pro",
+    "proPlan": "Pro : Pour les individus bénéficiant d'automatisations plus sophistiquées",
     "enterprisePlan": "Entreprise",
     "monthly": "Mensuel",
     "yearly": "Annuel",
