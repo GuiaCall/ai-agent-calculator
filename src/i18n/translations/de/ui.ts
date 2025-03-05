@@ -19,8 +19,9 @@ export const ui = {
   "pricingDescription": "Wählen Sie den Plan, der am besten zu Ihren Anforderungen passt",
   "proPlan": "Pro Plan",
   "freePlanDescription": "Perfekt für den Einstieg",
-  "proPlanDescription": "Für wachsende Unternehmen", 
+  "proPlanDescription": "Für wachsende Unternehmen",
   "month": "Monat",
+  "year": "Jahr",
   "generateUpToFiveInvoices": "Erstellen Sie bis zu 5 Rechnungen ({{count}}/5 verwendet)",
   "basicInvoiceGeneration": "Grundlegende Rechnungserstellung",
   "pdfExportFunctionality": "PDF-Export-Funktionalität",
@@ -41,6 +42,5 @@ export const ui = {
   "pleaseUpgrade": "Bitte auf den Pro-Plan upgraden, um mehr Berechnungen durchzuführen",
   "upgradeNow": "Jetzt upgraden",
   "per": "pro",
-  "year": "Jahr",
   "overage": "Überschreitung ({{count}} Minuten zu {{rate}}/Min):"
 };

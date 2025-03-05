@@ -52,85 +52,87 @@ export default function Pricing() {
   };
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-      <div className="container mx-auto px-4 py-16 mt-16">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">{t("pricingTitle")}</h1>
-          <p className="text-gray-600">{t("pricingDescription")}</p>
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold mb-4">{t("pricingTitle")}</h1>
+            <p className="text-gray-600 max-w-2xl mx-auto">{t("pricingDescription")}</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Free Plan */}
+            <Card className="p-8 border-2 hover:border-primary transition-all">
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold mb-2">{t("freePlan")}</h3>
+                <p className="text-gray-600 mb-4">{t("freePlanDescription")}</p>
+                <div className="text-3xl font-bold">€0/{t("month")}</div>
+              </div>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                  <span>{t("generateUpToFiveInvoices", { count: invoiceCount })}</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                  <span>{t("basicInvoiceGeneration")}</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                  <span>{t("pdfExportFunctionality")}</span>
+                </div>
+              </div>
+
+              <Button className="w-full" variant="outline" disabled>
+                {t("currentPlan")}
+              </Button>
+            </Card>
+
+            {/* Pro Plan */}
+            <Card className="p-8 border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-all">
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold mb-2">{t("proPlan")}</h3>
+                <p className="text-gray-600 mb-4">{t("proPlanDescription")}</p>
+                <div className="text-3xl font-bold">€7.99/{t("month")}</div>
+              </div>
+
+              <div className="space-y-4 mb-8">
+                <div className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                  <span>{t("generateUnlimitedInvoices")}</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                  <span>{t("accessToAllFeatures")}</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                  <span>{t("futureFeatureUpgrades")}</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                  <span>{t("pdfExportFunctionality")}</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                  <span>{t("accessToAllSavedInvoices")}</span>
+                </div>
+              </div>
+
+              <Button 
+                className="w-full" 
+                onClick={handleSubscribe}
+                disabled={loading}
+              >
+                {loading ? t("processing") : t("upgradeToPro")}
+              </Button>
+            </Card>
+          </div>
         </div>
-
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Free Plan */}
-          <Card className="p-8 border-2 hover:border-primary transition-all">
-            <div className="mb-8">
-              <h3 className="text-2xl font-bold mb-2">{t("freePlan")}</h3>
-              <p className="text-gray-600 mb-4">{t("freePlanDescription")}</p>
-              <div className="text-3xl font-bold">€0/{t("month")}</div>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center">
-                <Check className="h-5 w-5 text-green-500 mr-2" />
-                <span>{t("generateUpToFiveInvoices", { count: invoiceCount, total: 5 })}</span>
-              </div>
-              <div className="flex items-center">
-                <Check className="h-5 w-5 text-green-500 mr-2" />
-                <span>{t("basicInvoiceGeneration")}</span>
-              </div>
-              <div className="flex items-center">
-                <Check className="h-5 w-5 text-green-500 mr-2" />
-                <span>{t("pdfExportFunctionality")}</span>
-              </div>
-            </div>
-
-            <Button className="w-full" variant="outline" disabled>
-              {t("currentPlan")}
-            </Button>
-          </Card>
-
-          {/* Pro Plan */}
-          <Card className="p-8 border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-all">
-            <div className="mb-8">
-              <h3 className="text-2xl font-bold mb-2">{t("proPlan")}</h3>
-              <p className="text-gray-600 mb-4">{t("proPlanDescription")}</p>
-              <div className="text-3xl font-bold">€7.99/{t("month")}</div>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center">
-                <Check className="h-5 w-5 text-green-500 mr-2" />
-                <span>{t("generateUnlimitedInvoices")}</span>
-              </div>
-              <div className="flex items-center">
-                <Check className="h-5 w-5 text-green-500 mr-2" />
-                <span>{t("accessToAllFeatures")}</span>
-              </div>
-              <div className="flex items-center">
-                <Check className="h-5 w-5 text-green-500 mr-2" />
-                <span>{t("futureFeatureUpgrades")}</span>
-              </div>
-              <div className="flex items-center">
-                <Check className="h-5 w-5 text-green-500 mr-2" />
-                <span>{t("pdfExportFunctionality")}</span>
-              </div>
-              <div className="flex items-center">
-                <Check className="h-5 w-5 text-green-500 mr-2" />
-                <span>{t("accessToAllSavedInvoices")}</span>
-              </div>
-            </div>
-
-            <Button 
-              className="w-full" 
-              onClick={handleSubscribe}
-              disabled={loading}
-            >
-              {loading ? t("processing") : t("upgradeToPro")}
-            </Button>
-          </Card>
-        </div>
-      </div>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 }
