@@ -17,7 +17,7 @@ export const ui = {
   "pricingFeatures": "Funktionen",
   "pricingTitle": "Einfache, transparente Preisgestaltung",
   "pricingDescription": "Wählen Sie den Plan, der am besten zu Ihren Anforderungen passt",
-  "proPlan": "Pro Plan",
+  "proPlan": "Pro",
   "freePlanDescription": "Perfekt für den Einstieg",
   "proPlanDescription": "Für wachsende Unternehmen",
   "month": "Monat",

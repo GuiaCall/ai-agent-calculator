@@ -19,5 +19,13 @@ export const ui = {
   "deleteInvoiceConfirmation": "Cette action ne peut pas être annulée. Cela supprimera définitivement la facture et toutes les données associées.",
   "cancel": "Annuler",
   "invoiceDeleted": "Facture Supprimée",
-  "invoiceDeletedDescription": "La facture a été supprimée avec succès."
+  "invoiceDeletedDescription": "La facture a été supprimée avec succès.",
+  "proPlan": "Pro",
+  "freePlan": "Gratuit",
+  "proPlanDescription": "Pour les entreprises en croissance",
+  "freePlanDescription": "Parfait pour démarrer",
+  "pricingTitle": "Tarification simple et transparente",
+  "pricingDescription": "Choisissez le plan qui correspond le mieux à vos besoins",
+  "month": "mois",
+  "year": "année"
 };

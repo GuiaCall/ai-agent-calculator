@@ -26,5 +26,11 @@ export const ui = {
   "upgrade": "Upgrade",
   "downgrade": "Downgrade",
   "pricingFeatures": "Features",
-  "pricingDescription": "Choose the plan that best fits your needs"
+  "pricingDescription": "Choose the plan that best fits your needs",
+  "proPlan": "Pro",
+  "freePlanDescription": "Perfect for getting started",
+  "proPlanDescription": "For growing businesses",
+  "month": "month",
+  "year": "year",
+  "pricingTitle": "Simple, transparent pricing"
 };
