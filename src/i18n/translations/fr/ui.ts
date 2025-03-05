@@ -27,5 +27,15 @@ export const ui = {
   "pricingTitle": "Tarification simple et transparente",
   "pricingDescription": "Choisissez le plan qui correspond le mieux à vos besoins",
   "month": "mois",
-  "year": "année"
+  "year": "année",
+  "processing": "Traitement en cours...",
+  "upgradeToPro": "Passer à Pro",
+  "currentPlan": "Plan actuel",
+  "generateUpToFiveInvoices": "Générez jusqu'à 5 factures ({{count}}/5 utilisées)",
+  "basicInvoiceGeneration": "Génération basique de factures",
+  "pdfExportFunctionality": "Fonctionnalité d'exportation PDF",
+  "generateUnlimitedInvoices": "Générez des factures illimitées",
+  "accessToAllFeatures": "Accès à toutes les fonctionnalités 24/7",
+  "futureFeatureUpgrades": "Mises à jour futures incluses",
+  "accessToAllSavedInvoices": "Accès à toutes les factures sauvegardées"
 };

@@ -56,31 +56,33 @@ export default function Pricing() {
       <Navbar />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-16">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">{t("pricingTitle")}</h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">{t("pricingDescription")}</p>
+          <div className="text-center mb-16">
+            <h1 className="text-4xl font-bold mb-6">{t("pricingTitle")}</h1>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">{t("pricingDescription")}</p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
             {/* Free Plan */}
             <Card className="p-8 border-2 hover:border-primary transition-all">
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold mb-2">{t("freePlan")}</h3>
-                <p className="text-gray-600 mb-4">{t("freePlanDescription")}</p>
-                <div className="text-3xl font-bold">€0/{t("month")}</div>
+              <div className="mb-10">
+                <h3 className="text-2xl font-bold mb-3">{t("freePlan")}</h3>
+                <p className="text-gray-600 mb-6">{t("freePlanDescription")}</p>
+                <div className="text-3xl font-bold">
+                  €0/<span className="text-xl text-gray-500">{t("month")}</span>
+                </div>
               </div>
 
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+              <div className="space-y-5 mb-10">
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                   <span>{t("generateUpToFiveInvoices", { count: invoiceCount })}</span>
                 </div>
-                <div className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                   <span>{t("basicInvoiceGeneration")}</span>
                 </div>
-                <div className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                   <span>{t("pdfExportFunctionality")}</span>
                 </div>
               </div>
@@ -92,31 +94,33 @@ export default function Pricing() {
 
             {/* Pro Plan */}
             <Card className="p-8 border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-all">
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold mb-2">{t("proPlan")}</h3>
-                <p className="text-gray-600 mb-4">{t("proPlanDescription")}</p>
-                <div className="text-3xl font-bold">€7.99/{t("month")}</div>
+              <div className="mb-10">
+                <h3 className="text-2xl font-bold mb-3">{t("proPlan")}</h3>
+                <p className="text-gray-600 mb-6">{t("proPlanDescription")}</p>
+                <div className="text-3xl font-bold">
+                  €7.99/<span className="text-xl text-gray-500">{t("month")}</span>
+                </div>
               </div>
 
-              <div className="space-y-4 mb-8">
-                <div className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+              <div className="space-y-5 mb-10">
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                   <span>{t("generateUnlimitedInvoices")}</span>
                 </div>
-                <div className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                   <span>{t("accessToAllFeatures")}</span>
                 </div>
-                <div className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                   <span>{t("futureFeatureUpgrades")}</span>
                 </div>
-                <div className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                   <span>{t("pdfExportFunctionality")}</span>
                 </div>
-                <div className="flex items-center">
-                  <Check className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
                   <span>{t("accessToAllSavedInvoices")}</span>
                 </div>
               </div>

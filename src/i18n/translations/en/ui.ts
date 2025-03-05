@@ -32,5 +32,14 @@ export const ui = {
   "proPlanDescription": "For growing businesses",
   "month": "month",
   "year": "year",
-  "pricingTitle": "Simple, transparent pricing"
+  "pricingTitle": "Simple, transparent pricing",
+  "processing": "Processing...",
+  "upgradeToPro": "Upgrade to Pro",
+  "generateUpToFiveInvoices": "Generate up to 5 invoices ({{count}}/5 used)",
+  "basicInvoiceGeneration": "Basic invoice generation",
+  "pdfExportFunctionality": "PDF export functionality",
+  "generateUnlimitedInvoices": "Generate unlimited invoices",
+  "accessToAllFeatures": "Access to all features 24/7",
+  "futureFeatureUpgrades": "Future feature upgrades included",
+  "accessToAllSavedInvoices": "Access to all saved invoices"
 };
