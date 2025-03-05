@@ -1,18 +1,23 @@
+
+import { useTranslation } from "react-i18next";
+
 export function CalcomFormula() {
+  const { t } = useTranslation();
+  
   return (
     <div>
-      <h3 className="text-lg font-semibold text-gray-800">Cal.com Plan Cost Calculation</h3>
+      <h3 className="text-lg font-semibold text-gray-800">{t("calcomCalculator")} {t("costCalculation")}</h3>
       <p className="text-gray-600">
-        Monthly Cost = Selected Plan Base Price + Team Member Cost
+        {t("monthlyCost")} = {t("selectedPlanBasePrice")} + {t("teamMemberCost")}
       </p>
       <p className="text-gray-600">
-        Team Member Cost = Number of Users × $12
+        {t("teamMemberCost")} = {t("numberOfUsers")} × $12
       </p>
       <p className="text-gray-600">
-        Cost Per Minute = Monthly Cost ÷ Total Minutes
+        {t("costPerMinute")} = {t("monthlyCost")} ÷ {t("totalMinutes")}
       </p>
       <p className="text-sm text-gray-500 mt-1">
-        For Team and Organization plans, each team member costs $12/month. The total monthly cost is divided by total minutes to get the per-minute rate.
+        {t("calcomFormulaDescription")}
       </p>
     </div>
   );

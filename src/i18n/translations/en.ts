@@ -259,6 +259,14 @@ export const en = {
     "deleteInvoiceConfirmation": "This action cannot be undone. This will permanently delete the invoice and all associated data.",
     "cancel": "Cancel",
     "invoiceDeleted": "Invoice Deleted",
-    "invoiceDeletedDescription": "The invoice has been successfully deleted."
+    "invoiceDeletedDescription": "The invoice has been successfully deleted.",
+    
+    // Formula translations
+    "costCalculation": "Cost Calculation",
+    "selectedPlanBasePrice": "Selected Plan Base Price",
+    "teamMemberCost": "Team Member Cost",
+    "numberOfUsers": "Number of Users",
+    "costPerMinute": "Cost Per Minute",
+    "calcomFormulaDescription": "For Team and Organization plans, each team member costs $12/month. The total monthly cost is divided by total minutes to get the per-minute rate."
   }
 };

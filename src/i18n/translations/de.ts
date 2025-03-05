@@ -259,6 +259,14 @@ export const de = {
     "deleteInvoiceConfirmation": "Diese Aktion kann nicht rückgängig gemacht werden. Die Rechnung und alle zugehörigen Daten werden dauerhaft gelöscht.",
     "cancel": "Abbrechen",
     "invoiceDeleted": "Rechnung gelöscht",
-    "invoiceDeletedDescription": "Die Rechnung wurde erfolgreich gelöscht."
+    "invoiceDeletedDescription": "Die Rechnung wurde erfolgreich gelöscht.",
+    
+    // Formula translations
+    "costCalculation": "Kostenberechnung",
+    "selectedPlanBasePrice": "Basispreis des ausgewählten Plans",
+    "teamMemberCost": "Kosten pro Teammitglied",
+    "numberOfUsers": "Anzahl der Benutzer",
+    "costPerMinute": "Kosten pro Minute",
+    "calcomFormulaDescription": "Für Team- und Organisations-Pläne kostet jedes Teammitglied 12$/Monat. Die monatlichen Gesamtkosten werden durch die Gesamtminuten geteilt, um den Preis pro Minute zu erhalten."
   }
 };

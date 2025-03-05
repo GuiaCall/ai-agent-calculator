@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Button } from "./ui/button";
 import { ExternalLink, Calendar } from "lucide-react";
 import { useToast } from "./ui/use-toast";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
+import { useTranslation } from "react-i18next";
 
 interface CalcomCalculatorProps {
   onPlanSelect: (plan: CalcomPlan, numberOfUsers: number) => void;
@@ -22,6 +24,7 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
   const [monthlyTotal, setMonthlyTotal] = useState<number>(0);
   const { toast } = useToast();
   const { currency } = useCalculatorStateContext();
+  const { t } = useTranslation();
 
   const getCurrencyConversion = (amount: number): number => {
     switch (currency) {
@@ -62,8 +65,8 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
   const computeMonthlyCost = () => {
     if (!selectedPlan) {
       toast({
-        title: "Error",
-        description: "Please select a plan first",
+        title: t("error"),
+        description: t("pleaseSelectPlan"),
         variant: "destructive",
       });
       return;
@@ -84,10 +87,10 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
     onPlanSelect(updatedPlan, numberOfUsers);
     
     toast({
-      title: "Monthly Cost Calculated",
-      description: `Base Plan Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(selectedPlan.basePrice).toFixed(2)}
-Team Members Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(teamMemberCost).toFixed(2)}
-Total Monthly Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalCost).toFixed(2)}`,
+      title: t("monthlyCostCalculated"),
+      description: `${t("basePlanCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(selectedPlan.basePrice).toFixed(2)}
+${t("teamMembersCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(teamMemberCost).toFixed(2)}
+${t("totalMonthlyCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalCost).toFixed(2)}`,
     });
   };
 
@@ -98,7 +101,7 @@ Total Monthly Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalC
           <div className="bg-indigo-100 p-2 rounded-full">
             <Calendar className="h-5 w-5 text-indigo-600" />
           </div>
-          Cal.com Plan
+          {t("calcomCalculator")}
         </h3>
         <Button 
           variant="outline" 
@@ -106,7 +109,7 @@ Total Monthly Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalC
           onClick={() => window.open(CALCOM_PRICING_URL, '_blank')}
           className="flex items-center gap-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 hover:from-indigo-600 hover:to-purple-600 shadow-md transition-all"
         >
-          View Pricing <ExternalLink className="h-3 w-3 ml-1" />
+          {t("viewCalcomPricing")} <ExternalLink className="h-3 w-3 ml-1" />
         </Button>
       </div>
 
@@ -125,7 +128,7 @@ Total Monthly Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalC
           <div key={plan.name} className="flex items-center space-x-2">
             <RadioGroupItem value={plan.name} id={`calcom-${plan.name}`} />
             <Label htmlFor={`calcom-${plan.name}`}>
-              {plan.name} ({getCurrencySymbol(currency)}{getCurrencyConversion(plan.basePrice).toFixed(2)}/month)
+              {plan.name} ({getCurrencySymbol(currency)}{getCurrencyConversion(plan.basePrice).toFixed(2)}/{t("month")})
             </Label>
           </div>
         ))}
@@ -133,7 +136,7 @@ Total Monthly Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalC
 
       {selectedPlan?.name === "Team" || selectedPlan?.name === "Organization" ? (
         <div className="space-y-2">
-          <Label htmlFor="numberOfUsers">Number of Team Members</Label>
+          <Label htmlFor="numberOfUsers">{t("numberOfTeamMembers")}</Label>
           <Input
             id="numberOfUsers"
             type="number"
@@ -142,7 +145,7 @@ Total Monthly Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalC
             onChange={(e) => setNumberOfUsers(Math.max(0, parseInt(e.target.value) || 0))}
           />
           <p className="text-sm text-muted-foreground">
-            Team members cost {getCurrencySymbol(currency)}{getCurrencyConversion(12).toFixed(2)}/month each
+            {t("teamMembersCostInfo", { cost: `${getCurrencySymbol(currency)}${getCurrencyConversion(12).toFixed(2)}` })}
           </p>
         </div>
       ) : null}
@@ -153,17 +156,17 @@ Total Monthly Cost: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalC
           className="w-full"
           variant="outline"
         >
-          Compute Monthly Cost
+          {t("computeMonthlyCost")}
         </Button>
       </div>
 
       {monthlyTotal > 0 && (
         <div className="mt-4 p-4 bg-primary/10 rounded-lg space-y-2">
           <p className="text-sm font-medium">
-            Setup Cost: {getCurrencySymbol(currency)}{getCurrencyConversion(selectedPlan?.basePrice + (selectedPlan?.allowsTeam ? numberOfUsers * selectedPlan.pricePerUser : 0)).toFixed(2)}
+            {t("setupCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(selectedPlan?.basePrice + (selectedPlan?.allowsTeam ? numberOfUsers * selectedPlan.pricePerUser : 0)).toFixed(2)}
           </p>
           <p className="text-sm font-medium">
-            Monthly Cost: {getCurrencySymbol(currency)}{getCurrencyConversion(monthlyTotal).toFixed(2)}
+            {t("monthlyCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(monthlyTotal).toFixed(2)}
           </p>
         </div>
       )}
