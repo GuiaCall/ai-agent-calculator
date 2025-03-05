@@ -1,3 +1,4 @@
+
 export const fr = {
   translation: {
     // General
@@ -71,13 +72,18 @@ export const fr = {
     "month": "mois",
     "year": "année",
     "overage": "Dépassement ({{count}} minutes à {{rate}}/min) :",
-    "totalMonthlyCost": "Coût mensuel total :",
     "effectiveCostPerMinute": "Coût effectif par minute :",
     
     // Cal.com Calculator
     "calcomCalculator": "Plan Cal.com",
     "viewCalcomPricing": "Voir les Prix",
     "computeMonthlyCost": "Calculer le Coût Mensuel",
+    "numberOfTeamMembers": "Nombre de Membres d'Équipe",
+    "teamMembersCostInfo": "Les membres d'équipe coûtent {{cost}}/mois chacun",
+    "pleaseSelectPlan": "Veuillez d'abord sélectionner un plan",
+    "monthlyCostCalculated": "Coût Mensuel Calculé",
+    "basePlanCost": "Coût du Plan de Base",
+    "teamMembersCost": "Coût des Membres d'Équipe",
     
     // Twilio Calculator
     "twilioCalculator": "Configuration Twilio",
@@ -246,26 +252,12 @@ export const fr = {
     "invoiceDeleted": "Facture Supprimée",
     "invoiceDeletedDescription": "La facture a été supprimée avec succès.",
     
-    // Cal.com Calculator
-    "calcomCalculator": "Plan Cal.com",
-    "viewCalcomPricing": "Voir les Prix",
-    "computeMonthlyCost": "Calculer le Coût Mensuel",
-    "numberOfTeamMembers": "Nombre de Membres d'Équipe",
-    "teamMembersCostInfo": "Les membres d'équipe coûtent {{cost}}/mois chacun",
-    "pleaseSelectPlan": "Veuillez d'abord sélectionner un plan",
-    "monthlyCostCalculated": "Coût Mensuel Calculé",
-    "basePlanCost": "Coût du Plan de Base",
-    "teamMembersCost": "Coût des Membres d'Équipe",
-    "totalMonthlyCost": "Coût Mensuel Total",
-    "setupCost": "Coût d'Installation",
-    "monthlyCost": "Coût Mensuel",
-    
     // Formula translations
     "costCalculation": "Calcul des Coûts",
     "selectedPlanBasePrice": "Prix de Base du Plan Sélectionné",
     "teamMemberCost": "Coût des Membres d'Équipe",
     "numberOfUsers": "Nombre d'Utilisateurs",
-    "costPerMinute": "Coût par Minute",
-    "calcomFormulaDescription": "Pour les plans Team et Organization, chaque membre d'équipe coûte 12$/mois. Le coût mensuel total est divisé par le nombre total de minutes pour obtenir le tarif par minute.",
+    "totalMonthlyCost": "Coût Mensuel Total",
+    "calcomFormulaDescription": "Pour les plans Team et Organization, chaque membre d'équipe coûte 12$/mois. Le coût mensuel total est divisé par le nombre total de minutes pour obtenir le tarif par minute."
   }
 };

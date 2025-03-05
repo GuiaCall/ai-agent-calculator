@@ -1,3 +1,4 @@
+
 export const de = {
   translation: {
     // General
@@ -67,8 +68,6 @@ export const de = {
     "operationsPerMonth": "Operationen pro Monat",
     "save": "Sparen Sie",
     "vsMonthlyBilling": "gegenüber monatlicher Abrechnung",
-    "monthly": "Monat",
-    "billingType": "jährlich abgerechnet",
     "monthlyPrice": "Monatspreis",
     "yearlyBilling": "Jährliche Abrechnung (Bis zu 20% sparen)",
     "monthlyBilling": "Monatliche Abrechnung",
@@ -76,6 +75,7 @@ export const de = {
     // Synthflow Calculator
     "synthflowCalculator": "Synthflow Plan Rechner",
     "viewSynthflowPricing": "Synthflow Preise anzeigen",
+    "billingType": "Abrechnungstyp",
     "selectPlan": "Plan auswählen",
     "recommendedPlan": "Empfohlener Plan",
     "basedOnUsage": "Basierend auf Ihrer geschätzten Nutzung von",
@@ -95,6 +95,12 @@ export const de = {
     "calcomCalculator": "Cal.com Plan",
     "viewCalcomPricing": "Preise anzeigen",
     "computeMonthlyCost": "Monatliche Kosten berechnen",
+    "numberOfTeamMembers": "Anzahl der Teammitglieder",
+    "teamMembersCostInfo": "Teammitglieder kosten {{cost}}/Monat pro Person",
+    "pleaseSelectPlan": "Bitte wählen Sie zuerst einen Plan aus",
+    "monthlyCostCalculated": "Monatliche Kosten berechnet",
+    "basePlanCost": "Basisplan-Kosten",
+    "teamMembersCost": "Kosten für Teammitglieder",
     
     // Twilio Calculator
     "twilioCalculator": "Twilio Konfiguration",
@@ -170,7 +176,8 @@ export const de = {
     // Pricing page
     "freePlan": "Kostenlos",
     "enterprisePlan": "Enterprise",
-    "yearlyPlan": "Jährlich",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
     "getStarted": "Loslegen",
     "contactSales": "Vertrieb kontaktieren",
     "currentPlan": "Aktueller Plan",
@@ -266,7 +273,6 @@ export const de = {
     "selectedPlanBasePrice": "Basispreis des ausgewählten Plans",
     "teamMemberCost": "Kosten pro Teammitglied",
     "numberOfUsers": "Anzahl der Benutzer",
-    "costPerMinute": "Kosten pro Minute",
     "calcomFormulaDescription": "Für Team- und Organisations-Pläne kostet jedes Teammitglied 12$/Monat. Die monatlichen Gesamtkosten werden durch die Gesamtminuten geteilt, um den Preis pro Minute zu erhalten."
   }
 };

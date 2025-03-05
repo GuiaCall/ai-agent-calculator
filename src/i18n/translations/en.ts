@@ -1,3 +1,4 @@
+
 export const en = {
   translation: {
     // General
@@ -94,6 +95,12 @@ export const en = {
     "calcomCalculator": "Cal.com Plan",
     "viewCalcomPricing": "View Pricing",
     "computeMonthlyCost": "Compute Monthly Cost",
+    "numberOfTeamMembers": "Number of Team Members",
+    "teamMembersCostInfo": "Team members cost {{cost}}/month each",
+    "pleaseSelectPlan": "Please select a plan first",
+    "monthlyCostCalculated": "Monthly Cost Calculated",
+    "basePlanCost": "Base Plan Cost",
+    "teamMembersCost": "Team Members Cost",
     
     // Twilio Calculator
     "twilioCalculator": "Twilio Configuration",
@@ -266,7 +273,6 @@ export const en = {
     "selectedPlanBasePrice": "Selected Plan Base Price",
     "teamMemberCost": "Team Member Cost",
     "numberOfUsers": "Number of Users",
-    "costPerMinute": "Cost Per Minute",
     "calcomFormulaDescription": "For Team and Organization plans, each team member costs $12/month. The total monthly cost is divided by total minutes to get the per-minute rate."
   }
 };
