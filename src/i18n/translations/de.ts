@@ -1,4 +1,3 @@
-
 export const de = {
   translation: {
     // General
@@ -54,6 +53,8 @@ export const de = {
     "makeOperationsCalculation": "Make.com Operationen Berechnung",
     "totalCallsFormula": "Gesamtanrufe = Gesamtminuten ÷ Durchschnittliche Anrufdauer",
     "requiredOperationsFormula": "Erforderliche Operationen = Gesamtanrufe × Operationen pro Szenario × 1,2",
+    "totalCalls": "Gesamtanrufe",
+    "requiredOperations": "Erforderliche Operationen",
     "pricingTiersDetermined": "Die Preisstufen werden durch die monatlich erforderlichen Gesamtoperationen bestimmt:",
     "operationsRange": "10.000 bis 8.000.000 Operationen pro Monat verfügbar",
     "corePlan": "Core: Für Personen, die einfache Arbeiten automatisieren",

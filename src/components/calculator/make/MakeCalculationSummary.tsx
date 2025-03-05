@@ -12,13 +12,13 @@ export function MakeCalculationSummary({ calculation }: MakeCalculationSummaryPr
   return (
     <div className="space-y-2">
       <p className="text-sm text-gray-600">
-        {t("totalCallsFormula")}: {calculation.totalCalls.toLocaleString()}
+        {t("totalCalls")}: {calculation.totalCalls.toLocaleString()}
       </p>
       <p className="text-sm text-gray-600">
         {t("operationsPerScenario")}: {calculation.operationsPerScenario}
       </p>
       <p className="text-sm text-gray-600">
-        {t("requiredOperationsFormula")}: {calculation.totalOperations.toLocaleString()}
+        {t("requiredOperations")}: {calculation.totalOperations.toLocaleString()}
       </p>
     </div>
   );

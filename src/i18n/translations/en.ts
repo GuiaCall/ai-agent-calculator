@@ -1,4 +1,3 @@
-
 export const en = {
   translation: {
     // General
@@ -54,6 +53,8 @@ export const en = {
     "makeOperationsCalculation": "Make.com Operations Calculation",
     "totalCallsFormula": "Total Calls = Total Minutes ÷ Average Call Duration",
     "requiredOperationsFormula": "Required Operations = Total Calls × Operations per Scenario × 1.2",
+    "totalCalls": "Total Calls",
+    "requiredOperations": "Required Operations",
     "pricingTiersDetermined": "Pricing tiers are determined by the total operations required per month:",
     "operationsRange": "10,000 to 8,000,000 operations per month available",
     "corePlan": "Core: For individuals automating simple work",
