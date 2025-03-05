@@ -1,4 +1,3 @@
-
 export const ui = {
   "success": "Success",
   "error": "Error",
@@ -81,5 +80,12 @@ export const ui = {
   "twilioRateExplanation": "The rate is determined by the selected country and number type. Different rates apply for local, mobile, and toll-free numbers.",
   "vapiCalculator": "Vapi Configuration",
   "blandAiCalculator": "Bland AI Configuration",
-  "inboundSms": "Inbound SMS"
+  "inboundSms": "Inbound SMS",
+  "selectPlan": "Select Plan",
+  "recommendedPlan": "Recommended Plan",
+  "per": "per",
+  "overage": "Overage ({{count}} minutes at {{rate}}/min)",
+  "synthflowCalculator": "Synthflow Plan Calculator",
+  "billingType": "billed yearly",
+  "teamMembersCostInfo": "Team members cost {{cost}}/month each"
 };

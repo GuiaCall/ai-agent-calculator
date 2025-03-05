@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { SynthflowPlan } from "@/types/synthflow";
 import { SYNTHFLOW_PLANS, SYNTHFLOW_PRICING_URL } from "@/constants/synthflowPlans";

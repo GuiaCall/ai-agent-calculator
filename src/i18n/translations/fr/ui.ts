@@ -1,4 +1,3 @@
-
 export const ui = {
   "success": "Succès",
   "error": "Erreur",
@@ -77,5 +76,12 @@ export const ui = {
   "twilioRateExplanation": "Le tarif est déterminé par le pays sélectionné et le type de numéro. Différents tarifs s'appliquent pour les numéros locaux, mobiles et gratuits.",
   "vapiCalculator": "Configuration Vapi",
   "blandAiCalculator": "Configuration Bland AI",
-  "inboundSms": "SMS Entrant"
+  "inboundSms": "SMS Entrant",
+  "selectPlan": "Sélectionner un Plan",
+  "recommendedPlan": "Plan Recommandé",
+  "per": "par",
+  "overage": "Dépassement ({{count}} minutes à {{rate}}/min)",
+  "synthflowCalculator": "Calculateur de Plan Synthflow",
+  "billingType": "facturation annuelle",
+  "teamMembersCostInfo": "Les membres d'équipe coûtent {{cost}}/mois chacun"
 };

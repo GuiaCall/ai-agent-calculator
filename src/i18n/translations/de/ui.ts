@@ -1,4 +1,3 @@
-
 export const ui = {
   "footer": "© 2024 KI-Sprachagent Rechner. Alle Rechte vorbehalten.",
   "aiAgentCalculator": "KI-Agent Rechner",
@@ -35,12 +34,20 @@ export const ui = {
   "error": "Fehler",
   "warning": "Warnung",
   "info": "Info",
+  "calculationComplete": "Berechnung abgeschlossen",
   "settingsSaved": "Einstellungen gespeichert",
   "operationFailed": "Vorgang fehlgeschlagen",
   "pleaseCheckInputs": "Bitte überprüfen Sie Ihre Eingaben und versuchen Sie es erneut",
   "freePlanLimit": "Limit des kostenlosen Plans erreicht",
   "pleaseUpgrade": "Bitte auf den Pro-Plan upgraden, um mehr Berechnungen durchzuführen",
   "upgradeNow": "Jetzt upgraden",
+  "recentInvoices": "Neueste Rechnungen",
+  "viewAll": "Alle anzeigen",
+  "usageStatistics": "Nutzungsstatistiken",
+  "currentBilling": "Aktuelle Abrechnung",
+  "nextBillingDate": "Nächstes Abrechnungsdatum",
+  "billingHistory": "Abrechnungsverlauf",
+  "downloadReceipt": "Quittung herunterladen",
   "per": "pro",
   "overage": "Überschreitung ({{count}} Minuten zu {{rate}}/Min):",
   "viewPricing": "Preise anzeigen",
@@ -56,7 +63,7 @@ export const ui = {
   "effectiveCostPerMinute": "Effektiver Preis pro Minute",
   "selectedRatesFor": "Ausgewählte Tarife für",
   "phoneNumberCost": "Kosten für Telefonnummer",
-  "inboundVoice": "Eingehende Anrufe",
+  "inboundVoice": "Eingehende Sprachanrufe",
   "usageCost": "Nutzungskosten",
   "totalMonthlyTwilioCost": "Monatliche Gesamtkosten",
   "vapiMonthlyCost": "Vapi Monatliche Kosten",
@@ -80,5 +87,9 @@ export const ui = {
   "twilioRateExplanation": "Der Tarif wird durch das ausgewählte Land und den Nummerntyp bestimmt. Unterschiedliche Tarife gelten für lokale, mobile und gebührenfreie Nummern.",
   "vapiCalculator": "Vapi Konfiguration",
   "blandAiCalculator": "Bland AI Konfiguration",
-  "inboundSms": "Eingehende SMS"
+  "inboundSms": "Eingehende SMS",
+  "selectPlan": "Plan auswählen",
+  "recommendedPlan": "Empfohlener Plan",
+  "billingType": "jährlich abgerechnet",
+  "teamMembersCostInfo": "Teammitglieder kosten {{cost}}/Monat pro Person"
 };
