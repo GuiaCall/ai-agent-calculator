@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useCalculatorStateContext } from "./CalculatorStateContext";
-import { Currency, DollarSign, Euro, PoundSterling } from "lucide-react";
+import { Currency, DollarSign, Euro } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { CurrencyType } from "./CalculatorState";
 
@@ -13,8 +13,7 @@ const CONVERSION_RATES: Record<CurrencyType, number> = {
 
 const CURRENCY_ICONS = {
   USD: <DollarSign className="h-4 w-4" />,
-  EUR: <Euro className="h-4 w-4" />,
-  GBP: <PoundSterling className="h-4 w-4" />
+  EUR: <Euro className="h-4 w-4" />
 };
 
 export function CurrencyToggle() {
@@ -29,7 +28,7 @@ export function CurrencyToggle() {
   const { toast } = useToast();
   
   const handleCurrencyToggle = () => {
-    const currencies: CurrencyType[] = ['USD', 'EUR', 'GBP'];
+    const currencies: CurrencyType[] = ['USD', 'EUR']; // Removed GBP
     const currentIndex = currencies.indexOf(currency);
     const newIndex = (currentIndex + 1) % currencies.length;
     const newCurrency = currencies[newIndex];
@@ -62,7 +61,7 @@ export function CurrencyToggle() {
         <div className="flex items-center gap-2">
           <Currency className="h-5 w-5 text-primary-600 group-hover:scale-110 transition-transform" />
           <span className="text-lg font-medium text-primary-700 flex items-center gap-2">
-            {CURRENCY_ICONS[currency]}
+            {CURRENCY_ICONS[currency as keyof typeof CURRENCY_ICONS]}
             {currency}
           </span>
           <span className="absolute -right-8 top-0 h-full w-16 bg-white/20 skew-x-12 transform translate-x-0 transition-transform duration-700 ease-in-out group-hover:translate-x-20"></span>
