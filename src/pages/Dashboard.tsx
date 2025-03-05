@@ -124,28 +124,28 @@ export default function Dashboard() {
     <CalculatorStateProvider>
       <Navbar />
       <div className="container mx-auto px-4 py-8 mt-16 mb-16">
-        <h1 className="text-3xl font-bold mb-8">{t("dashboard")}</h1>
+        <h1 className="text-3xl font-bold mb-8">{t("dashboard.dashboard")}</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-2">{t("totalInvoices")}</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("dashboard.totalInvoices")}</h3>
             <p className="text-3xl font-bold">
-              {totalInvoices === null ? t("loading") : totalInvoices}
+              {totalInvoices === null ? t("dashboard.loading") : totalInvoices}
             </p>
             {subscription.plan_type === 'free' && totalInvoices !== null && (
               <p className="text-sm text-gray-500 mt-2">
-                {t("freeInvoicesUsed", { used: totalInvoices, total: 5 })}
+                {t("dashboard.freeInvoicesUsed", { used: totalInvoices, total: 5 })}
               </p>
             )}
           </Card>
           
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-2">{t("currentPlan")}</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("dashboard.currentPlan")}</h3>
             <div className="flex justify-between items-center">
               <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>
               {subscription.plan_type === 'free' && (
                 <Button onClick={() => navigate('/pricing')} variant="default">
-                  {t("upgradePlan")}
+                  {t("dashboard.upgradePlan")}
                 </Button>
               )}
             </div>
@@ -155,23 +155,23 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6">
           <Card className="p-6">
             <CardHeader className="p-0 pb-4">
-              <CardTitle className="text-lg font-semibold">{t("accountInformation")}</CardTitle>
+              <CardTitle className="text-lg font-semibold">{t("dashboard.accountInformation")}</CardTitle>
             </CardHeader>
             <CardContent className="p-0 space-y-4">
               <div>
-                <p className="text-sm text-gray-500">{t("email")}</p>
+                <p className="text-sm text-gray-500">{t("dashboard.email")}</p>
                 <p className="font-medium">{userEmail}</p>
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-gray-500">{t("changePassword")}</p>
+                <p className="text-sm text-gray-500">{t("dashboard.changePassword")}</p>
                 <Input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder={t("newPasswordPlaceholder")}
+                  placeholder={t("dashboard.newPasswordPlaceholder")}
                 />
                 <Button onClick={handlePasswordChange}>
-                  {t("updatePassword")}
+                  {t("dashboard.updatePassword")}
                 </Button>
               </div>
             </CardContent>
