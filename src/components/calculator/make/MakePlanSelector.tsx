@@ -26,9 +26,9 @@ export function MakePlanSelector({
       <p className="font-semibold text-base">Available Plans:</p>
       <div className="grid grid-cols-1 gap-3">
         {recommendations.map((plan, index) => {
-          // For yearly billing, convert the yearly price to monthly equivalent
+          // For yearly billing, we need to display monthly price but show it's billed yearly
           const displayPrice = isPricePerYear 
-            ? (plan.price / 12).toFixed(2)
+            ? (plan.price / 12).toFixed(2) // Convert yearly total to monthly equivalent
             : plan.price.toFixed(2);
             
           return (

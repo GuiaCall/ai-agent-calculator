@@ -47,13 +47,16 @@ export function MakeCalculator({
       totalMinutes
     );
 
+    // For adapter, always use monthly equivalent price
+    const monthlyPriceEquivalent = selectedPlanType === 'yearly' 
+      ? optimalPlan.price / 12 
+      : optimalPlan.price;
+
     // Create adapter for legacy MakePlan format
     const adaptedPlan: MakePlan = {
       name: optimalPlan.name,
       operationsPerMonth: optimalPlan.operationsPerMonth,
-      monthlyPrice: selectedPlanType === 'monthly' 
-        ? optimalPlan.price 
-        : optimalPlan.price / 12, // Convert yearly price to monthly equivalent
+      monthlyPrice: monthlyPriceEquivalent,
       yearlyPrice: selectedPlanType === 'yearly' 
         ? optimalPlan.price 
         : optimalPlan.price * 12
@@ -71,18 +74,12 @@ export function MakeCalculator({
     setSelectedPlan(optimalPlan); // Set the recommended plan as the initial selected plan
 
     onPlanSelect(adaptedPlan);
-    
-    // Always use monthly equivalent price for technology parameters
-    const monthlyPrice = selectedPlanType === 'monthly' 
-      ? optimalPlan.price 
-      : optimalPlan.price / 12; // For yearly billing, convert to monthly equivalent
-    
     onCostPerMinuteChange(costPerMinute);
     
-    // Update technology parameter with monthly cost
+    // Update technology parameter with monthly equivalent cost
     setTechnologies(techs => 
       techs.map(tech => 
-        tech.id === 'make' ? { ...tech, costPerMinute: monthlyPrice } : tech
+        tech.id === 'make' ? { ...tech, costPerMinute: monthlyPriceEquivalent } : tech
       )
     );
   };
@@ -91,28 +88,28 @@ export function MakeCalculator({
     setSelectedPlan(plan);
     
     // Always use monthly equivalent price for calculations
-    const monthlyPrice = selectedPlanType === 'monthly' 
-      ? plan.price 
-      : plan.price / 12; // For yearly billing, convert to monthly equivalent
+    const monthlyPriceEquivalent = selectedPlanType === 'yearly' 
+      ? plan.price / 12 
+      : plan.price;
     
     // Create adapter for legacy MakePlan format
     const adaptedPlan: MakePlan = {
       name: plan.name,
       operationsPerMonth: plan.operationsPerMonth,
-      monthlyPrice: monthlyPrice,
+      monthlyPrice: monthlyPriceEquivalent,
       yearlyPrice: selectedPlanType === 'yearly' ? plan.price : plan.price * 12
     };
 
     // Calculate cost per minute based on the selected plan
-    const costPerMinute = totalMinutes > 0 ? monthlyPrice / totalMinutes : 0;
+    const costPerMinute = totalMinutes > 0 ? monthlyPriceEquivalent / totalMinutes : 0;
     
     onPlanSelect(adaptedPlan);
     onCostPerMinuteChange(costPerMinute);
     
-    // Update technology parameter with monthly cost
+    // Update technology parameter with monthly equivalent cost
     setTechnologies(techs => 
       techs.map(tech => 
-        tech.id === 'make' ? { ...tech, costPerMinute: monthlyPrice } : tech
+        tech.id === 'make' ? { ...tech, costPerMinute: monthlyPriceEquivalent } : tech
       )
     );
   };
