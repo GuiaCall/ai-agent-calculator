@@ -15,56 +15,104 @@ import { TechnologySection } from "./sections/TechnologySection";
 import { PreviewSection } from "./sections/PreviewSection";
 import { CurrencyToggle } from "./CurrencyToggle";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function CalculatorContent() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state });
   const navigate = useNavigate();
   const [invoiceCount, setInvoiceCount] = useState(0);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
 
   useEffect(() => {
     const checkSubscriptionAndInvoices = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Get subscription details
       const { data: subscription } = await supabase
         .from('subscriptions')
-        .select('plan_type')
+        .select('plan_type, status')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       setIsSubscribed(subscription?.plan_type === 'pro');
+      setIsSubscriptionActive(subscription?.status === 'active');
 
+      // Get invoice count
       const { count } = await supabase
         .from('invoices')
         .select('*', { count: 'exact' })
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('is_deleted', false);
 
       setInvoiceCount(count || 0);
     };
 
     checkSubscriptionAndInvoices();
+
+    // Subscribe to subscription changes
+    const subscriptionChannel = supabase
+      .channel('user_subscription_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subscriptions'
+        },
+        (payload) => {
+          console.log('Subscription change detected in calculator:', payload);
+          checkSubscriptionAndInvoices();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscriptionChannel);
+    };
   }, []);
 
   const handleCalculate = async () => {
+    // Check if user is on free plan, has reached limit, and is not editing an existing invoice
     if (!isSubscribed && invoiceCount >= 5 && !state.editingInvoice) {
       toast({
-        title: "Free plan limit reached",
-        description: "Please upgrade to the Pro plan to make more calculations.",
+        title: t("freePlanLimit"),
+        description: t("pleaseUpgrade"),
         variant: "destructive",
         action: (
           <button
             onClick={() => navigate('/pricing')}
             className="bg-primary text-primary-foreground px-3 py-1 rounded-md text-sm font-medium"
           >
-            Upgrade Now
+            {t("upgradeNow")}
           </button>
         ),
       });
       return;
     }
+
+    // Check if subscription is inactive
+    if (isSubscribed && !isSubscriptionActive) {
+      toast({
+        title: t("subscriptionInactive"),
+        description: t("subscriptionReactivate"),
+        variant: "warning",
+        action: (
+          <button
+            onClick={() => navigate('/pricing')}
+            className="bg-primary text-primary-foreground px-3 py-1 rounded-md text-sm font-medium"
+          >
+            {t("reactivateNow")}
+          </button>
+        ),
+      });
+      return;
+    }
+
     logic.calculateCost();
   };
 
@@ -74,7 +122,7 @@ export function CalculatorContent() {
         <Navbar />
         <div className="w-full h-[80vh] flex flex-col items-center justify-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
-          <p className="text-lg text-muted-foreground">Loading your calculator data...</p>
+          <p className="text-lg text-muted-foreground">{t("loadingCalculatorData")}</p>
         </div>
         <Footer />
       </>

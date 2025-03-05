@@ -90,5 +90,9 @@ export const ui = {
   "billingType": "billed yearly",
   "teamMembersCostInfo": "Team members cost {{cost}}/month each",
   "couponCode": "Coupon Code",
-  "enterCouponCode": "Enter coupon code (optional)"
+  "enterCouponCode": "Enter coupon code (optional)",
+  "checkoutSuccessful": "Checkout Successful",
+  "subscriptionActivated": "Your subscription has been successfully activated. You now have access to all Pro features!",
+  "subscriptionActive": "Active",
+  "subscriptionInactive": "Inactive"
 };

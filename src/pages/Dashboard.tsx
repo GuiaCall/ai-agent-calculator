@@ -10,15 +10,19 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 export default function Dashboard() {
   const [totalInvoices, setTotalInvoices] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState("");
-  const [subscription, setSubscription] = useState({ plan_type: "free" });
+  const [subscription, setSubscription] = useState({ plan_type: "free", status: "active" });
   const [newPassword, setNewPassword] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const checkoutSuccess = searchParams.get('checkout_success') === 'true';
 
   const fetchDashboardData = async () => {
     try {
@@ -76,6 +80,17 @@ export default function Dashboard() {
     console.log('Dashboard component mounted');
     fetchDashboardData();
 
+    // Show checkout success toast if redirected from successful checkout
+    if (checkoutSuccess) {
+      toast({
+        title: t("checkoutSuccessful"),
+        description: t("subscriptionActivated"),
+      });
+      
+      // Remove the query parameter from the URL
+      navigate('/dashboard', { replace: true });
+    }
+
     const channel = supabase
       .channel('dashboard_changes')
       .on(
@@ -92,9 +107,27 @@ export default function Dashboard() {
       )
       .subscribe();
 
+    // Also listen for subscription changes
+    const subscriptionChannel = supabase
+      .channel('subscription_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subscriptions'
+        },
+        (payload) => {
+          console.log('Subscription change detected:', payload);
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
     return () => {
       console.log('Cleaning up dashboard subscription');
       supabase.removeChannel(channel);
+      supabase.removeChannel(subscriptionChannel);
     };
   }, []);
 
@@ -142,8 +175,22 @@ export default function Dashboard() {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-2">{t("currentPlan")}</h3>
             <div className="flex justify-between items-center">
-              <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>
-              {subscription.plan_type === 'free' && (
+              <div>
+                <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>
+                {subscription.plan_type === 'pro' && subscription.status === 'active' && (
+                  <div className="flex items-center text-green-500 mt-1">
+                    <CheckCircle2 className="h-4 w-4 mr-1" />
+                    <span className="text-sm">{t("subscriptionActive")}</span>
+                  </div>
+                )}
+                {subscription.plan_type === 'pro' && subscription.status !== 'active' && (
+                  <div className="flex items-center text-amber-500 mt-1">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    <span className="text-sm">{t("subscriptionInactive")}</span>
+                  </div>
+                )}
+              </div>
+              {(subscription.plan_type === 'free' || subscription.status !== 'active') && (
                 <Button onClick={() => navigate('/pricing')} variant="default">
                   {t("upgradePlan")}
                 </Button>

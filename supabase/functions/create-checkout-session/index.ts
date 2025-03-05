@@ -53,6 +53,15 @@ serve(async (req) => {
       if (subscriptions.data.length > 0) {
         throw new Error("Customer already has an active subscription");
       }
+    } else {
+      // Create a new customer if one doesn't exist
+      const newCustomer = await stripe.customers.create({
+        email: email,
+        metadata: {
+          user_id: user.id
+        }
+      });
+      customer_id = newCustomer.id;
     }
 
     // Build the checkout session parameters
@@ -66,9 +75,12 @@ serve(async (req) => {
         },
       ],
       mode: 'subscription',
-      success_url: `${req.headers.get('origin')}/dashboard`,
+      success_url: `${req.headers.get('origin')}/dashboard?checkout_success=true`,
       cancel_url: `${req.headers.get('origin')}/pricing`,
       allow_promotion_codes: true,  // Allow users to enter coupon codes directly in the Stripe checkout page
+      metadata: {
+        user_id: user.id  // Add user ID to the metadata
+      }
     };
 
     // Add coupon code if provided
