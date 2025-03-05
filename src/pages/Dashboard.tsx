@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Dashboard() {
   const [totalInvoices, setTotalInvoices] = useState<number | null>(null);
@@ -16,6 +18,7 @@ export default function Dashboard() {
   const [newPassword, setNewPassword] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const fetchDashboardData = async () => {
     try {
@@ -62,7 +65,7 @@ export default function Dashboard() {
     } catch (error: any) {
       console.error('Error fetching dashboard data:', error);
       toast({
-        title: "Error loading dashboard",
+        title: t("errorUpdatingPassword"),
         description: error.message,
         variant: "destructive",
       });
@@ -104,13 +107,13 @@ export default function Dashboard() {
       if (error) throw error;
 
       toast({
-        title: "Password updated",
-        description: "Your password has been successfully updated.",
+        title: t("passwordUpdated"),
+        description: t("passwordUpdateSuccess"),
       });
       setNewPassword("");
     } catch (error: any) {
       toast({
-        title: "Error updating password",
+        title: t("errorUpdatingPassword"),
         description: error.message,
         variant: "destructive",
       });
@@ -121,28 +124,28 @@ export default function Dashboard() {
     <CalculatorStateProvider>
       <Navbar />
       <div className="container mx-auto px-4 py-8 mt-16 mb-16">
-        <h1 className="text-3xl font-bold mb-8">Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-8">{t("dashboard")}</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-2">Total Invoices</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("totalInvoices")}</h3>
             <p className="text-3xl font-bold">
-              {totalInvoices === null ? 'Loading...' : totalInvoices}
+              {totalInvoices === null ? t("loading") : totalInvoices}
             </p>
             {subscription.plan_type === 'free' && totalInvoices !== null && (
               <p className="text-sm text-gray-500 mt-2">
-                {totalInvoices}/5 free invoices used
+                {t("freeInvoicesUsed", { used: totalInvoices, total: 5 })}
               </p>
             )}
           </Card>
           
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-2">Current Plan</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("currentPlan")}</h3>
             <div className="flex justify-between items-center">
               <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>
               {subscription.plan_type === 'free' && (
                 <Button onClick={() => navigate('/pricing')} variant="default">
-                  Upgrade Plan
+                  {t("upgradePlan")}
                 </Button>
               )}
             </div>
@@ -151,21 +154,21 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 gap-6">
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Account Information</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("accountInformation")}</h3>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-500">Email</p>
+                <p className="text-sm text-gray-500">{t("email")}</p>
                 <p className="font-medium">{userEmail}</p>
               </div>
               <div className="space-y-2">
-                <p className="text-sm text-gray-500">Change Password</p>
+                <p className="text-sm text-gray-500">{t("changePassword")}</p>
                 <Input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="New password"
+                  placeholder={t("newPasswordPlaceholder")}
                 />
-                <Button onClick={handlePasswordChange}>Update Password</Button>
+                <Button onClick={handlePasswordChange}>{t("updatePassword")}</Button>
               </div>
             </div>
           </Card>

@@ -7,6 +7,7 @@ import { technologies } from './technologies';
 import { invoice } from './invoice';
 import { auth } from './auth';
 import { ui } from './ui';
+import { dashboard } from './dashboard';
 
 export const en = {
   translation: {
@@ -17,6 +18,7 @@ export const en = {
     ...technologies,
     ...invoice,
     ...auth,
-    ...ui
+    ...ui,
+    ...dashboard
   }
 };
