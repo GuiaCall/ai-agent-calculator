@@ -1,4 +1,3 @@
-
 export const ui = {
   "success": "Success",
   "error": "Error",
@@ -94,5 +93,6 @@ export const ui = {
   "checkoutSuccessful": "Checkout Successful",
   "subscriptionActivated": "Your subscription has been successfully activated. You now have access to all Pro features!",
   "subscriptionActive": "Active",
-  "subscriptionInactive": "Inactive"
+  "subscriptionInactive": "Inactive",
+  "subscriptionReactivate": "Please reactivate your subscription to continue using Pro features."
 };
