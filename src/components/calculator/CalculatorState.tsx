@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MakePlan } from "@/types/make";
 import { SynthflowPlan } from "@/types/synthflow";
@@ -7,7 +6,7 @@ import { TwilioSelection } from "@/types/twilio";
 import { AgencyInfo, ClientInfo, InvoiceHistory } from "@/types/invoice";
 import { supabase } from "@/integrations/supabase/client";
 
-export type CurrencyType = 'USD' | 'EUR' | 'GBP';
+export type CurrencyType = 'USD' | 'EUR';
 
 const initialTechnologies = [
   { id: "make", name: "Make.com", isSelected: true, costPerMinute: 0.001 },
@@ -23,12 +22,10 @@ const safelyParseJSON = <T extends {}>(jsonData: any, defaultValue: T): T => {
   if (!jsonData) return defaultValue;
   
   try {
-    // If it's already an object, just validate it has the right shape
     if (typeof jsonData === 'object' && jsonData !== null) {
       return { ...defaultValue, ...jsonData };
     }
     
-    // If it's a string, parse it
     if (typeof jsonData === 'string') {
       return { ...defaultValue, ...JSON.parse(jsonData) };
     }
@@ -51,6 +48,8 @@ export function useCalculatorState() {
   const [invoices, setInvoices] = useState<InvoiceHistory[]>([]);
   const [numberOfUsers, setNumberOfUsers] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [editingInvoice, setEditingInvoice] = useState<InvoiceHistory | null>(null);
+  const [editingInvoiceId, setEditingInvoiceId] = useState<string | null>(null);
   
   const [agencyInfo, setAgencyInfo] = useState<AgencyInfo>({
     name: "",
@@ -89,7 +88,6 @@ export function useCalculatorState() {
           return;
         }
 
-        // Get user preferences
         const { data: preferences } = await supabase
           .from('user_preferences')
           .select('*')
@@ -100,7 +98,6 @@ export function useCalculatorState() {
           setThemeColor(preferences.theme_color || "#2563eb");
         }
 
-        // Get latest invoice to restore calculator state
         const { data: latestInvoice } = await supabase
           .from('invoices')
           .select('*')
@@ -111,15 +108,12 @@ export function useCalculatorState() {
           .maybeSingle();
 
         if (latestInvoice) {
-          // Restore calculator settings
           setCallDuration(latestInvoice.call_duration || 5);
           setTotalMinutes(latestInvoice.total_minutes || 1000);
           setMargin(latestInvoice.margin || 20);
           setTaxRate(latestInvoice.tax_rate || 20);
           
-          // Restore agency and client info with proper type checking
           if (latestInvoice.agency_info) {
-            // Parse and validate agency_info
             const defaultAgencyInfo: AgencyInfo = {
               name: "",
               phone: "",
@@ -135,7 +129,6 @@ export function useCalculatorState() {
           }
           
           if (latestInvoice.client_info) {
-            // Parse and validate client_info
             const defaultClientInfo: ClientInfo = {
               name: "",
               address: "",
@@ -152,7 +145,6 @@ export function useCalculatorState() {
             setClientInfo(parsedClientInfo);
           }
           
-          // Restore costs
           if (latestInvoice.setup_cost) {
             setSetupCost(Number(latestInvoice.setup_cost));
           }
@@ -162,7 +154,6 @@ export function useCalculatorState() {
           }
         }
 
-        // Get all invoices
         const { data: allInvoices } = await supabase
           .from('invoices')
           .select('*')
@@ -171,7 +162,6 @@ export function useCalculatorState() {
           .order('created_at', { ascending: false });
 
         if (allInvoices) {
-          // Transform all invoices to the correct type
           const typedInvoices: InvoiceHistory[] = allInvoices.map(invoice => {
             const defaultAgencyInfo: AgencyInfo = {
               name: "",
@@ -213,15 +203,37 @@ export function useCalculatorState() {
     loadCalculatorState();
   }, []);
 
-  // Save calculator state to Supabase when it changes
+  useEffect(() => {
+    if (editingInvoice) {
+      setEditingInvoiceId(editingInvoice.id);
+      setCallDuration(editingInvoice.call_duration || 5);
+      setTotalMinutes(editingInvoice.total_minutes || 1000);
+      setMargin(editingInvoice.margin || 20);
+      setTaxRate(editingInvoice.tax_rate || 20);
+      setSetupCost(Number(editingInvoice.setup_cost));
+      setTotalCost(Number(editingInvoice.total_amount));
+      
+      if (editingInvoice.agency_info) {
+        setAgencyInfo(editingInvoice.agency_info);
+      }
+      
+      if (editingInvoice.client_info) {
+        setClientInfo(editingInvoice.client_info);
+      }
+      
+      setShowPreview(true);
+    } else {
+      setEditingInvoiceId(null);
+    }
+  }, [editingInvoice]);
+
   useEffect(() => {
     const saveCalculatorState = async () => {
-      if (isLoading) return; // Don't save while loading initial state
-      
+      if (isLoading) return;
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Save theme color to user preferences
       await supabase
         .from('user_preferences')
         .update({ theme_color: themeColor })
@@ -269,5 +281,9 @@ export function useCalculatorState() {
     setupCost,
     setSetupCost,
     isLoading,
+    editingInvoice,
+    setEditingInvoice,
+    editingInvoiceId,
+    isEditingInvoice: !!editingInvoice,
   };
 }

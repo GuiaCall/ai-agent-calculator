@@ -1,3 +1,4 @@
+
 import { InvoicePreview } from "../InvoicePreview";
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
 import { CurrencyType } from "./CalculatorState";
@@ -12,6 +13,7 @@ interface CalculatorPreviewProps {
   taxRate: number;
   themeColor: string;
   currency: CurrencyType;
+  invoiceNumber?: string;
 }
 
 export function CalculatorPreview({
@@ -24,6 +26,7 @@ export function CalculatorPreview({
   taxRate,
   themeColor,
   currency,
+  invoiceNumber,
 }: CalculatorPreviewProps) {
   if (!showPreview || !totalCost) return null;
 
@@ -38,6 +41,7 @@ export function CalculatorPreview({
         taxRate={taxRate}
         themeColor={themeColor}
         currency={currency}
+        invoiceNumber={invoiceNumber}
       />
     </div>
   );

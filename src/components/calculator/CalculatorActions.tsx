@@ -1,28 +1,32 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Calculator, FileDown, Eye } from "lucide-react";
+import { Calculator, FileDown, Eye, X, Save } from "lucide-react";
 
 interface CalculatorActionsProps {
   onCalculate: () => void;
   onPreviewToggle: () => void;
   onExportPDF: () => void;
+  onCancelEdit?: () => void;
   totalCost: number | null;
   setupCost: number | null;
   currency: string;
   totalMinutes: number;
+  isEditingInvoice?: boolean;
 }
 
 export function CalculatorActions({
   onCalculate,
   onPreviewToggle,
   onExportPDF,
+  onCancelEdit,
   totalCost,
   setupCost,
   currency,
   totalMinutes,
+  isEditingInvoice = false,
 }: CalculatorActionsProps) {
-  const currencySymbol = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$';
+  const currencySymbol = currency === 'EUR' ? '€' : '$';
 
   return (
     <div className="space-y-6 fade-in">
@@ -30,11 +34,15 @@ export function CalculatorActions({
         <Button 
           onClick={onCalculate} 
           variant="default"
-          className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-6 py-2 rounded-lg shadow-md transform transition-all hover:-translate-y-1 hover:shadow-lg"
+          className={cn(
+            "w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium px-6 py-2 rounded-lg shadow-md transform transition-all hover:-translate-y-1 hover:shadow-lg",
+            isEditingInvoice && "from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+          )}
         >
           <Calculator className="mr-2 h-4 w-4" />
-          Calculate Cost
+          {isEditingInvoice ? "Re-Calculate Cost" : "Calculate Cost"}
         </Button>
+        
         <Button 
           onClick={onPreviewToggle} 
           variant="outline"
@@ -43,6 +51,7 @@ export function CalculatorActions({
           <Eye className="mr-2 h-4 w-4" />
           Toggle Preview
         </Button>
+        
         <Button 
           onClick={onExportPDF} 
           variant="outline"
@@ -51,6 +60,17 @@ export function CalculatorActions({
           <FileDown className="mr-2 h-4 w-4" />
           Export PDF
         </Button>
+        
+        {isEditingInvoice && onCancelEdit && (
+          <Button 
+            onClick={onCancelEdit} 
+            variant="outline"
+            className="w-full sm:w-auto border-red-200 text-red-700 hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:text-white hover:border-transparent font-medium px-6 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1"
+          >
+            <X className="mr-2 h-4 w-4" />
+            Cancel Edit
+          </Button>
+        )}
       </div>
 
       {totalCost !== null && setupCost !== null && (

@@ -1,4 +1,3 @@
-
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
 import { CurrencyType } from "@/components/calculator/CalculatorState";
 import { format } from "date-fns";
@@ -12,6 +11,7 @@ interface InvoicePreviewProps {
   taxRate: number;
   themeColor: string;
   currency: CurrencyType;
+  invoiceNumber?: string;
 }
 
 export function InvoicePreview({
@@ -23,6 +23,7 @@ export function InvoicePreview({
   taxRate,
   themeColor,
   currency,
+  invoiceNumber,
 }: InvoicePreviewProps) {
   const getCurrencySymbol = (currency: CurrencyType) => {
     switch (currency) {
@@ -40,8 +41,10 @@ export function InvoicePreview({
   const taxAmount = (totalCost || 0) * (taxRate / 100);
   const total = (totalCost || 0) * (1 + taxRate / 100) + (setupCost || 0);
   
-  // Use fixed invoice number instead of randomly generating it
-  const invoiceNumber = `INV-2023-0001`;
+  // Generate dynamic invoice number with current year and sequence
+  const currentYear = new Date().getFullYear();
+  const dynamicInvoiceNumber = invoiceNumber || `INV-${currentYear}-0001`;
+  
   const currentDate = format(new Date(), 'dd MMM yyyy');
   const dueDate = format(new Date(new Date().setDate(new Date().getDate() + 30)), 'dd MMM yyyy');
   
@@ -52,7 +55,7 @@ export function InvoicePreview({
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold">INVOICE</h1>
-            <p className="text-indigo-100 mt-1">#{invoiceNumber}</p>
+            <p className="text-indigo-100 mt-1">#{dynamicInvoiceNumber}</p>
           </div>
           <div className="text-right">
             <h2 className="text-2xl font-semibold">{agencyInfo.name}</h2>

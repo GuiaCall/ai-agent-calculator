@@ -49,7 +49,7 @@ export function CalculatorContent() {
   }, []);
 
   const handleCalculate = async () => {
-    if (!isSubscribed && invoiceCount >= 5) {
+    if (!isSubscribed && invoiceCount >= 5 && !state.editingInvoice) {
       toast({
         title: "Free plan limit reached",
         description: "Please upgrade to the Pro plan to make more calculations.",
@@ -104,10 +104,12 @@ export function CalculatorContent() {
           onCalculate={handleCalculate}
           onPreviewToggle={() => state.setShowPreview(!state.showPreview)}
           onExportPDF={logic.exportPDF}
+          onCancelEdit={logic.cancelEdit}
           totalCost={state.totalCost}
           setupCost={state.setupCost}
           currency={state.currency}
           totalMinutes={state.totalMinutes}
+          isEditingInvoice={!!state.editingInvoice}
         />
 
         <PreviewSection />

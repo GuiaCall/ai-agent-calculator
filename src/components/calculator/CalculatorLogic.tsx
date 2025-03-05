@@ -31,7 +31,10 @@ export function useCalculatorLogic({
   setInvoices,
   currency,
   setShowPreview,
-  callDuration
+  callDuration,
+  setEditingInvoice,
+  isEditingInvoice,
+  editingInvoiceId
 }: any) {
   const { toast } = useToast();
 
@@ -64,45 +67,112 @@ export function useCalculatorLogic({
       // Save the calculation to Supabase
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // Generate a simple invoice number based on timestamp and user
-        const timestamp = new Date().getTime().toString().slice(-6);
-        const userFragment = user.id.substring(0, 4);
-        const invoiceNumber = `INV-${userFragment}-${timestamp}`;
-        
-        const newInvoice = {
-          user_id: user.id,
-          agency_info: agencyInfo,
-          client_info: clientInfo,
-          setup_cost: setupCostValue,
-          total_amount: monthlyCost,
-          tax_rate: taxRate,
-          margin: margin,
-          total_minutes: totalMinutes,
-          call_duration: callDuration,
-          invoice_number: invoiceNumber,
-          monthly_service_cost: monthlyCost
-        };
-        
-        const { data, error } = await supabase
-          .from('invoices')
-          .insert(newInvoice)
-          .select();
+        if (isEditingInvoice && editingInvoiceId) {
+          // Update existing invoice
+          const { error } = await supabase
+            .from('invoices')
+            .update({
+              agency_info: agencyInfo,
+              client_info: clientInfo,
+              setup_cost: setupCostValue,
+              total_amount: monthlyCost,
+              tax_rate: taxRate,
+              margin: margin,
+              total_minutes: totalMinutes,
+              call_duration: callDuration,
+              monthly_service_cost: monthlyCost,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', editingInvoiceId);
+            
+          if (error) {
+            console.error('Error updating invoice:', error);
+            toast({
+              title: "Error",
+              description: "Failed to update invoice",
+              variant: "destructive",
+            });
+          } else {
+            // Update the invoice in the local state
+            const updatedInvoices = invoices.map((inv: InvoiceHistory) => 
+              inv.id === editingInvoiceId ? {
+                ...inv,
+                agency_info: agencyInfo,
+                client_info: clientInfo,
+                setup_cost: setupCostValue,
+                total_amount: monthlyCost,
+                tax_rate: taxRate,
+                margin: margin,
+                total_minutes: totalMinutes,
+                call_duration: callDuration,
+                monthly_service_cost: monthlyCost,
+                updated_at: new Date().toISOString()
+              } : inv
+            );
+            
+            setInvoices(updatedInvoices);
+            
+            toast({
+              title: "Success",
+              description: "Invoice updated successfully",
+            });
+          }
+        } else {
+          // Generate a new invoice number with current year and next sequence
+          const currentYear = new Date().getFullYear();
+          let nextSequence = 1;
           
-        if (error) {
-          console.error('Error saving invoice:', error);
-          toast({
-            title: "Error",
-            description: "Failed to save calculation to your account",
-            variant: "destructive",
-          });
-        } else if (data) {
-          // Add the new invoice to the local state
-          setInvoices([...invoices, data[0]]);
+          // Find the highest sequence number for the current year
+          const yearInvoices = invoices.filter((inv: InvoiceHistory) => 
+            inv.invoice_number.includes(`INV-${currentYear}`)
+          );
           
-          toast({
-            title: "Success",
-            description: "Cost calculation completed and saved",
-          });
+          if (yearInvoices.length > 0) {
+            const sequences = yearInvoices.map((inv: InvoiceHistory) => {
+              const seqStr = inv.invoice_number.split('-')[2];
+              return parseInt(seqStr, 10);
+            });
+            nextSequence = Math.max(...sequences) + 1;
+          }
+          
+          const invoiceNumber = `INV-${currentYear}-${nextSequence.toString().padStart(4, '0')}`;
+          
+          // Create new invoice
+          const newInvoice = {
+            user_id: user.id,
+            agency_info: agencyInfo,
+            client_info: clientInfo,
+            setup_cost: setupCostValue,
+            total_amount: monthlyCost,
+            tax_rate: taxRate,
+            margin: margin,
+            total_minutes: totalMinutes,
+            call_duration: callDuration,
+            invoice_number: invoiceNumber,
+            monthly_service_cost: monthlyCost
+          };
+          
+          const { data, error } = await supabase
+            .from('invoices')
+            .insert(newInvoice)
+            .select();
+            
+          if (error) {
+            console.error('Error saving invoice:', error);
+            toast({
+              title: "Error",
+              description: "Failed to save calculation to your account",
+              variant: "destructive",
+            });
+          } else if (data) {
+            // Add the new invoice to the local state
+            setInvoices([...invoices, data[0]]);
+            
+            toast({
+              title: "Success",
+              description: "Cost calculation completed and saved",
+            });
+          }
         }
       } else {
         toast({
@@ -142,26 +212,28 @@ export function useCalculatorLogic({
     }
   };
 
-  const handleEdit = (invoice: InvoiceHistory, setEditingId: (id: string) => void, setRecalculatedId: (id: string) => void) => {
-    setEditingId(invoice.id);
-    calculateCost();
-    setRecalculatedId(invoice.id);
+  const cancelEdit = () => {
+    setEditingInvoice(null);
   };
 
-  const handleSave = (invoice: InvoiceHistory, setEditingId: (id: string) => void, setRecalculatedId: (id: string) => void) => {
-    const updatedInvoices = invoices.map((inv: InvoiceHistory) =>
-      inv.id === invoice.id ? { ...inv, total_amount: invoice.total_amount } : inv
-    );
-    setInvoices(updatedInvoices);
-    setEditingId('');
-    setRecalculatedId('');
-    toast({
-      title: "Success",
-      description: "Invoice updated successfully",
-    });
+  const startEdit = (invoice: InvoiceHistory) => {
+    setEditingInvoice(invoice);
   };
 
-  const exportPDF = async () => {
+  const exportPDF = async (invoiceId?: string) => {
+    let targetInvoice: InvoiceHistory | undefined;
+    if (invoiceId) {
+      targetInvoice = invoices.find((inv: InvoiceHistory) => inv.id === invoiceId);
+      if (!targetInvoice) {
+        toast({
+          title: "Error",
+          description: "Invoice not found",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     const element = document.getElementById('invoice-preview');
     if (!element) {
       toast({
@@ -238,17 +310,19 @@ export function useCalculatorLogic({
         );
       }
 
-      pdf.save(`invoice-${new Date().toISOString()}.pdf`);
+      // Filename includes invoice number if provided
+      const currentInvoice = targetInvoice || (invoices.length > 0 ? invoices[invoices.length - 1] : null);
+      const invoiceNumber = currentInvoice?.invoice_number || `invoice-${new Date().toISOString()}`;
+      pdf.save(`${invoiceNumber}.pdf`);
 
-      // Update last_exported_at in Supabase
+      // Update last_exported_at in Supabase for the specific invoice
       const { data: { user } } = await supabase.auth.getUser();
-      if (user && invoices.length > 0) {
-        const latestInvoice = invoices[invoices.length - 1];
+      if (user && currentInvoice) {
         const { error } = await supabase
           .from('invoices')
           .update({ last_exported_at: new Date().toISOString() })
           .eq('user_id', user.id)
-          .eq('id', latestInvoice.id);
+          .eq('id', currentInvoice.id);
 
         if (error) {
           console.error('Error updating export timestamp:', error);
@@ -273,8 +347,8 @@ export function useCalculatorLogic({
     handleCalcomPlanSelect,
     handleTwilioRateSelect,
     calculateCost,
-    handleEdit,
-    handleSave,
+    startEdit,
+    cancelEdit,
     exportPDF,
   };
 }
