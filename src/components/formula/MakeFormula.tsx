@@ -25,12 +25,11 @@ export function MakeFormula() {
         Annual billing plans offer significant savings compared to monthly billing (up to 15-20%).
       </p>
       <p className="text-sm text-gray-500 mt-1">
-        All operation limits shown are per month. For yearly billing, the price shown is the monthly equivalent to help 
-        you compare plans easily, but your billing will be yearly.
+        All operation limits shown are per month. For yearly billing, the price shown is the monthly equivalent for easy comparison, 
+        but you'll be billed annually for the full yearly amount.
       </p>
       <p className="text-sm font-medium text-gray-700 mt-2">
-        Note: Yearly pricing is stored as the total annual amount, but displayed as the monthly equivalent with 
-        a "billed yearly" notation.
+        Note: Yearly prices are displayed as monthly equivalents with a "billed yearly" notation.
       </p>
     </div>
   );

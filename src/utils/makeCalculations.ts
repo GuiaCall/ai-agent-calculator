@@ -75,7 +75,8 @@ export const findOptimalPlan = (
     planType,
     billingType,
     operationsPerMonth: tierData.operationsPerMonth,
-    price: tierData.price,
+    price: billingType === 'yearly' ? tierData.price * 12 : tierData.price, // For yearly, multiply by 12 to get annual price
+    monthlyEquivalent: tierData.price, // Store the monthly equivalent price for display purposes
     savingsPercentage
   };
 };
@@ -91,15 +92,18 @@ export const calculateRequiredPlanPrice = (totalOperations: number, selectedPlan
   
   // Find the recommended plan (smallest that can accommodate the operations)
   const recommendedPlan = recommendations.reduce((prev, current) => 
-    (current.operationsPerMonth >= totalOperations && current.price < prev.price) ? current : prev
+    (current.operationsPerMonth >= totalOperations && 
+     (prev.operationsPerMonth < totalOperations || current.price < prev.price)) ? 
+      current : prev
   , recommendations[0]);
   
-  // For cost per minute, we always use the monthly equivalent price
-  const monthlyCostEquivalent = billingType === 'yearly' ? recommendedPlan.price / 12 : recommendedPlan.price;
+  // For cost per minute calculation, we use the monthly equivalent price
+  const monthlyCostEquivalent = recommendedPlan.monthlyEquivalent;
   const costPerMinute = totalMinutes > 0 ? monthlyCostEquivalent / totalMinutes : 0;
   
   return {
     totalPrice: recommendedPlan.price,
+    monthlyEquivalent: recommendedPlan.monthlyEquivalent,
     operationsIncluded: recommendedPlan.operationsPerMonth,
     costPerMinute,
     recommendations,

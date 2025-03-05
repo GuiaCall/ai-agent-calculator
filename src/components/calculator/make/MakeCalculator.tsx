@@ -37,6 +37,7 @@ export function MakeCalculator({
     
     const { 
       totalPrice, 
+      monthlyEquivalent,
       operationsIncluded,
       costPerMinute,
       recommendations: planRecommendations,
@@ -48,9 +49,7 @@ export function MakeCalculator({
     );
 
     // For adapter, always use monthly equivalent price
-    const monthlyPriceEquivalent = selectedPlanType === 'yearly' 
-      ? optimalPlan.price / 12 
-      : optimalPlan.price;
+    const monthlyPriceEquivalent = optimalPlan.monthlyEquivalent;
 
     // Create adapter for legacy MakePlan format
     const adaptedPlan: MakePlan = {
@@ -88,9 +87,7 @@ export function MakeCalculator({
     setSelectedPlan(plan);
     
     // Always use monthly equivalent price for calculations
-    const monthlyPriceEquivalent = selectedPlanType === 'yearly' 
-      ? plan.price / 12 
-      : plan.price;
+    const monthlyPriceEquivalent = plan.monthlyEquivalent;
     
     // Create adapter for legacy MakePlan format
     const adaptedPlan: MakePlan = {

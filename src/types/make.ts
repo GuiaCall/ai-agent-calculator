@@ -24,5 +24,6 @@ export interface MakeRecommendedPlan {
   billingType: 'monthly' | 'yearly';
   operationsPerMonth: number;
   price: number;
+  monthlyEquivalent: number; // Monthly equivalent price for display/calculation
   savingsPercentage?: number;
 }
