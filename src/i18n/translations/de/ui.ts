@@ -42,8 +42,5 @@ export const ui = {
   "pleaseUpgrade": "Bitte auf den Pro-Plan upgraden, um mehr Berechnungen durchzuführen",
   "upgradeNow": "Jetzt upgraden",
   "per": "pro",
-  "overage": "Überschreitung ({{count}} Minuten zu {{rate}}/Min):",
-  "billingCycle": "Abrechnungszyklus",
-  "monthlyBilling": "Monatliche Abrechnung",
-  "yearlyBilling": "Jährliche Abrechnung"
+  "overage": "Überschreitung ({{count}} Minuten zu {{rate}}/Min):"
 };
