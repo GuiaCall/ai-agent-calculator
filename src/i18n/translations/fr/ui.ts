@@ -37,5 +37,8 @@ export const ui = {
   "generateUnlimitedInvoices": "Générez des factures illimitées",
   "accessToAllFeatures": "Accès à toutes les fonctionnalités 24/7",
   "futureFeatureUpgrades": "Mises à jour futures incluses",
-  "accessToAllSavedInvoices": "Accès à toutes les factures sauvegardées"
+  "accessToAllSavedInvoices": "Accès à toutes les factures sauvegardées",
+  "billingCycle": "Cycle de facturation",
+  "monthlyBilling": "Facturation mensuelle",
+  "yearlyBilling": "Facturation annuelle"
 };

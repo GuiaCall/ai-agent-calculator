@@ -41,5 +41,8 @@ export const ui = {
   "generateUnlimitedInvoices": "Generate unlimited invoices",
   "accessToAllFeatures": "Access to all features 24/7",
   "futureFeatureUpgrades": "Future feature upgrades included",
-  "accessToAllSavedInvoices": "Access to all saved invoices"
+  "accessToAllSavedInvoices": "Access to all saved invoices",
+  "billingCycle": "Billing Cycle",
+  "monthlyBilling": "Monthly Billing",
+  "yearlyBilling": "Yearly Billing"
 };
