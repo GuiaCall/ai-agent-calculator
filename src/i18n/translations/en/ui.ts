@@ -65,5 +65,9 @@ export const ui = {
   "monthlyBilling": "Monthly Billing",
   "yearlyBilling": "Yearly Billing",
   "monthly": "Monthly",
-  "yearly": "Yearly"
+  "yearly": "Yearly",
+  "perMinute": "per minute",
+  "basedOnUsage": "Based on your estimated usage of",
+  "minutesPerMonth": "minutes per month",
+  "operationsHelp": "Enter the number of operations consumed by your Make.com scenarios"
 };
