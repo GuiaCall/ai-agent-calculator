@@ -1,0 +1,80 @@
+
+export const technologies = {
+  // Make.com translations
+  "make.com": "Make.com",
+  "makeCalculator": "Make.com Operations Calculator",
+  "viewMakePricing": "View Make.com Pricing",
+  "operationsPerScenario": "Operations per Scenario",
+  "operationsHelp": "Enter the number of operations consumed by your Make.com scenarios",
+  "billingCycle": "Billing Cycle",
+  "calculateOperations": "Calculate Required Operations",
+  "makeOperationsCalculation": "Make.com Operations Calculation",
+  "totalCallsFormula": "Total Calls = Total Minutes ÷ Average Call Duration",
+  "requiredOperationsFormula": "Required Operations = Total Calls × Operations per Scenario × 1.2",
+  "totalCalls": "Total Calls",
+  "requiredOperations": "Required Operations",
+  "pricingTiersDetermined": "Pricing tiers are determined by the total operations required per month:",
+  "operationsRange": "10,000 to 8,000,000 operations per month available",
+  "corePlan": "Core: For individuals automating simple work",
+  "proPlan": "Pro: For individuals benefiting from more sophisticated automations",
+  "teamsPlan": "Teams: For departments introducing automation for multiple users",
+  "multiplyBuffer": "We multiply by 1.2 to add a 20% buffer for incomplete operations that still consume your Make.com quota.",
+  "annualBillingPlans": "Annual billing plans offer significant savings compared to monthly billing (up to 15-20%).",
+  "operationLimits": "All operation limits shown are per month. For yearly billing, the price shown is the monthly equivalent for easy comparison, but you'll be billed annually for the full yearly amount.",
+  "yearlyPricesNote": "Note: Yearly prices are displayed as monthly equivalents with a \"billed yearly\" notation.",
+  "operationsPerMonth": "operations per month",
+  "save": "Save",
+  "vsMonthlyBilling": "vs monthly billing",
+  "monthlyPrice": "Monthly Price",
+  "yearlyBilling": "Yearly Billing (Save up to 20%)",
+  "monthlyBilling": "Monthly Billing",
+  "billingType": "Billing Type",
+  
+  // Synthflow translations
+  "synthflow": "Synthflow",
+  "synthflowCalculator": "Synthflow Plan Calculator",
+  "viewSynthflowPricing": "View Synthflow Pricing",
+  "selectPlan": "Select Plan",
+  "recommendedPlan": "Recommended Plan",
+  "basedOnUsage": "Based on your estimated usage of",
+  "minutesPerMonth": "minutes per month",
+  "baseCostPerMinute": "Base Cost per Minute",
+  "copyPasteHint": "(Copy and paste this value in the Technology Parameter for calculation)",
+  "getPlan": "Get This Plan",
+  "basePlan": "Base plan ({{count}} minutes):",
+  "overage": "Overage ({{count}} minutes at {{rate}}/min):",
+  "totalMonthlyCost": "Total monthly cost:",
+  "effectiveCostPerMinute": "Effective cost per minute:",
+  
+  // Cal.com translations
+  "cal.com": "Cal.com",
+  "calcomCalculator": "Cal.com Plan",
+  "viewCalcomPricing": "View Pricing",
+  "computeMonthlyCost": "Compute Monthly Cost",
+  "numberOfTeamMembers": "Number of Team Members",
+  "teamMembersCostInfo": "Team members cost {{cost}}/month each",
+  "pleaseSelectPlan": "Please select a plan first",
+  "monthlyCostCalculated": "Monthly Cost Calculated",
+  "basePlanCost": "Base Plan Cost",
+  "teamMembersCost": "Team Members Cost",
+  "selectedPlanBasePrice": "Selected Plan Base Price",
+  "teamMemberCost": "Team Member Cost",
+  "numberOfUsers": "Number of Users",
+  "calcomFormulaDescription": "For Team and Organization plans, each team member costs $12/month. The total monthly cost is divided by total minutes to get the per-minute rate.",
+  
+  // Twilio translations
+  "twilio": "Twilio",
+  "twilioCalculator": "Twilio Configuration",
+  "country": "Country",
+  "selectCountry": "Select a country",
+  
+  // Vapi translations
+  "vapi": "Vapi",
+  "vapiCalculator": "Vapi Configuration",
+  "vapiMonthlyCost": "Vapi Monthly Cost",
+  "viewPricing": "View Pricing",
+  
+  // Bland AI translations
+  "blandAiCalculator": "Bland AI Configuration",
+  "blandAiMonthlyCost": "Bland AI Monthly Cost"
+};
