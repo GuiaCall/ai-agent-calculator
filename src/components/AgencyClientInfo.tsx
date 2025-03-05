@@ -1,7 +1,9 @@
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
+import { useTranslation } from "react-i18next";
 
 interface AgencyClientInfoProps {
   onAgencyInfoChange: (info: AgencyInfo) => void;
@@ -16,92 +18,94 @@ export function AgencyClientInfo({
   agencyInfo,
   clientInfo,
 }: AgencyClientInfoProps) {
+  const { t } = useTranslation();
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card className="p-6 space-y-4">
-        <h3 className="text-xl font-semibold">Agency Information</h3>
+        <h3 className="text-xl font-semibold">{t("agencyInformation")}</h3>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="agencyName">Agency Name</Label>
+            <Label htmlFor="agencyName">{t("agencyName")}</Label>
             <Input
               id="agencyName"
               value={agencyInfo.name}
               onChange={(e) => onAgencyInfoChange({ ...agencyInfo, name: e.target.value })}
-              placeholder="Your Agency Name"
+              placeholder={t("agencyNamePlaceholder")}
             />
           </div>
           <div>
-            <Label htmlFor="agencyPhone">Phone Number</Label>
+            <Label htmlFor="agencyPhone">{t("phoneNumber")}</Label>
             <Input
               id="agencyPhone"
               value={agencyInfo.phone}
               onChange={(e) => onAgencyInfoChange({ ...agencyInfo, phone: e.target.value })}
-              placeholder="+1 234 567 890"
+              placeholder={t("phonePlaceholder")}
             />
           </div>
           <div>
-            <Label htmlFor="agencyAddress">Address</Label>
+            <Label htmlFor="agencyAddress">{t("address")}</Label>
             <Input
               id="agencyAddress"
               value={agencyInfo.address}
               onChange={(e) => onAgencyInfoChange({ ...agencyInfo, address: e.target.value })}
-              placeholder="123 Agency Street"
+              placeholder={t("addressPlaceholder")}
             />
           </div>
           <div>
-            <Label htmlFor="agencyEmail">Email</Label>
+            <Label htmlFor="agencyEmail">{t("email")}</Label>
             <Input
               id="agencyEmail"
               type="email"
               value={agencyInfo.email}
               onChange={(e) => onAgencyInfoChange({ ...agencyInfo, email: e.target.value })}
-              placeholder="contact@agency.com"
+              placeholder={t("emailPlaceholder")}
             />
           </div>
           <div>
-            <Label htmlFor="agencyWebsite">Website</Label>
+            <Label htmlFor="agencyWebsite">{t("website")}</Label>
             <Input
               id="agencyWebsite"
               value={agencyInfo.website}
               onChange={(e) => onAgencyInfoChange({ ...agencyInfo, website: e.target.value })}
-              placeholder="www.agency.com"
+              placeholder={t("websitePlaceholder")}
             />
           </div>
         </div>
       </Card>
 
       <Card className="p-6 space-y-4">
-        <h3 className="text-xl font-semibold">Client Information</h3>
+        <h3 className="text-xl font-semibold">{t("clientInformation")}</h3>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="clientName">Client Name/Company</Label>
+            <Label htmlFor="clientName">{t("clientName")}</Label>
             <Input
               id="clientName"
               value={clientInfo.name}
               onChange={(e) => onClientInfoChange({ ...clientInfo, name: e.target.value })}
-              placeholder="Client Name"
+              placeholder={t("clientNamePlaceholder")}
             />
           </div>
           <div>
-            <Label htmlFor="clientAddress">Address</Label>
+            <Label htmlFor="clientAddress">{t("clientAddress")}</Label>
             <Input
               id="clientAddress"
               value={clientInfo.address}
               onChange={(e) => onClientInfoChange({ ...clientInfo, address: e.target.value })}
-              placeholder="Client Address"
+              placeholder={t("clientAddressPlaceholder")}
             />
           </div>
           <div>
-            <Label htmlFor="clientTVA">TVA Number (if applicable)</Label>
+            <Label htmlFor="clientTVA">{t("tvaNumber")}</Label>
             <Input
               id="clientTVA"
               value={clientInfo.tvaNumber}
               onChange={(e) => onClientInfoChange({ ...clientInfo, tvaNumber: e.target.value })}
-              placeholder="TVA Number"
+              placeholder={t("tvaPlaceholder")}
             />
           </div>
           <div>
-            <Label htmlFor="contactPersonName">Contact Person Name</Label>
+            <Label htmlFor="contactPersonName">{t("contactPersonName")}</Label>
             <Input
               id="contactPersonName"
               value={clientInfo.contactPerson.name}
@@ -109,11 +113,11 @@ export function AgencyClientInfo({
                 ...clientInfo,
                 contactPerson: { ...clientInfo.contactPerson, name: e.target.value }
               })}
-              placeholder="Contact Person Name"
+              placeholder={t("contactPersonNamePlaceholder")}
             />
           </div>
           <div>
-            <Label htmlFor="contactPersonPhone">Contact Person Phone</Label>
+            <Label htmlFor="contactPersonPhone">{t("contactPersonPhone")}</Label>
             <Input
               id="contactPersonPhone"
               value={clientInfo.contactPerson.phone}
@@ -121,7 +125,7 @@ export function AgencyClientInfo({
                 ...clientInfo,
                 contactPerson: { ...clientInfo.contactPerson, phone: e.target.value }
               })}
-              placeholder="Contact Person Phone"
+              placeholder={t("contactPersonPhonePlaceholder")}
             />
           </div>
         </div>
