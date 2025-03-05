@@ -104,6 +104,36 @@ export const fr = {
     "client": "Client",
     "amount": "Montant",
     "actions": "Actions",
+    "noInvoicesFound": "Aucune facture trouvée. Créez votre première facture en calculant un coût.",
+    "clientDetails": "Détails du Client",
+    "invoiceDetails": "Détails de la Facture",
+    "created": "Créée",
+    "lastExported": "Dernière exportation",
+    "setupCost": "Coût d'installation",
+    "summary": "Résumé",
+    "totalMinutes": "Minutes totales",
+    "callDuration": "Durée d'appel",
+    
+    // Invoice Preview
+    "invoice": "FACTURE",
+    "billTo": "Facturer à",
+    "contact": "Contact",
+    "phone": "Téléphone",
+    "invoiceDate": "Date de Facturation",
+    "dueDate": "Date d'Échéance",
+    "amountDue": "Montant Dû",
+    "description": "Description",
+    "quantity": "Quantité",
+    "rate": "Tarif",
+    "setupDescription": "Implémentation et configuration initiale",
+    "aiVoiceService": "Service Vocal IA",
+    "monthlySubscription": "Abonnement mensuel",
+    "minutes": "minutes",
+    "min": "min",
+    "subtotal": "Sous-total",
+    "tax": "TVA",
+    "total": "Total",
+    "thankYou": "Merci pour votre confiance !",
     
     // Footer and Navigation
     "footer": "© 2024 Calculateur d'Agent Vocal IA. Tous droits réservés.",
@@ -127,7 +157,7 @@ export const fr = {
     
     // Pricing page
     "freePlan": "Gratuit",
-    // The duplicate "proPlan" key was here, now removed
+    "proPlan": "Pro",
     "enterprisePlan": "Entreprise",
     "monthly": "Mensuel",
     "yearly": "Annuel",
@@ -180,6 +210,22 @@ export const fr = {
     "currentBilling": "Facturation actuelle",
     "nextBillingDate": "Prochaine date de facturation",
     "billingHistory": "Historique de facturation",
-    "downloadReceipt": "Télécharger le reçu"
+    "downloadReceipt": "Télécharger le reçu",
+    
+    // Default costs component
+    "defaultTechnologyCosts": "Coûts Technologiques par Défaut",
+    "defaultValuesDescription": "Ce sont des valeurs par défaut suggérées. Vous pouvez personnaliser les coûts dans le calculateur ci-dessus.",
+    
+    // Additional calculator translations
+    "pleaseSelectAtLeastOneTechnology": "Veuillez sélectionner au moins une technologie",
+    "failedToUpdateInvoice": "Échec de la mise à jour de la facture",
+    "invoiceUpdatedSuccessfully": "Facture mise à jour avec succès",
+    "failedToSaveCalculation": "Échec de l'enregistrement du calcul sur votre compte",
+    "costCalculationCompletedAndSaved": "Calcul des coûts terminé et enregistré",
+    "costCalculationCompleted": "Calcul des coûts terminé",
+    "invoiceNotFound": "Facture introuvable",
+    "previewNotFound": "Aperçu introuvable. Veuillez d'abord calculer le coût.",
+    "pdfExportedSuccessfully": "PDF exporté avec succès",
+    "failedToExportPDF": "Échec de l'exportation du PDF. Veuillez réessayer."
   }
 };

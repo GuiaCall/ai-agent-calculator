@@ -1,3 +1,4 @@
+
 export const de = {
   translation: {
     // General
@@ -156,6 +157,7 @@ export const de = {
     
     // Pricing page
     "freePlan": "Kostenlos",
+    "proPlan": "Pro",
     "enterprisePlan": "Enterprise",
     "monthly": "Monatlich",
     "yearly": "Jährlich",
@@ -208,6 +210,22 @@ export const de = {
     "currentBilling": "Aktuelle Abrechnung",
     "nextBillingDate": "Nächstes Abrechnungsdatum",
     "billingHistory": "Abrechnungsverlauf",
-    "downloadReceipt": "Quittung herunterladen"
+    "downloadReceipt": "Quittung herunterladen",
+    
+    // Default costs component
+    "defaultTechnologyCosts": "Standard-Technologiekosten",
+    "defaultValuesDescription": "Dies sind empfohlene Standardwerte. Sie können die Kosten im Rechner oben anpassen.",
+    
+    // Additional calculator translations
+    "pleaseSelectAtLeastOneTechnology": "Bitte wählen Sie mindestens eine Technologie aus",
+    "failedToUpdateInvoice": "Aktualisierung der Rechnung fehlgeschlagen",
+    "invoiceUpdatedSuccessfully": "Rechnung erfolgreich aktualisiert",
+    "failedToSaveCalculation": "Speichern der Berechnung in Ihrem Konto fehlgeschlagen",
+    "costCalculationCompletedAndSaved": "Kostenberechnung abgeschlossen und gespeichert",
+    "costCalculationCompleted": "Kostenberechnung abgeschlossen",
+    "invoiceNotFound": "Rechnung nicht gefunden",
+    "previewNotFound": "Vorschau nicht gefunden. Bitte berechnen Sie zuerst die Kosten.",
+    "pdfExportedSuccessfully": "PDF erfolgreich exportiert",
+    "failedToExportPDF": "PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut."
   }
 };

@@ -11,6 +11,7 @@ import {
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from "@/integrations/supabase/client";
+import { useTranslation } from "react-i18next";
 
 export function useCalculatorLogic({
   technologies,
@@ -37,13 +38,14 @@ export function useCalculatorLogic({
   editingInvoiceId
 }: any) {
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const calculateCost = async () => {
     const selectedTechs = technologies.filter((tech) => tech.isSelected);
     if (selectedTechs.length === 0) {
       toast({
-        title: "Error",
-        description: "Please select at least one technology",
+        title: t("error"),
+        description: t("pleaseSelectAtLeastOneTechnology"),
         variant: "destructive",
       });
       return;
@@ -88,8 +90,8 @@ export function useCalculatorLogic({
           if (error) {
             console.error('Error updating invoice:', error);
             toast({
-              title: "Error",
-              description: "Failed to update invoice",
+              title: t("error"),
+              description: t("failedToUpdateInvoice"),
               variant: "destructive",
             });
           } else {
@@ -113,13 +115,13 @@ export function useCalculatorLogic({
             setInvoices(updatedInvoices);
             
             toast({
-              title: "Success",
-              description: "Invoice updated successfully",
+              title: t("success"),
+              description: t("invoiceUpdatedSuccessfully"),
             });
           }
         } else {
-          // Generate a new invoice number with current year and next sequence
-          const currentYear = new Date().getFullYear();
+          // Generate a new invoice number with year 2025 and padded zeros for sequence
+          const currentYear = 2025;
           let nextSequence = 1;
           
           // Find the highest sequence number for the current year
@@ -135,7 +137,7 @@ export function useCalculatorLogic({
             nextSequence = Math.max(...sequences) + 1;
           }
           
-          const invoiceNumber = `INV-${currentYear}-${nextSequence.toString().padStart(4, '0')}`;
+          const invoiceNumber = `INV-${currentYear}-${nextSequence.toString().padStart(6, '0')}`;
           
           // Create new invoice
           const newInvoice = {
@@ -160,8 +162,8 @@ export function useCalculatorLogic({
           if (error) {
             console.error('Error saving invoice:', error);
             toast({
-              title: "Error",
-              description: "Failed to save calculation to your account",
+              title: t("error"),
+              description: t("failedToSaveCalculation"),
               variant: "destructive",
             });
           } else if (data) {
@@ -169,22 +171,22 @@ export function useCalculatorLogic({
             setInvoices([...invoices, data[0]]);
             
             toast({
-              title: "Success",
-              description: "Cost calculation completed and saved",
+              title: t("success"),
+              description: t("costCalculationCompletedAndSaved"),
             });
           }
         }
       } else {
         toast({
-          title: "Success",
-          description: "Cost calculation completed",
+          title: t("success"),
+          description: t("costCalculationCompleted"),
         });
       }
     } catch (error) {
       console.error('Error in calculation save:', error);
       toast({
-        title: "Success",
-        description: "Cost calculation completed",
+        title: t("success"),
+        description: t("costCalculationCompleted"),
       });
     }
   };
@@ -226,8 +228,8 @@ export function useCalculatorLogic({
       targetInvoice = invoices.find((inv: InvoiceHistory) => inv.id === invoiceId);
       if (!targetInvoice) {
         toast({
-          title: "Error",
-          description: "Invoice not found",
+          title: t("error"),
+          description: t("invoiceNotFound"),
           variant: "destructive",
         });
         return;
@@ -237,8 +239,8 @@ export function useCalculatorLogic({
     const element = document.getElementById('invoice-preview');
     if (!element) {
       toast({
-        title: "Error",
-        description: "Preview not found. Please calculate cost first.",
+        title: t("error"),
+        description: t("previewNotFound"),
         variant: "destructive",
       });
       return;
@@ -330,14 +332,14 @@ export function useCalculatorLogic({
       }
 
       toast({
-        title: "Success",
-        description: "PDF exported successfully",
+        title: t("success"),
+        description: t("pdfExportedSuccessfully"),
       });
     } catch (error) {
       console.error('PDF export error:', error);
       toast({
-        title: "Error",
-        description: "Failed to export PDF. Please try again.",
+        title: t("error"),
+        description: t("failedToExportPDF"),
         variant: "destructive",
       });
     }

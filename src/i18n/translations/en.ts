@@ -209,6 +209,22 @@ export const en = {
     "currentBilling": "Current Billing",
     "nextBillingDate": "Next Billing Date",
     "billingHistory": "Billing History",
-    "downloadReceipt": "Download Receipt"
+    "downloadReceipt": "Download Receipt",
+    
+    // Default costs component
+    "defaultTechnologyCosts": "Default Technology Costs",
+    "defaultValuesDescription": "These are suggested default values. You can customize the costs in the calculator above.",
+    
+    // Additional calculator translations
+    "pleaseSelectAtLeastOneTechnology": "Please select at least one technology",
+    "failedToUpdateInvoice": "Failed to update invoice",
+    "invoiceUpdatedSuccessfully": "Invoice updated successfully",
+    "failedToSaveCalculation": "Failed to save calculation to your account",
+    "costCalculationCompletedAndSaved": "Cost calculation completed and saved",
+    "costCalculationCompleted": "Cost calculation completed",
+    "invoiceNotFound": "Invoice not found",
+    "previewNotFound": "Preview not found. Please calculate cost first.",
+    "pdfExportedSuccessfully": "PDF exported successfully",
+    "failedToExportPDF": "Failed to export PDF. Please try again."
   }
 };

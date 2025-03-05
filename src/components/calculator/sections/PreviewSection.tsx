@@ -3,10 +3,12 @@ import { CalculatorPreview } from "../CalculatorPreview";
 import { useCalculatorStateContext } from "../CalculatorStateContext";
 import { InvoiceHistoryTable } from "../InvoiceHistoryTable";
 import { useCalculatorLogic } from "../CalculatorLogic";
+import { useTranslation } from "react-i18next";
 
 export function PreviewSection() {
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state });
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-10">
@@ -28,7 +30,7 @@ export function PreviewSection() {
       
       {state.invoices && state.invoices.length > 0 && (
         <div className="mt-12">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">Invoice History</h3>
+          <h3 className="text-xl font-semibold mb-4 text-gray-800">{t("invoiceHistory")}</h3>
           <InvoiceHistoryTable 
             invoices={state.invoices}
             onExportPDF={logic.exportPDF}
