@@ -82,6 +82,13 @@ export const en = {
     "baseCostPerMinute": "Base Cost per Minute",
     "copyPasteHint": "(Copy and paste this value in the Technology Parameter for calculation)",
     "getPlan": "Get This Plan",
+    "basePlan": "Base plan ({{count}} minutes):",
+    "per": "per",
+    "month": "month",
+    "year": "year",
+    "overage": "Overage ({{count}} minutes at {{rate}}/min):",
+    "totalMonthlyCost": "Total monthly cost:",
+    "effectiveCostPerMinute": "Effective cost per minute:",
     
     // Cal.com Calculator
     "calcomCalculator": "Cal.com Plan",

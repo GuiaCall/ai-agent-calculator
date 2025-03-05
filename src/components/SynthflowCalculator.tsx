@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { SynthflowPlan } from "@/types/synthflow";
 import { SYNTHFLOW_PLANS, SYNTHFLOW_PRICING_URL } from "@/constants/synthflowPlans";
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Activity } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
+import { useTranslation } from "react-i18next";
 
 interface SynthflowCalculatorProps {
   totalMinutes: number;
@@ -22,6 +24,7 @@ export function SynthflowCalculator({
   const [billingType, setBillingType] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const { currency, setTechnologies } = useCalculatorStateContext();
+  const { t } = useTranslation();
   
   const getCurrencySymbol = (currency: string) => {
     switch (currency) {
@@ -116,25 +119,25 @@ export function SynthflowCalculator({
           <div className="bg-indigo-100 p-2 rounded-full">
             <Activity className="h-5 w-5 text-indigo-600" />
           </div>
-          Synthflow Plan Calculator
+          {t("synthflowCalculator")}
         </CardTitle>
         <div className="flex items-center space-x-2">
           <span className={`text-sm ${billingType === 'monthly' ? 'font-medium' : 'text-muted-foreground'}`}>
-            Monthly
+            {t("monthly")}
           </span>
           <Switch 
             checked={billingType === 'yearly'} 
             onCheckedChange={toggleBillingType} 
           />
           <span className={`text-sm ${billingType === 'yearly' ? 'font-medium' : 'text-muted-foreground'}`}>
-            Yearly
+            {t("yearly")}
           </span>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           <div>
-            <Label className="text-base font-medium">Select a Plan</Label>
+            <Label className="text-base font-medium">{t("selectPlan")}</Label>
             <RadioGroup 
               className="grid gap-4 mt-3"
               value={selectedPlanId || ''}
@@ -157,7 +160,7 @@ export function SynthflowCalculator({
                       <span className={`font-medium ${selectedPlanId === plan.name ? 'text-indigo-700' : ''}`}>{plan.name}</span>
                       {plan.isRecommended && (
                         <Badge variant="outline" className="bg-primary/10 text-primary">
-                          Recommended
+                          {t("recommendedPlan")}
                         </Badge>
                       )}
                     </Label>
@@ -165,28 +168,28 @@ export function SynthflowCalculator({
                   
                   <div className="ml-6 mt-2 space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>Base plan ({plan.minutesPerMonth.toLocaleString()} minutes):</span>
+                      <span>{t("basePlan", { count: plan.minutesPerMonth.toLocaleString() })}</span>
                       <span className="font-medium">
-                        {getCurrencySymbol(currency)}{getCurrencyConversion(billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice).toFixed(2)} per {billingType === 'monthly' ? 'month' : 'year'}
+                        {getCurrencySymbol(currency)}{getCurrencyConversion(billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice).toFixed(2)} {t("per")} {billingType === 'monthly' ? t("month") : t("year")}
                       </span>
                     </div>
                     
                     {plan.overageMinutes > 0 && (
                       <div className="flex justify-between text-amber-700">
-                        <span>Overage ({plan.overageMinutes.toLocaleString()} minutes at {getCurrencySymbol(currency)}{getCurrencyConversion(0.13).toFixed(2)}/min):</span>
+                        <span>{t("overage", { count: plan.overageMinutes.toLocaleString(), rate: `${getCurrencySymbol(currency)}${getCurrencyConversion(0.13).toFixed(2)}` })}</span>
                         <span className="font-medium">{getCurrencySymbol(currency)}{getCurrencyConversion(plan.overageCost).toFixed(2)}</span>
                       </div>
                     )}
                     
                     <div className="flex justify-between font-medium pt-1 border-t border-border">
-                      <span>Total monthly cost:</span>
+                      <span>{t("totalMonthlyCost")}</span>
                       <span className={`${selectedPlanId === plan.name ? 'text-indigo-600 font-bold' : 'text-primary'}`}>
                         {getCurrencySymbol(currency)}{getCurrencyConversion(plan.totalCost).toFixed(2)}
                       </span>
                     </div>
                     
                     <div className="flex justify-between text-muted-foreground">
-                      <span>Effective cost per minute:</span>
+                      <span>{t("effectiveCostPerMinute")}</span>
                       <span>{getCurrencySymbol(currency)}{getCurrencyConversion(plan.costPerMinute).toFixed(4)}</span>
                     </div>
                   </div>
@@ -198,7 +201,7 @@ export function SynthflowCalculator({
           <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-border">
             <div>
               <p className="text-sm text-muted-foreground">
-                Based on your usage: <span className="font-medium">{totalMinutes.toLocaleString()} minutes/month</span>
+                {t("basedOnUsage")}: <span className="font-medium">{totalMinutes.toLocaleString()} {t("minutesPerMonth")}</span>
               </p>
             </div>
             <Button 
@@ -208,7 +211,7 @@ export function SynthflowCalculator({
               className="w-full sm:w-auto flex items-center gap-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-0 hover:from-indigo-600 hover:to-purple-600 shadow-md transition-all"
             >
               <ExternalLink className="h-4 w-4 mr-1" />
-              View Pricing
+              {t("viewPricing")}
             </Button>
           </div>
         </div>

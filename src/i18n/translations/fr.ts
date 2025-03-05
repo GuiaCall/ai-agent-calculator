@@ -66,6 +66,13 @@ export const fr = {
     "baseCostPerMinute": "Coût de Base par Minute",
     "copyPasteHint": "(Copiez et collez cette valeur dans le Paramètre Technologique pour le calcul)",
     "getPlan": "Obtenir ce Plan",
+    "basePlan": "Plan de base ({{count}} minutes) :",
+    "per": "par",
+    "month": "mois",
+    "year": "année",
+    "overage": "Dépassement ({{count}} minutes à {{rate}}/min) :",
+    "totalMonthlyCost": "Coût mensuel total :",
+    "effectiveCostPerMinute": "Coût effectif par minute :",
     
     // Cal.com Calculator
     "calcomCalculator": "Plan Cal.com",

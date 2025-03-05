@@ -83,6 +83,13 @@ export const de = {
     "baseCostPerMinute": "Grundkosten pro Minute",
     "copyPasteHint": "(Kopieren und fügen Sie diesen Wert in den Technologie-Parameter für die Berechnung ein)",
     "getPlan": "Plan auswählen",
+    "basePlan": "Basisplan ({{count}} Minuten):",
+    "per": "pro",
+    "month": "Monat",
+    "year": "Jahr",
+    "overage": "Überschreitung ({{count}} Minuten zu {{rate}}/Min):",
+    "totalMonthlyCost": "Monatliche Gesamtkosten:",
+    "effectiveCostPerMinute": "Effektive Kosten pro Minute:",
     
     // Cal.com Calculator
     "calcomCalculator": "Cal.com Plan",
