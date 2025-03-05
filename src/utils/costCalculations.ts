@@ -31,13 +31,20 @@ export const calculateTwilioCostPerMinute = (selection: TwilioSelection | null, 
   return monthlyCost;
 };
 
+export const calculateBlandAICostPerMinute = (totalMinutes: number): number => {
+  // Bland AI has a fixed cost of $0.09 per minute
+  const costPerMinute = 0.09;
+  return totalMinutes * costPerMinute;
+};
+
 export const calculateSetupCost = (
   makePlanCost: number,
   synthflowPlanCost: number,
   calcomPlanCost: number,
-  twilioPhoneNumberCost: number
+  twilioPhoneNumberCost: number,
+  blandAICost: number = 0
 ): number => {
-  return Math.ceil(makePlanCost + synthflowPlanCost + calcomPlanCost + twilioPhoneNumberCost);
+  return Math.ceil(makePlanCost + synthflowPlanCost + calcomPlanCost + twilioPhoneNumberCost + blandAICost);
 };
 
 export const calculateTotalCostPerMinute = (

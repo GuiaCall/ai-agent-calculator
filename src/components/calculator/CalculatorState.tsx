@@ -15,6 +15,7 @@ const initialTechnologies = [
   { id: "calcom", name: "Cal.com", isSelected: true, costPerMinute: 0.003 },
   { id: "twilio", name: "Twilio", isSelected: true, costPerMinute: 0.004 },
   { id: "vapi", name: "Vapi", isSelected: true, costPerMinute: 0.005 },
+  { id: "blandai", name: "Bland AI", isSelected: true, costPerMinute: 0.009 },
 ];
 
 // Helper function to safely parse JSON data with fallback
