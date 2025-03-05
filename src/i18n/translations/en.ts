@@ -157,7 +157,6 @@ export const en = {
     
     // Pricing page
     "freePlan": "Free",
-    "proPlan": "Pro",
     "enterprisePlan": "Enterprise",
     "monthly": "Monthly",
     "yearly": "Yearly",
