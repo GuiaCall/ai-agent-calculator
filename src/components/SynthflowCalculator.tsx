@@ -168,7 +168,7 @@ export function SynthflowCalculator({
                   
                   <div className="ml-6 mt-2 space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>{t("basePlan", { count: plan.minutesPerMonth.toLocaleString() })}</span>
+                      <span>{t("basePlan", { count: plan.minutesPerMonth })}</span>
                       <span className="font-medium">
                         {getCurrencySymbol(currency)}{getCurrencyConversion(billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice).toFixed(2)} {t("per")} {billingType === 'monthly' ? t("month") : t("year")}
                       </span>
@@ -176,7 +176,7 @@ export function SynthflowCalculator({
                     
                     {plan.overageMinutes > 0 && (
                       <div className="flex justify-between text-amber-700">
-                        <span>{t("overage", { count: plan.overageMinutes.toLocaleString(), rate: `${getCurrencySymbol(currency)}${getCurrencyConversion(0.13).toFixed(2)}` })}</span>
+                        <span>{t("overage", { count: plan.overageMinutes, rate: `${getCurrencySymbol(currency)}${getCurrencyConversion(0.13).toFixed(2)}` })}</span>
                         <span className="font-medium">{getCurrencySymbol(currency)}{getCurrencyConversion(plan.overageCost).toFixed(2)}</span>
                       </div>
                     )}
