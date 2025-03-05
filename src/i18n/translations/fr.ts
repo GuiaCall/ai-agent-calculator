@@ -214,6 +214,29 @@ export const fr = {
     "previewNotFound": "Aperçu introuvable. Veuillez d'abord calculer le coût.",
     "pdfExportedSuccessfully": "PDF exporté avec succès",
     "failedToExportPDF": "Échec de l'exportation du PDF. Veuillez réessayer.",
-    "billingType": "Type de facturation"
+    "billingType": "Type de facturation",
+    
+    // New translations
+    "monthlyCost": "Coût Mensuel",
+    "clickToChangeCurrency": "Cliquez pour changer de devise",
+    "currencyUpdated": "Devise Mise à Jour",
+    "currencyChangedTo": "Devise changée en {{currency}}",
+    "serviceType": "Type de Service",
+    "selectServiceType": "Sélectionner un type de service",
+    "costPerMinute": "Coût par Minute",
+    "vapiCalculator": "Configuration Vapi",
+    "vapiMonthlyCost": "Coût Mensuel Vapi",
+    "viewPricing": "Voir les Prix",
+    "blandAiCalculator": "Configuration Bland AI",
+    "blandAiMonthlyCost": "Coût Mensuel Bland AI",
+    "recalculateCost": "Recalculer le Coût",
+    "togglePreview": "Afficher/Masquer l'Aperçu",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "confirmDelete": "Confirmer la Suppression",
+    "deleteInvoiceConfirmation": "Cette action ne peut pas être annulée. Cela supprimera définitivement la facture et toutes les données associées.",
+    "cancel": "Annuler",
+    "invoiceDeleted": "Facture Supprimée",
+    "invoiceDeletedDescription": "La facture a été supprimée avec succès."
   }
 };

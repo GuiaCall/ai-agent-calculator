@@ -8,6 +8,7 @@ import { TwilioSelection } from "@/types/twilio";
 import { TwilioRateDisplay } from "./TwilioRateDisplay";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { Phone } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface TwilioCalculatorProps {
   onRateSelect: (selection: TwilioSelection | null) => void;
@@ -15,6 +16,7 @@ interface TwilioCalculatorProps {
 
 export function TwilioCalculator({ onRateSelect }: TwilioCalculatorProps) {
   const { totalMinutes, setTechnologies } = useCalculatorStateContext();
+  const { t } = useTranslation();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedType, setSelectedType] = useState<string>("");
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
@@ -60,18 +62,18 @@ export function TwilioCalculator({ onRateSelect }: TwilioCalculatorProps) {
         <div className="bg-indigo-100 p-2 rounded-full">
           <Phone className="h-5 w-5 text-indigo-600" />
         </div>
-        Twilio Configuration
+        {t("twilioCalculator")}
       </h3>
       
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label>Country</Label>
+          <Label>{t("country")}</Label>
           <Select
             value={selectedCountry}
             onValueChange={handleCountryChange}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select a country" />
+              <SelectValue placeholder={t("selectCountry")} />
             </SelectTrigger>
             <SelectContent>
               {countries.map(country => (
@@ -85,13 +87,13 @@ export function TwilioCalculator({ onRateSelect }: TwilioCalculatorProps) {
 
         {selectedCountry && (
           <div className="space-y-2">
-            <Label>Service Type</Label>
+            <Label>{t("serviceType")}</Label>
             <Select
               value={selectedType}
               onValueChange={handleTypeChange}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a service type" />
+                <SelectValue placeholder={t("selectServiceType")} />
               </SelectTrigger>
               <SelectContent>
                 {availableTypes.map(type => (

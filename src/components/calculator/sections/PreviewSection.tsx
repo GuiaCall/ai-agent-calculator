@@ -4,11 +4,27 @@ import { useCalculatorStateContext } from "../CalculatorStateContext";
 import { InvoiceHistoryTable } from "../InvoiceHistoryTable";
 import { useCalculatorLogic } from "../CalculatorLogic";
 import { useTranslation } from "react-i18next";
+import { useToast } from "@/components/ui/use-toast";
 
 export function PreviewSection() {
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state });
   const { t } = useTranslation();
+  const { toast } = useToast();
+
+  const handleDeleteInvoice = (id: string) => {
+    // Implement deletion logic here
+    if (state.invoices) {
+      const updatedInvoices = state.invoices.filter(invoice => invoice.id !== id);
+      state.setInvoices(updatedInvoices);
+      
+      // Show toast notification
+      toast({
+        title: t("invoiceDeleted"),
+        description: t("invoiceDeletedDescription"),
+      });
+    }
+  };
 
   return (
     <div className="space-y-10">
@@ -36,6 +52,7 @@ export function PreviewSection() {
             onExportPDF={logic.exportPDF}
             onStartEdit={logic.startEdit}
             onCancelEdit={logic.cancelEdit}
+            onDeleteInvoice={handleDeleteInvoice}
             editingInvoiceId={state.editingInvoiceId}
             currency={state.currency}
           />

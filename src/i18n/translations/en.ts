@@ -229,6 +229,29 @@ export const en = {
     "invoiceNotFound": "Invoice not found",
     "previewNotFound": "Preview not found. Please calculate cost first.",
     "pdfExportedSuccessfully": "PDF exported successfully",
-    "failedToExportPDF": "Failed to export PDF. Please try again."
+    "failedToExportPDF": "Failed to export PDF. Please try again.",
+    
+    // New translations
+    "monthlyCost": "Monthly Cost",
+    "clickToChangeCurrency": "Click to change currency",
+    "currencyUpdated": "Currency Updated",
+    "currencyChangedTo": "Currency changed to {{currency}}",
+    "serviceType": "Service Type",
+    "selectServiceType": "Select a service type",
+    "costPerMinute": "Cost Per Minute",
+    "vapiCalculator": "Vapi Configuration",
+    "vapiMonthlyCost": "Vapi Monthly Cost",
+    "viewPricing": "View Pricing",
+    "blandAiCalculator": "Bland AI Configuration",
+    "blandAiMonthlyCost": "Bland AI Monthly Cost",
+    "recalculateCost": "Re-Calculate Cost",
+    "togglePreview": "Toggle Preview",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Confirm Deletion",
+    "deleteInvoiceConfirmation": "This action cannot be undone. This will permanently delete the invoice and all associated data.",
+    "cancel": "Cancel",
+    "invoiceDeleted": "Invoice Deleted",
+    "invoiceDeletedDescription": "The invoice has been successfully deleted."
   }
 };

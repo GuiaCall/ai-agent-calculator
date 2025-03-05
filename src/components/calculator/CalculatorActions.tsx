@@ -1,7 +1,8 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Calculator, FileDown, Eye, X, Save } from "lucide-react";
+import { Calculator, FileDown, Eye, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface CalculatorActionsProps {
   onCalculate: () => void;
@@ -27,6 +28,7 @@ export function CalculatorActions({
   isEditingInvoice = false,
 }: CalculatorActionsProps) {
   const currencySymbol = currency === 'EUR' ? '€' : '$';
+  const { t } = useTranslation();
 
   return (
     <div className="space-y-6 fade-in">
@@ -40,7 +42,7 @@ export function CalculatorActions({
           )}
         >
           <Calculator className="mr-2 h-4 w-4" />
-          {isEditingInvoice ? "Re-Calculate Cost" : "Calculate Cost"}
+          {isEditingInvoice ? t("recalculateCost") : t("calculate")}
         </Button>
         
         <Button 
@@ -49,7 +51,7 @@ export function CalculatorActions({
           className="w-full sm:w-auto border-indigo-200 text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white hover:border-transparent font-medium px-6 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1"
         >
           <Eye className="mr-2 h-4 w-4" />
-          Toggle Preview
+          {t("togglePreview")}
         </Button>
         
         <Button 
@@ -58,7 +60,7 @@ export function CalculatorActions({
           className="w-full sm:w-auto border-indigo-200 text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white hover:border-transparent font-medium px-6 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1"
         >
           <FileDown className="mr-2 h-4 w-4" />
-          Export PDF
+          {t("exportPDF")}
         </Button>
         
         {isEditingInvoice && onCancelEdit && (
@@ -68,7 +70,7 @@ export function CalculatorActions({
             className="w-full sm:w-auto border-red-200 text-red-700 hover:bg-gradient-to-r hover:from-red-600 hover:to-red-500 hover:text-white hover:border-transparent font-medium px-6 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1"
           >
             <X className="mr-2 h-4 w-4" />
-            Cancel Edit
+            {t("cancelEdit")}
           </Button>
         )}
       </div>
@@ -82,17 +84,17 @@ export function CalculatorActions({
           )}>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div className="bg-white p-4 rounded-lg shadow-sm border border-indigo-50 flex flex-col items-center">
-                <p className="text-gray-500 text-sm mb-1">Monthly Cost</p>
+                <p className="text-gray-500 text-sm mb-1">{t("monthlyCost")}</p>
                 <p className="text-2xl font-bold text-indigo-800">{currencySymbol} {totalCost.toFixed(2)}</p>
               </div>
               
               <div className="bg-white p-4 rounded-lg shadow-sm border border-indigo-50 flex flex-col items-center">
-                <p className="text-gray-500 text-sm mb-1">Setup Cost</p>
+                <p className="text-gray-500 text-sm mb-1">{t("setupCost")}</p>
                 <p className="text-2xl font-bold text-indigo-800">{currencySymbol} {setupCost.toFixed(2)}</p>
               </div>
               
               <div className="bg-white p-4 rounded-lg shadow-sm border border-indigo-50 flex flex-col items-center">
-                <p className="text-gray-500 text-sm mb-1">Total Minutes</p>
+                <p className="text-gray-500 text-sm mb-1">{t("totalMinutes")}</p>
                 <p className="text-2xl font-bold text-indigo-800">{totalMinutes}</p>
               </div>
             </div>

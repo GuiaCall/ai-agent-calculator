@@ -58,7 +58,7 @@ export function MakePlanSelector({
                 <span className={`font-semibold ${selectedPlan?.name === plan.name ? 'text-indigo-700' : ''}`}>
                   ${displayPrice}/{t("monthly")}
                   {isPricePerYear && (
-                    <span className="text-xs text-gray-500 ml-1">({t("billingType").toLowerCase()})</span>
+                    <span className="text-xs text-gray-500 ml-1">({t("billingType")})</span>
                   )}
                 </span>
               </div>

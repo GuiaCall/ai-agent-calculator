@@ -1,8 +1,10 @@
+
 import { Button } from "@/components/ui/button";
 import { useCalculatorStateContext } from "./CalculatorStateContext";
 import { Currency, DollarSign, Euro } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { CurrencyType } from "./CalculatorState";
+import { useTranslation } from "react-i18next";
 
 const CONVERSION_RATES: Record<CurrencyType, number> = {
   USD: 1,
@@ -24,6 +26,7 @@ export function CurrencyToggle() {
     setSetupCost
   } = useCalculatorStateContext();
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   const handleCurrencyToggle = () => {
     const currencies: CurrencyType[] = ['USD', 'EUR'];
@@ -45,8 +48,8 @@ export function CurrencyToggle() {
     localStorage.setItem('preferred_currency', newCurrency);
     
     toast({
-      title: "Currency Updated",
-      description: `Currency changed to ${newCurrency}`,
+      title: t("currencyUpdated"),
+      description: t("currencyChangedTo", { currency: newCurrency }),
     });
   };
   
@@ -66,7 +69,7 @@ export function CurrencyToggle() {
         </div>
       </Button>
       <div className="ml-3 px-3 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-700 border border-primary-200">
-        Click to change currency
+        {t("clickToChangeCurrency")}
       </div>
     </div>
   );

@@ -229,6 +229,29 @@ export const de = {
     "invoiceNotFound": "Rechnung nicht gefunden",
     "previewNotFound": "Vorschau nicht gefunden. Bitte berechnen Sie zuerst die Kosten.",
     "pdfExportedSuccessfully": "PDF erfolgreich exportiert",
-    "failedToExportPDF": "PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut."
+    "failedToExportPDF": "PDF-Export fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    
+    // New translations
+    "monthlyCost": "Monatliche Kosten",
+    "clickToChangeCurrency": "Klicken, um Währung zu ändern",
+    "currencyUpdated": "Währung Aktualisiert",
+    "currencyChangedTo": "Währung geändert zu {{currency}}",
+    "serviceType": "Dienstart",
+    "selectServiceType": "Dienstart auswählen",
+    "costPerMinute": "Kosten pro Minute",
+    "vapiCalculator": "Vapi Konfiguration",
+    "vapiMonthlyCost": "Vapi Monatliche Kosten",
+    "viewPricing": "Preise anzeigen",
+    "blandAiCalculator": "Bland AI Konfiguration",
+    "blandAiMonthlyCost": "Bland AI Monatliche Kosten",
+    "recalculateCost": "Kosten neu berechnen",
+    "togglePreview": "Vorschau umschalten",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "confirmDelete": "Löschen bestätigen",
+    "deleteInvoiceConfirmation": "Diese Aktion kann nicht rückgängig gemacht werden. Die Rechnung und alle zugehörigen Daten werden dauerhaft gelöscht.",
+    "cancel": "Abbrechen",
+    "invoiceDeleted": "Rechnung gelöscht",
+    "invoiceDeletedDescription": "Die Rechnung wurde erfolgreich gelöscht."
   }
 };
