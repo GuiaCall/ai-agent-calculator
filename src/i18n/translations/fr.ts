@@ -1,3 +1,4 @@
+
 export const fr = {
   translation: {
     // General
@@ -67,18 +68,17 @@ export const fr = {
     "vsMonthlyBilling": "par rapport à la facturation mensuelle",
     "monthly": "mois",
     "billingType": "facturation annuelle",
+    "monthlyPrice": "Prix Mensuel",
+    "yearlyBilling": "Facturation Annuelle (Économisez jusqu'à 20%)",
+    "monthlyBilling": "Facturation Mensuelle",
     
     // Synthflow Calculator
     "synthflowCalculator": "Calculateur de Plan Synthflow",
     "viewSynthflowPricing": "Voir les Prix Synthflow",
-    "billingType": "Type de Facturation",
-    "monthlyBilling": "Facturation Mensuelle",
-    "yearlyBilling": "Facturation Annuelle (Économisez jusqu'à 20%)",
     "selectPlan": "Sélectionner un Plan",
     "recommendedPlan": "Plan Recommandé",
     "basedOnUsage": "Basé sur votre utilisation estimée de",
     "minutesPerMonth": "minutes par mois",
-    "monthlyPrice": "Prix Mensuel",
     "baseCostPerMinute": "Coût de Base par Minute",
     "copyPasteHint": "(Copiez et collez cette valeur dans le Paramètre Technologique pour le calcul)",
     "getPlan": "Obtenir ce Plan",
@@ -161,7 +161,6 @@ export const fr = {
     
     // Pricing page
     "freePlan": "Gratuit",
-    "proPlan": "Pro : Pour les individus bénéficiant d'automatisations plus sophistiquées",
     "enterprisePlan": "Entreprise",
     "monthly": "Mensuel",
     "yearly": "Annuel",

@@ -1,3 +1,4 @@
+
 export const de = {
   translation: {
     // General
@@ -67,18 +68,17 @@ export const de = {
     "vsMonthlyBilling": "gegenüber monatlicher Abrechnung",
     "monthly": "Monat",
     "billingType": "jährlich abgerechnet",
+    "monthlyPrice": "Monatspreis",
+    "yearlyBilling": "Jährliche Abrechnung (Bis zu 20% sparen)",
+    "monthlyBilling": "Monatliche Abrechnung",
     
     // Synthflow Calculator
     "synthflowCalculator": "Synthflow Plan Rechner",
     "viewSynthflowPricing": "Synthflow Preise anzeigen",
-    "billingType": "Abrechnungsart",
-    "monthlyBilling": "Monatliche Abrechnung",
-    "yearlyBilling": "Jährliche Abrechnung (Bis zu 20% sparen)",
     "selectPlan": "Plan auswählen",
     "recommendedPlan": "Empfohlener Plan",
     "basedOnUsage": "Basierend auf Ihrer geschätzten Nutzung von",
     "minutesPerMonth": "Minuten pro Monat",
-    "monthlyPrice": "Monatspreis",
     "baseCostPerMinute": "Grundkosten pro Minute",
     "copyPasteHint": "(Kopieren und fügen Sie diesen Wert in den Technologie-Parameter für die Berechnung ein)",
     "getPlan": "Plan auswählen",
@@ -161,7 +161,6 @@ export const de = {
     
     // Pricing page
     "freePlan": "Kostenlos",
-    "proPlan": "Pro: Für Personen, die von anspruchsvolleren Automatisierungen profitieren",
     "enterprisePlan": "Enterprise",
     "monthly": "Monatlich",
     "yearly": "Jährlich",

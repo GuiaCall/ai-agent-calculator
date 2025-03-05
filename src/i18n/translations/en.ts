@@ -1,3 +1,4 @@
+
 export const en = {
   translation: {
     // General
@@ -65,20 +66,18 @@ export const en = {
     "operationsPerMonth": "operations per month",
     "save": "Save",
     "vsMonthlyBilling": "vs monthly billing",
-    "monthly": "month",
-    "billingType": "billed yearly",
+    "monthlyPrice": "Monthly Price",
+    "yearlyBilling": "Yearly Billing (Save up to 20%)",
+    "monthlyBilling": "Monthly Billing",
     
     // Synthflow Calculator
     "synthflowCalculator": "Synthflow Plan Calculator",
     "viewSynthflowPricing": "View Synthflow Pricing",
     "billingType": "Billing Type",
-    "monthlyBilling": "Monthly Billing",
-    "yearlyBilling": "Yearly Billing (Save up to 20%)",
     "selectPlan": "Select Plan",
     "recommendedPlan": "Recommended Plan",
     "basedOnUsage": "Based on your estimated usage of",
     "minutesPerMonth": "minutes per month",
-    "monthlyPrice": "Monthly Price",
     "baseCostPerMinute": "Base Cost per Minute",
     "copyPasteHint": "(Copy and paste this value in the Technology Parameter for calculation)",
     "getPlan": "Get This Plan",
