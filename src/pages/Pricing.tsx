@@ -20,15 +20,24 @@ export default function Pricing() {
 
   useEffect(() => {
     const fetchInvoiceCount = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-      const { count } = await supabase
-        .from('invoices')
-        .select('*', { count: 'exact' })
-        .eq('user_id', user.id);
+        const { count, error } = await supabase
+          .from('invoices')
+          .select('*', { count: 'exact' })
+          .eq('user_id', user.id);
+        
+        if (error) {
+          console.error("Error fetching invoice count:", error);
+          return;
+        }
 
-      setInvoiceCount(count || 0);
+        setInvoiceCount(count || 0);
+      } catch (err) {
+        console.error("Failed to fetch invoice count:", err);
+      }
     };
 
     fetchInvoiceCount();
@@ -40,12 +49,15 @@ export default function Pricing() {
       console.log("Starting subscription process");
       
       // Get current user token to pass to edge function
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
-      if (!session) {
-        throw new Error("No active session found. Please log in again.");
+      if (sessionError || !session) {
+        throw new Error(sessionError?.message || "No active session found. Please log in again.");
       }
       
+      console.log("Got session, preparing to call edge function");
+      
+      // Call the edge function with proper authorization
       const { data: sessionData, error: functionError } = await supabase.functions.invoke(
         'create-checkout-session', 
         {
@@ -55,6 +67,8 @@ export default function Pricing() {
           }
         }
       );
+      
+      console.log("Edge function response:", sessionData, functionError);
       
       if (functionError) {
         console.error("Edge function error:", functionError);
@@ -69,7 +83,7 @@ export default function Pricing() {
       // Redirect to Stripe checkout
       console.log("Redirecting to Stripe checkout:", sessionData.url);
       window.location.href = sessionData.url;
-    } catch (error: any) {
+    } catch (error) {
       console.error("Subscription error:", error);
       toast({
         title: t("error"),

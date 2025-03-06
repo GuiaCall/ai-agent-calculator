@@ -35,21 +35,20 @@ serve(async (req) => {
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
     // Parse request body
-    let requestData;
+    let requestData = {};
     try {
       console.log("Parsing request body");
-      const { couponCode, ...restData } = await req.json();
-      requestData = { couponCode, ...restData };
-      console.log("Request data:", JSON.stringify(requestData));
+      if (req.body) {
+        const body = await req.json();
+        console.log("Request body:", JSON.stringify(body));
+        requestData = body || {};
+      } else {
+        console.log("No request body provided");
+      }
     } catch (e) {
       console.error("Failed to parse request body:", e);
-      return new Response(
-        JSON.stringify({ error: "Invalid request body" }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400,
-        }
-      );
+      // Continue with empty requestData rather than failing
+      console.log("Continuing with empty request data");
     }
 
     // Get auth token
@@ -66,163 +65,189 @@ serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    const { data, error: userError } = await supabaseClient.auth.getUser(token);
     
-    if (userError || !data?.user) {
-      console.error("Auth error:", userError);
-      return new Response(
-        JSON.stringify({ error: "Authentication failed" }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 401,
-        }
-      );
-    }
-
-    const user = data.user;
-    const email = user.email;
-
-    if (!email) {
-      console.error("No email found for user");
-      return new Response(
-        JSON.stringify({ error: "No email found for authenticated user" }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 400,
-        }
-      );
-    }
-
-    // Initialize Stripe
-    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
-    if (!stripeSecretKey) {
-      console.error("Stripe secret key not found in environment");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error" }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500,
-        }
-      );
-    }
-
-    console.log("Initializing Stripe");
-    const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2023-10-16',
-    });
-
-    // Check for existing customer
-    console.log("Checking for existing customer with email:", email);
-    const customers = await stripe.customers.list({
-      email: email,
-      limit: 1
-    });
-
-    let customer_id;
-    if (customers.data.length > 0) {
-      console.log("Found existing customer:", customers.data[0].id);
-      customer_id = customers.data[0].id;
+    try {
+      console.log("Validating user token");
+      const { data, error: userError } = await supabaseClient.auth.getUser(token);
       
-      const subscriptions = await stripe.subscriptions.list({
-        customer: customers.data[0].id,
-        status: 'active',
-        price: 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe',
-        limit: 1
-      });
-
-      if (subscriptions.data.length > 0) {
-        console.log("Customer already has an active subscription");
+      if (userError || !data?.user) {
+        console.error("Auth error:", userError);
         return new Response(
-          JSON.stringify({ error: "Customer already has an active subscription" }),
+          JSON.stringify({ error: "Authentication failed" }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 401,
+          }
+        );
+      }
+
+      const user = data.user;
+      const email = user.email;
+
+      if (!email) {
+        console.error("No email found for user");
+        return new Response(
+          JSON.stringify({ error: "No email found for authenticated user" }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 400,
           }
         );
       }
-    } else {
-      // Create a new customer if one doesn't exist
-      console.log("Creating new customer");
-      try {
-        const newCustomer = await stripe.customers.create({
-          email: email,
-          metadata: {
-            user_id: user.id
-          }
-        });
-        customer_id = newCustomer.id;
-        console.log("Created new customer:", customer_id);
-      } catch (err) {
-        console.error("Failed to create customer:", err);
+      
+      // Initialize Stripe
+      const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
+      if (!stripeSecretKey) {
+        console.error("Stripe secret key not found in environment");
         return new Response(
-          JSON.stringify({ error: "Failed to create customer in Stripe" }),
+          JSON.stringify({ error: "Server configuration error" }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 500,
           }
         );
       }
-    }
 
-    // Build the checkout session parameters
-    const origin = req.headers.get('origin') || 'http://localhost:5173';
-    console.log("Using origin:", origin);
-    
-    const sessionParams = {
-      customer: customer_id,
-      line_items: [
-        {
-          price: 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe',
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      success_url: `${origin}/dashboard?checkout_success=true`,
-      cancel_url: `${origin}/pricing`,
-      allow_promotion_codes: true,
-      metadata: {
-        user_id: user.id
-      }
-    };
+      console.log("Initializing Stripe");
+      const stripe = new Stripe(stripeSecretKey, {
+        apiVersion: '2023-10-16',
+      });
 
-    // Add coupon code if provided
-    if (requestData.couponCode) {
-      console.log("Checking coupon code:", requestData.couponCode);
-      try {
-        // Validate if coupon exists and is valid
-        const coupon = await stripe.coupons.retrieve(requestData.couponCode);
-        if (coupon.valid) {
-          console.log("Valid coupon code:", requestData.couponCode);
-          // @ts-ignore - Stripe types may not properly include discounts
-          sessionParams.discounts = [{ coupon: requestData.couponCode }];
+      // Check for existing customer
+      console.log("Checking for existing customer with email:", email);
+      const customers = await stripe.customers.list({
+        email: email,
+        limit: 1
+      });
+
+      let customer_id;
+      if (customers.data.length > 0) {
+        console.log("Found existing customer:", customers.data[0].id);
+        customer_id = customers.data[0].id;
+        
+        try {
+          const subscriptions = await stripe.subscriptions.list({
+            customer: customers.data[0].id,
+            status: 'active',
+            price: 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe',
+            limit: 1
+          });
+
+          if (subscriptions.data.length > 0) {
+            console.log("Customer already has an active subscription");
+            return new Response(
+              JSON.stringify({ error: "Customer already has an active subscription" }),
+              { 
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                status: 400,
+              }
+            );
+          }
+        } catch (subErr) {
+          console.error("Error checking subscriptions:", subErr);
+          // Continue even if subscription check fails
         }
-      } catch (couponError) {
-        console.log('Invalid coupon code:', couponError);
-        // We'll proceed without the coupon if it's invalid
+      } else {
+        // Create a new customer if one doesn't exist
+        console.log("Creating new customer");
+        try {
+          const newCustomer = await stripe.customers.create({
+            email: email,
+            metadata: {
+              user_id: user.id
+            }
+          });
+          customer_id = newCustomer.id;
+          console.log("Created new customer:", customer_id);
+        } catch (err) {
+          console.error("Failed to create customer:", err);
+          return new Response(
+            JSON.stringify({ error: "Failed to create customer in Stripe" }),
+            { 
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              status: 500,
+            }
+          );
+        }
       }
-    }
 
-    // Create the checkout session
-    try {
-      console.log("Creating checkout session with params:", JSON.stringify(sessionParams));
-      const session = await stripe.checkout.sessions.create(sessionParams);
-      console.log("Checkout session created:", session.id);
-      console.log("Session URL:", session.url);
+      // Build the checkout session parameters
+      const origin = req.headers.get('origin') || 'http://localhost:5173';
+      console.log("Using origin:", origin);
       
-      return new Response(
-        JSON.stringify({ url: session.url }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
+      const sessionParams = {
+        customer: customer_id,
+        line_items: [
+          {
+            price: 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe',
+            quantity: 1,
+          },
+        ],
+        mode: 'subscription',
+        success_url: `${origin}/dashboard?checkout_success=true`,
+        cancel_url: `${origin}/pricing`,
+        allow_promotion_codes: true,
+        metadata: {
+          user_id: user.id
         }
-      );
-    } catch (stripeError) {
-      console.error("Stripe session creation error:", stripeError);
+      };
+
+      // Add coupon code if provided
+      const couponCode = requestData && typeof requestData === 'object' && 'couponCode' in requestData
+        ? requestData.couponCode
+        : undefined;
+        
+      if (couponCode && typeof couponCode === 'string' && couponCode.trim()) {
+        console.log("Checking coupon code:", couponCode);
+        try {
+          // Validate if coupon exists and is valid
+          const coupon = await stripe.coupons.retrieve(couponCode.trim());
+          if (coupon.valid) {
+            console.log("Valid coupon code:", couponCode);
+            // @ts-ignore - Stripe types may not properly include discounts
+            sessionParams.discounts = [{ coupon: couponCode.trim() }];
+          }
+        } catch (couponError) {
+          console.log('Invalid coupon code:', couponError);
+          // We'll proceed without the coupon if it's invalid
+        }
+      }
+
+      // Create the checkout session
+      try {
+        console.log("Creating checkout session with params:", JSON.stringify(sessionParams));
+        const session = await stripe.checkout.sessions.create(sessionParams);
+        console.log("Checkout session created:", session.id);
+        console.log("Session URL:", session.url);
+        
+        if (!session.url) {
+          throw new Error("Checkout session URL is missing");
+        }
+        
+        return new Response(
+          JSON.stringify({ url: session.url }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200,
+          }
+        );
+      } catch (stripeError) {
+        console.error("Stripe session creation error:", stripeError);
+        return new Response(
+          JSON.stringify({ error: stripeError.message || "Failed to create checkout session" }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500,
+          }
+        );
+      }
+    } catch (authError) {
+      console.error("Error validating token:", authError);
       return new Response(
-        JSON.stringify({ error: stripeError.message || "Failed to create checkout session" }),
+        JSON.stringify({ error: "Authentication error" }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500,
+          status: 401,
         }
       );
     }
