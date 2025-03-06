@@ -9,32 +9,90 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-  );
-
   try {
-    const { couponCode, ...requestData } = await req.json();
-    
-    const authHeader = req.headers.get('Authorization')!;
-    const token = authHeader.replace('Bearer ', '');
-    const { data } = await supabaseClient.auth.getUser(token);
-    const user = data.user;
-    const email = user?.email;
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    );
 
-    if (!email) {
-      throw new Error('No email found');
+    // Parse request body
+    let requestData;
+    try {
+      const { couponCode, ...restData } = await req.json();
+      requestData = { couponCode, ...restData };
+    } catch (e) {
+      console.error("Failed to parse request body:", e);
+      return new Response(
+        JSON.stringify({ error: "Invalid request body" }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
     }
 
-    const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') || '', {
+    // Get auth token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: "Authorization header is required" }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data, error: userError } = await supabaseClient.auth.getUser(token);
+    
+    if (userError || !data.user) {
+      console.error("Auth error:", userError);
+      return new Response(
+        JSON.stringify({ error: "Authentication failed" }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 401,
+        }
+      );
+    }
+
+    const user = data.user;
+    const email = user.email;
+
+    if (!email) {
+      return new Response(
+        JSON.stringify({ error: "No email found for authenticated user" }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+
+    // Initialize Stripe
+    const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY');
+    if (!stripeSecretKey) {
+      console.error("Stripe secret key not found in environment");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      );
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
     });
 
+    // Check for existing customer
     const customers = await stripe.customers.list({
       email: email,
       limit: 1
@@ -51,7 +109,13 @@ serve(async (req) => {
       });
 
       if (subscriptions.data.length > 0) {
-        throw new Error("Customer already has an active subscription");
+        return new Response(
+          JSON.stringify({ error: "Customer already has an active subscription" }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 400,
+          }
+        );
       }
     } else {
       // Create a new customer if one doesn't exist
@@ -75,22 +139,22 @@ serve(async (req) => {
         },
       ],
       mode: 'subscription',
-      success_url: `${req.headers.get('origin')}/dashboard?checkout_success=true`,
-      cancel_url: `${req.headers.get('origin')}/pricing`,
-      allow_promotion_codes: true,  // Allow users to enter coupon codes directly in the Stripe checkout page
+      success_url: `${req.headers.get('origin') || 'http://localhost:5173'}/dashboard?checkout_success=true`,
+      cancel_url: `${req.headers.get('origin') || 'http://localhost:5173'}/pricing`,
+      allow_promotion_codes: true,
       metadata: {
-        user_id: user.id  // Add user ID to the metadata
+        user_id: user.id
       }
     };
 
     // Add coupon code if provided
-    if (couponCode) {
+    if (requestData.couponCode) {
       try {
         // Validate if coupon exists and is valid
-        const coupon = await stripe.coupons.retrieve(couponCode);
+        const coupon = await stripe.coupons.retrieve(requestData.couponCode);
         if (coupon.valid) {
           // @ts-ignore - Stripe types may not properly include discounts
-          sessionParams.discounts = [{ coupon: couponCode }];
+          sessionParams.discounts = [{ coupon: requestData.couponCode }];
         }
       } catch (couponError) {
         console.log('Invalid coupon code:', couponError);
@@ -98,18 +162,31 @@ serve(async (req) => {
       }
     }
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
-
-    return new Response(
-      JSON.stringify({ url: session.url }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    );
+    // Create the checkout session
+    try {
+      const session = await stripe.checkout.sessions.create(sessionParams);
+      
+      return new Response(
+        JSON.stringify({ url: session.url }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
+      );
+    } catch (stripeError) {
+      console.error("Stripe session creation error:", stripeError);
+      return new Response(
+        JSON.stringify({ error: stripeError.message || "Failed to create checkout session" }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500,
+        }
+      );
+    }
   } catch (error) {
+    console.error("Unexpected error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || "An unexpected error occurred" }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
