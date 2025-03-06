@@ -37,10 +37,24 @@ export default function Pricing() {
   const handleSubscribe = async () => {
     try {
       setLoading(true);
+      console.log("Starting subscription process");
       
-      const { data: sessionData, error: functionError } = await supabase.functions.invoke('create-checkout-session', {
-        body: { couponCode: couponCode.trim() || undefined }
-      });
+      // Get current user token to pass to edge function
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("No active session found. Please log in again.");
+      }
+      
+      const { data: sessionData, error: functionError } = await supabase.functions.invoke(
+        'create-checkout-session', 
+        {
+          body: { couponCode: couponCode.trim() || undefined },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        }
+      );
       
       if (functionError) {
         console.error("Edge function error:", functionError);
@@ -49,10 +63,11 @@ export default function Pricing() {
       
       if (!sessionData?.url) {
         console.error("No checkout URL returned:", sessionData);
-        throw new Error('No checkout URL returned');
+        throw new Error('No checkout URL returned from server');
       }
       
       // Redirect to Stripe checkout
+      console.log("Redirecting to Stripe checkout:", sessionData.url);
       window.location.href = sessionData.url;
     } catch (error: any) {
       console.error("Subscription error:", error);
