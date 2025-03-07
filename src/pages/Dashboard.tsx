@@ -13,10 +13,19 @@ import { useTranslation } from "react-i18next";
 import { AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
+// Define a proper type for the subscription data
+interface SubscriptionData {
+  plan_type: string;
+  status: string;
+}
+
 export default function Dashboard() {
   const [totalInvoices, setTotalInvoices] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState("");
-  const [subscription, setSubscription] = useState({ plan_type: "free", status: "active" });
+  const [subscription, setSubscription] = useState<SubscriptionData>({ 
+    plan_type: "free", 
+    status: "active" 
+  });
   const [newPassword, setNewPassword] = useState("");
   const [refreshingStatus, setRefreshingStatus] = useState(false);
   const { toast } = useToast();
@@ -57,7 +66,8 @@ export default function Dashboard() {
 
       if (subscriptionData) {
         console.log('Subscription data:', subscriptionData);
-        setSubscription(subscriptionData);
+        // Use type assertion to ensure TypeScript recognizes the subscription data
+        setSubscription(subscriptionData as SubscriptionData);
         
         // If the user has just completed checkout and has an active subscription, show success message
         if (forceRefresh && subscriptionData.plan_type === 'pro' && subscriptionData.status === 'active') {
