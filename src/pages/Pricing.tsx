@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 export default function Pricing() {
-  const { loading, couponCode, setCouponCode, handleSubscribe, currentSubscription } = useSubscription();
+  const { loading, loadingSubscription, couponCode, setCouponCode, handleSubscribe, currentSubscription } = useSubscription();
   const navigate = useNavigate();
 
   // Redirect to dashboard if we already have an active pro subscription
@@ -21,7 +21,7 @@ export default function Pricing() {
     }
   }, [currentSubscription, navigate]);
 
-  if (currentSubscription === null) {
+  if (loadingSubscription) {
     return (
       <div className="flex min-h-screen flex-col">
         <Navbar />
@@ -33,7 +33,8 @@ export default function Pricing() {
     );
   }
 
-  const isFreePlan = !currentSubscription || currentSubscription.plan_type === 'free';
+  // Safe default values for plan types
+  const isFreePlan = !currentSubscription || !currentSubscription.plan_type || currentSubscription.plan_type === 'free';
   const isProPlan = currentSubscription && currentSubscription.plan_type === 'pro';
 
   return (

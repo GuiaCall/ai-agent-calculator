@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 export function useSubscription() {
   const [loading, setLoading] = useState(false);
+  const [loadingSubscription, setLoadingSubscription] = useState(true);
   const [couponCode, setCouponCode] = useState("");
   const [currentSubscription, setCurrentSubscription] = useState(null);
   const { toast } = useToast();
@@ -15,8 +16,15 @@ export function useSubscription() {
   useEffect(() => {
     const fetchSubscription = async () => {
       try {
+        setLoadingSubscription(true);
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        
+        if (!user) {
+          // If no user, set subscription to empty object to avoid loading forever
+          setCurrentSubscription({});
+          setLoadingSubscription(false);
+          return;
+        }
 
         const { data, error } = await supabase
           .from('subscriptions')
@@ -25,10 +33,15 @@ export function useSubscription() {
           .maybeSingle();
 
         if (error) throw error;
-        setCurrentSubscription(data);
-
+        
+        // Even if data is null, we still want to set it
+        setCurrentSubscription(data || {});
       } catch (error) {
         console.error("Error fetching subscription:", error);
+        // Set empty subscription to prevent infinite loading
+        setCurrentSubscription({});
+      } finally {
+        setLoadingSubscription(false);
       }
     };
 
@@ -89,6 +102,7 @@ export function useSubscription() {
 
   return {
     loading,
+    loadingSubscription,
     couponCode,
     setCouponCode,
     handleSubscribe,
