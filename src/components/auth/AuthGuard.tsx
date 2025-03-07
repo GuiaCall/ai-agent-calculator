@@ -63,16 +63,18 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             
             // Poll for subscription status updates with increased attempts and timeout
             let attempts = 0;
-            const maxAttempts = 20; // Increased from 15
+            const maxAttempts = 30; // Increased from 20
             const checkSubscriptionStatus = async (): Promise<boolean> => {
               try {
-                // Force refresh the subscription data to ensure we have the latest
+                // Force refresh the session to ensure we have the latest token
                 const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
                 if (refreshError) {
                   console.error("Session refresh error:", refreshError);
                 }
                 
-                // Get the latest subscription data
+                // Get the latest subscription data with delay between attempts
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
                 const { data: subscription, error: subError } = await supabase
                   .from('subscriptions')
                   .select('plan_type, status')
@@ -108,7 +110,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                   const newUrl = location.pathname;
                   window.history.replaceState({}, document.title, newUrl);
                   
-                  // Reload the page to ensure all components update with new subscription status
+                  // Force reload the page to ensure all components update with new subscription status
                   console.log("Reloading page to apply subscription changes");
                   window.location.reload();
                 }
@@ -118,25 +120,28 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               if (attempts < maxAttempts - 1) {
                 attempts++;
                 console.log(`Subscription not active yet, waiting... (${attempts}/${maxAttempts})`);
-                // Wait 5 seconds before next check (increased from 4)
-                await new Promise(resolve => setTimeout(resolve, 5000));
+                // Wait 6 seconds between checks (increased from 5)
+                await new Promise(resolve => setTimeout(resolve, 6000));
                 return pollSubscription();
               }
               
               console.log("Max attempts reached, subscription may not be active yet");
+              if (mounted) {
+                toast({
+                  title: "Subscription processing",
+                  description: "Your subscription is still being processed. Please reload the page in a minute to check again.",
+                  duration: 8000,
+                });
+                
+                // Remove checkout_success from URL
+                const newUrl = location.pathname;
+                window.history.replaceState({}, document.title, newUrl);
+              }
               return false;
             };
             
             // Start polling
-            pollSubscription().then(success => {
-              if (!success && mounted) {
-                toast({
-                  title: "Subscription processing",
-                  description: "Your subscription is being processed. This may take a few minutes. Please reload the page to check again.",
-                  duration: 10000,
-                });
-              }
-            });
+            pollSubscription();
           } catch (subError) {
             console.error("Error checking subscription:", subError);
           }

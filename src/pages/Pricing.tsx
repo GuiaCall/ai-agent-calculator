@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -38,7 +39,7 @@ export default function Pricing() {
       window.history.replaceState({}, document.title, newUrl);
       
       let checkCount = 0;
-      const maxChecks = 10; 
+      const maxChecks = 15; 
       
       const checkInterval = setInterval(() => {
         checkCount++;
@@ -60,8 +61,9 @@ export default function Pricing() {
         setRefreshingStatus(true);
       }
       
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData?.session?.user) {
+      // Always get a fresh session to ensure token is valid
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !sessionData?.session?.user) {
         console.log("No active session found, redirecting to login");
         navigate('/login');
         return;
@@ -160,27 +162,31 @@ export default function Pricing() {
       setLoading(true);
       console.log("Starting subscription process");
       
-      const { data: sessionData, error: refreshError } = await supabase.auth.getSession();
+      // Get a fresh session with a fresh token
+      const { data: sessionData, error: refreshError } = await supabase.auth.refreshSession();
       
       if (refreshError || !sessionData?.session) {
-        console.error("Session retrieval error:", refreshError);
+        console.error("Session refresh error:", refreshError);
         throw new Error(refreshError?.message || "Failed to get session. Please log in again.");
       }
       
       const session = sessionData.session;
-      console.log("Got fresh session, preparing to call edge function");
-      console.log("Access token exists:", !!session.access_token);
+      const token = session.access_token;
       
-      if (!session.access_token) {
+      console.log("Got fresh session, preparing to call edge function");
+      console.log("Access token exists:", !!token);
+      
+      if (!token) {
         throw new Error("No access token available. Please log in again.");
       }
       
+      // Make sure we explicitly set the Authorization header
       const { data: checkoutData, error: functionError } = await supabase.functions.invoke(
         'create-checkout-session', 
         {
           body: { couponCode: couponCode.trim() || undefined },
           headers: {
-            Authorization: `Bearer ${session.access_token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );

@@ -82,6 +82,11 @@ const validateUser = async (req: Request, supabaseClient: any) => {
   console.log("Authorization header:", authHeader);
   const token = authHeader.replace('Bearer ', '');
   
+  if (!token || token.trim() === '') {
+    console.error("Empty token provided");
+    throw new Error("Valid authentication token is required");
+  }
+  
   try {
     console.log("Validating token...");
     const { data, error: userError } = await supabaseClient.auth.getUser(token);

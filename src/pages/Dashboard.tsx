@@ -31,12 +31,15 @@ export default function Dashboard() {
         setRefreshingStatus(true);
       }
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.log('No user found');
+      // Always get a fresh session to ensure token validity
+      const { data: sessionData, error: sessionError } = await supabase.auth.refreshSession();
+      if (sessionError || !sessionData?.session?.user) {
+        console.log('No user found or session error:', sessionError);
+        navigate('/login');
         return;
       }
 
+      const user = sessionData.session.user;
       console.log('Fetching dashboard data for user:', user.id);
       setUserEmail(user.email || "");
 
@@ -102,7 +105,7 @@ export default function Dashboard() {
       toast({
         title: t("checkoutSuccessful"),
         description: t("subscriptionProcessing"),
-        duration: 6000,
+        duration: 8000,
       });
       
       // Remove the query parameter from the URL but don't trigger a reload
@@ -111,12 +114,19 @@ export default function Dashboard() {
       
       // Aggressively check for subscription updates for the next minute
       let checkCount = 0;
-      const maxChecks = 12; // Check for up to a minute
+      const maxChecks = 15; // Increased checks
       
       const checkInterval = setInterval(() => {
         checkCount++;
         console.log(`Checking subscription status update ${checkCount}/${maxChecks}`);
         fetchDashboardData(true);
+        
+        // If we detect a pro subscription, trigger a page reload to refresh all components
+        if (subscription.plan_type === 'pro' && subscription.status === 'active') {
+          console.log("Pro subscription detected, reloading page");
+          clearInterval(checkInterval);
+          window.location.reload();
+        }
         
         if (checkCount >= maxChecks) {
           clearInterval(checkInterval);
@@ -154,8 +164,14 @@ export default function Dashboard() {
           table: 'subscriptions'
         },
         (payload) => {
-          console.log('Subscription change detected:', payload);
+          console.log('Subscription change detected in dashboard:', payload);
           fetchDashboardData(true);
+          
+          // Force page reload when subscription changes to ensure UI reflects new status
+          if (payload.new && payload.new.plan_type === 'pro' && payload.new.status === 'active') {
+            console.log("Pro subscription update detected, reloading page");
+            window.location.reload();
+          }
         }
       )
       .subscribe();
