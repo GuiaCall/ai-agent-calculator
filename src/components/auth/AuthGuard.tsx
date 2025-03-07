@@ -63,17 +63,33 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             
             // Poll for subscription status updates with increased attempts and timeout
             let attempts = 0;
-            const maxAttempts = 15; // Increased from 10
+            const maxAttempts = 20; // Increased from 15
             const checkSubscriptionStatus = async (): Promise<boolean> => {
-              // Force refresh the subscription data to ensure we have the latest
-              const { data: subscription } = await supabase
-                .from('subscriptions')
-                .select('plan_type, status')
-                .eq('user_id', user.id)
-                .maybeSingle();
-              
-              console.log(`Subscription status check (attempt ${attempts + 1}/${maxAttempts}):`, subscription);
-              return subscription?.plan_type === 'pro' && subscription?.status === 'active';
+              try {
+                // Force refresh the subscription data to ensure we have the latest
+                const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+                if (refreshError) {
+                  console.error("Session refresh error:", refreshError);
+                }
+                
+                // Get the latest subscription data
+                const { data: subscription, error: subError } = await supabase
+                  .from('subscriptions')
+                  .select('plan_type, status')
+                  .eq('user_id', user.id)
+                  .maybeSingle();
+                
+                if (subError) {
+                  console.error("Error fetching subscription:", subError);
+                  return false;
+                }
+                
+                console.log(`Subscription status check (attempt ${attempts + 1}/${maxAttempts}):`, subscription);
+                return subscription?.plan_type === 'pro' && subscription?.status === 'active';
+              } catch (err) {
+                console.error("Error in subscription check:", err);
+                return false;
+              }
             };
             
             const pollSubscription = async () => {
@@ -85,13 +101,15 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                   toast({
                     title: "Subscription activated",
                     description: "You now have access to all pro features!",
+                    duration: 5000,
                   });
                   
                   // Remove checkout_success from URL
                   const newUrl = location.pathname;
                   window.history.replaceState({}, document.title, newUrl);
                   
-                  // Refresh the page to ensure all components update with new subscription status
+                  // Reload the page to ensure all components update with new subscription status
+                  console.log("Reloading page to apply subscription changes");
                   window.location.reload();
                 }
                 return true;
@@ -100,8 +118,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               if (attempts < maxAttempts - 1) {
                 attempts++;
                 console.log(`Subscription not active yet, waiting... (${attempts}/${maxAttempts})`);
-                // Wait 4 seconds before next check (increased from 3)
-                await new Promise(resolve => setTimeout(resolve, 4000));
+                // Wait 5 seconds before next check (increased from 4)
+                await new Promise(resolve => setTimeout(resolve, 5000));
                 return pollSubscription();
               }
               
@@ -114,7 +132,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               if (!success && mounted) {
                 toast({
                   title: "Subscription processing",
-                  description: "Your subscription is being processed. This may take a few minutes. You can refresh the page to check again.",
+                  description: "Your subscription is being processed. This may take a few minutes. Please reload the page to check again.",
                   duration: 10000,
                 });
               }
@@ -144,8 +162,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         return;
       }
       
-      if (event === "SIGNED_IN" && session && mounted) {
-        setIsLoading(false);
+      if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session && mounted) {
+        console.log(`Auth state changed: ${event}`);
+        // Re-check everything when tokens are refreshed or user signs in
+        await checkAuth();
       }
     });
 

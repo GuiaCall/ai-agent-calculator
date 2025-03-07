@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,7 +23,6 @@ export default function Pricing() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Check for success parameter in URL
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const checkoutSuccess = queryParams.get('checkout_success');
@@ -36,11 +34,9 @@ export default function Pricing() {
         duration: 8000,
       });
       
-      // Clean up the URL
       const newUrl = location.pathname;
       window.history.replaceState({}, document.title, newUrl);
       
-      // Refresh subscription data immediately and then periodically
       let checkCount = 0;
       const maxChecks = 10; 
       
@@ -74,7 +70,6 @@ export default function Pricing() {
       const user = sessionData.session.user;
       console.log("Current user:", user.id);
 
-      // Fetch subscription status
       try {
         const { data: subscription, error: subError } = await supabase
           .from('subscriptions')
@@ -110,7 +105,6 @@ export default function Pricing() {
         console.error("Subscription fetch error:", err);
       }
 
-      // Fetch invoice count
       try {
         const { count, error } = await supabase
           .from('invoices')
@@ -140,7 +134,6 @@ export default function Pricing() {
   useEffect(() => {
     fetchUserData();
 
-    // Listen for subscription changes
     const channel = supabase
       .channel('subscription_changes')
       .on(
@@ -167,14 +160,14 @@ export default function Pricing() {
       setLoading(true);
       console.log("Starting subscription process");
       
-      // Get a fresh session to ensure the access token is valid
-      const { data: { session }, error: refreshError } = await supabase.auth.refreshSession();
+      const { data: sessionData, error: refreshError } = await supabase.auth.getSession();
       
-      if (refreshError || !session) {
-        console.error("Session refresh error:", refreshError);
-        throw new Error(refreshError?.message || "Failed to refresh session. Please log in again.");
+      if (refreshError || !sessionData?.session) {
+        console.error("Session retrieval error:", refreshError);
+        throw new Error(refreshError?.message || "Failed to get session. Please log in again.");
       }
       
+      const session = sessionData.session;
       console.log("Got fresh session, preparing to call edge function");
       console.log("Access token exists:", !!session.access_token);
       
@@ -182,8 +175,7 @@ export default function Pricing() {
         throw new Error("No access token available. Please log in again.");
       }
       
-      // Call the edge function with proper authorization
-      const { data: sessionData, error: functionError } = await supabase.functions.invoke(
+      const { data: checkoutData, error: functionError } = await supabase.functions.invoke(
         'create-checkout-session', 
         {
           body: { couponCode: couponCode.trim() || undefined },
@@ -193,21 +185,20 @@ export default function Pricing() {
         }
       );
       
-      console.log("Edge function response:", sessionData, functionError);
+      console.log("Edge function response:", checkoutData, functionError);
       
       if (functionError) {
         console.error("Edge function error:", functionError);
         throw new Error(functionError.message || "Failed to create checkout session");
       }
       
-      if (!sessionData?.url) {
-        console.error("No checkout URL returned:", sessionData);
+      if (!checkoutData?.url) {
+        console.error("No checkout URL returned:", checkoutData);
         throw new Error('No checkout URL returned from server');
       }
       
-      // Redirect to Stripe checkout
-      console.log("Redirecting to Stripe checkout:", sessionData.url);
-      window.location.href = sessionData.url;
+      console.log("Redirecting to Stripe checkout:", checkoutData.url);
+      window.location.href = checkoutData.url;
     } catch (error) {
       console.error("Subscription error:", error);
       toast({
@@ -254,7 +245,6 @@ export default function Pricing() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-            {/* Free Plan */}
             <Card className={`p-8 border-2 hover:border-primary transition-all ${!isSubscribed ? 'border-primary' : ''}`}>
               <div className="mb-10">
                 <h3 className="text-2xl font-bold mb-3">{t("freePlan")}</h3>
@@ -288,7 +278,6 @@ export default function Pricing() {
               </Button>
             </Card>
 
-            {/* Pro Plan */}
             <Card className={`p-8 border-2 ${isSubscribed && subscriptionStatus === 'active' ? 'border-primary bg-primary/5' : ''} hover:bg-primary/10 transition-all`}>
               <div className="mb-10">
                 <h3 className="text-2xl font-bold mb-3">{t("proPlan")}</h3>
@@ -327,7 +316,6 @@ export default function Pricing() {
                 </Button>
               ) : isSubscribed && subscriptionStatus !== 'active' ? (
                 <>
-                  {/* Coupon Code Input */}
                   <div className="mb-4">
                     <Label htmlFor="couponCode" className="mb-2 block">
                       {t("couponCode")}
@@ -357,7 +345,6 @@ export default function Pricing() {
                 </>
               ) : (
                 <>
-                  {/* Coupon Code Input */}
                   <div className="mb-4">
                     <Label htmlFor="couponCode" className="mb-2 block">
                       {t("couponCode")}

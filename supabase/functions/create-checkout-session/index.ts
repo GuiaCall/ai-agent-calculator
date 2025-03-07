@@ -44,7 +44,6 @@ const initStripeClient = () => {
     throw new Error("Stripe secret key not found in environment");
   }
 
-  console.log("Initializing Stripe with key:", stripeSecretKey.substring(0, 8) + "...");
   return new Stripe(stripeSecretKey, {
     apiVersion: '2023-10-16',
     httpClient: Stripe.createFetchHttpClient(),
@@ -68,31 +67,42 @@ const parseRequestData = async (req: Request) => {
 };
 
 // Validate user from auth token
-const validateUser = async (authHeader: string | null, supabaseClient: any) => {
+const validateUser = async (req: Request, supabaseClient: any) => {
+  // Log all request headers for debugging
+  console.log("All request headers:", JSON.stringify(Object.fromEntries([...req.headers.entries()])));
+  
+  // Check for Authorization header
+  const authHeader = req.headers.get('Authorization') || req.headers.get('authorization');
+  
   if (!authHeader) {
-    console.error("No Authorization header provided");
+    console.error("No Authorization header found in the request");
     throw new Error("Authorization header is required");
   }
 
-  console.log("Authorization header is present");
+  console.log("Authorization header:", authHeader);
   const token = authHeader.replace('Bearer ', '');
   
-  console.log("Validating token...");
-  const { data, error: userError } = await supabaseClient.auth.getUser(token);
-  
-  if (userError || !data?.user) {
-    console.error("Auth error:", userError);
-    throw new Error("Authentication failed: " + (userError?.message || "User not found"));
-  }
+  try {
+    console.log("Validating token...");
+    const { data, error: userError } = await supabaseClient.auth.getUser(token);
+    
+    if (userError || !data?.user) {
+      console.error("Auth error:", userError);
+      throw new Error("Authentication failed: " + (userError?.message || "User not found"));
+    }
 
-  const user = data.user;
-  console.log("User validated successfully:", user.id);
-  
-  if (!user.email) {
-    throw new Error("No email found for authenticated user");
-  }
+    const user = data.user;
+    console.log("User validated successfully:", user.id);
+    
+    if (!user.email) {
+      throw new Error("No email found for authenticated user");
+    }
 
-  return user;
+    return user;
+  } catch (error) {
+    console.error("Token validation error:", error);
+    throw new Error(`Authentication failed: ${error.message}`);
+  }
 };
 
 // Get or create Stripe customer
@@ -203,7 +213,6 @@ const createCheckoutSession = async (
   console.log("Creating checkout session with params:", JSON.stringify(sessionParams, null, 2));
   const session = await stripe.checkout.sessions.create(sessionParams);
   console.log("Checkout session created:", session.id);
-  console.log("Session URL:", session.url);
   
   if (!session.url) {
     throw new Error("Checkout session URL is missing");
@@ -216,16 +225,17 @@ const createCheckoutSession = async (
 const handleRequest = async (req: Request) => {
   try {
     console.log("Starting checkout session creation");
-    console.log("Request headers:", JSON.stringify(Object.fromEntries(req.headers.entries())));
+    console.log("Request method:", req.method);
+    console.log("Request URL:", req.url);
     
+    // Initialize Supabase client
     const supabaseClient = initSupabaseClient();
+    
+    // Parse request data
     const requestData = await parseRequestData(req);
     
-    // Get auth token
-    const authHeader = req.headers.get('Authorization');
-    console.log("Auth header present:", !!authHeader);
-    
-    const user = await validateUser(authHeader, supabaseClient);
+    // Validate user from auth token
+    const user = await validateUser(req, supabaseClient);
     
     // Initialize Stripe
     const stripe = initStripeClient();
