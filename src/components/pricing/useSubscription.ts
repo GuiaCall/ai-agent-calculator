@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { supabase, logSupabaseResponse } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 
@@ -9,7 +9,6 @@ export function useSubscription() {
   const [loadingSubscription, setLoadingSubscription] = useState(true);
   const [couponCode, setCouponCode] = useState("");
   const [currentSubscription, setCurrentSubscription] = useState(null);
-  const [testMode, setTestMode] = useState(false);
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -34,8 +33,6 @@ export function useSubscription() {
           .maybeSingle();
 
         if (error) throw error;
-        
-        console.log("Current subscription data:", data);
         
         // Even if data is null, we still want to set it
         setCurrentSubscription(data || {});
@@ -103,167 +100,12 @@ export function useSubscription() {
     }
   };
 
-  // Function to test the pro subscription without payment
-  const activateTestProSubscription = async () => {
-    setLoading(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: t("error"),
-          description: t("notLoggedIn"),
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check if subscription record exists
-      const { data: existingSubscription, error: fetchError } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (fetchError) {
-        console.error("Error fetching subscription:", fetchError);
-        throw new Error(fetchError.message);
-      }
-
-      const currentDate = new Date();
-      const futureDate = new Date();
-      futureDate.setDate(currentDate.getDate() + 30); // Set expiry to 30 days from now
-
-      if (existingSubscription) {
-        // Update existing subscription
-        const { error: updateError } = await supabase
-          .from('subscriptions')
-          .update({
-            plan_type: 'pro',
-            status: 'active',
-            current_period_end: futureDate.toISOString(),
-            updated_at: currentDate.toISOString()
-          })
-          .eq('user_id', user.id);
-
-        if (updateError) {
-          console.error("Error updating subscription:", updateError);
-          throw new Error(updateError.message);
-        }
-      } else {
-        // Create new subscription
-        const { error: insertError } = await supabase
-          .from('subscriptions')
-          .insert({
-            user_id: user.id,
-            plan_type: 'pro',
-            status: 'active',
-            current_period_end: futureDate.toISOString()
-          });
-
-        if (insertError) {
-          console.error("Error creating subscription:", insertError);
-          throw new Error(insertError.message);
-        }
-      }
-
-      // Fetch updated subscription
-      const { data: updatedSubscription, error: refetchError } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (refetchError) {
-        console.error("Error fetching updated subscription:", refetchError);
-      } else {
-        setCurrentSubscription(updatedSubscription);
-      }
-
-      toast({
-        title: t("success"),
-        description: t("testProActivated"),
-      });
-    } catch (error) {
-      console.error("Error activating test pro subscription:", error);
-      toast({
-        title: t("error"),
-        description: error.message || t("operationFailed"),
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Function to reset subscription to free plan
-  const resetToFreePlan = async () => {
-    setLoading(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: t("error"),
-          description: t("notLoggedIn"),
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { error } = await supabase
-        .from('subscriptions')
-        .update({
-          plan_type: 'free',
-          status: 'inactive',
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id);
-
-      if (error) {
-        console.error("Error resetting subscription:", error);
-        throw new Error(error.message);
-      }
-
-      // Fetch updated subscription
-      const { data: updatedSubscription, error: refetchError } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (refetchError) {
-        console.error("Error fetching updated subscription:", refetchError);
-      } else {
-        setCurrentSubscription(updatedSubscription);
-      }
-
-      toast({
-        title: t("success"),
-        description: t("resetToFreePlan"),
-      });
-    } catch (error) {
-      console.error("Error resetting to free plan:", error);
-      toast({
-        title: t("error"),
-        description: error.message || t("operationFailed"),
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return {
     loading,
     loadingSubscription,
     couponCode,
     setCouponCode,
     handleSubscribe,
-    currentSubscription,
-    testMode,
-    setTestMode,
-    activateTestProSubscription,
-    resetToFreePlan
+    currentSubscription
   };
 }

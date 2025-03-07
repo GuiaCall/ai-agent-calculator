@@ -1,3 +1,4 @@
+
 export const general = {
   "title": "AI Voice Agent Calculator",
   "subtitle": "Calculate the costs of your AI voice agent implementation",
@@ -17,9 +18,5 @@ export const general = {
   "serviceType": "Service Type",
   "selectServiceType": "Select a service type",
   "perMinute": "/minute",
-  "perMonth": "/month",
-  "notLoggedIn": "You are not logged in. Please log in to continue.",
-  "testProActivated": "Test Pro subscription successfully activated.",
-  "resetToFreePlan": "Successfully reset to free plan.",
-  "activateTestPro": "Activate Test Pro Subscription"
+  "perMonth": "/month"
 };

@@ -10,7 +10,7 @@ import {
 } from "@/utils/costCalculations";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { supabase, logSupabaseResponse } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 
 export function useCalculatorLogic({
@@ -51,12 +51,14 @@ export function useCalculatorLogic({
       return;
     }
 
+    // Calculate the total cost from all technology parameters
     const { monthlyCost, costPerMinute } = calculateTotalCostPerMinute(
       technologies,
       totalMinutes,
       margin
     );
 
+    // Set the setup cost to be equal to the monthly cost
     const setupCostValue = monthlyCost;
     
     setTotalCost(monthlyCost);
@@ -64,54 +66,14 @@ export function useCalculatorLogic({
     setShowPreview(true);
 
     try {
+      // Save the calculation to Supabase
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.log("Cannot save invoice: No authenticated user");
-        toast({
-          title: t("warning"),
-          description: t("loginToSaveInvoices"),
-        });
-        return;
-      }
-      
-      console.log("Saving invoice for user:", user.id);
-
-      if (isEditingInvoice && editingInvoiceId) {
-        console.log("Updating existing invoice:", editingInvoiceId);
-        
-        const invoiceData = {
-          agency_info: agencyInfo,
-          client_info: clientInfo,
-          setup_cost: setupCostValue,
-          total_amount: monthlyCost,
-          tax_rate: taxRate,
-          margin: margin,
-          total_minutes: totalMinutes,
-          call_duration: callDuration,
-          monthly_service_cost: monthlyCost,
-          updated_at: new Date().toISOString()
-        };
-        
-        console.log("Invoice update data:", invoiceData);
-        
-        const { error } = await supabase
-          .from('invoices')
-          .update(invoiceData)
-          .eq('id', editingInvoiceId);
-          
-        if (error) {
-          console.error('Error updating invoice:', error);
-          toast({
-            title: t("error"),
-            description: t("failedToUpdateInvoice"),
-            variant: "destructive",
-          });
-        } else {
-          console.log("Invoice updated successfully");
-          
-          const updatedInvoices = invoices.map((inv: InvoiceHistory) => 
-            inv.id === editingInvoiceId ? {
-              ...inv,
+      if (user) {
+        if (isEditingInvoice && editingInvoiceId) {
+          // Update existing invoice
+          const { error } = await supabase
+            .from('invoices')
+            .update({
               agency_info: agencyInfo,
               client_info: clientInfo,
               setup_cost: setupCostValue,
@@ -122,81 +84,109 @@ export function useCalculatorLogic({
               call_duration: callDuration,
               monthly_service_cost: monthlyCost,
               updated_at: new Date().toISOString()
-            } : inv
+            })
+            .eq('id', editingInvoiceId);
+            
+          if (error) {
+            console.error('Error updating invoice:', error);
+            toast({
+              title: t("error"),
+              description: t("failedToUpdateInvoice"),
+              variant: "destructive",
+            });
+          } else {
+            // Update the invoice in the local state
+            const updatedInvoices = invoices.map((inv: InvoiceHistory) => 
+              inv.id === editingInvoiceId ? {
+                ...inv,
+                agency_info: agencyInfo,
+                client_info: clientInfo,
+                setup_cost: setupCostValue,
+                total_amount: monthlyCost,
+                tax_rate: taxRate,
+                margin: margin,
+                total_minutes: totalMinutes,
+                call_duration: callDuration,
+                monthly_service_cost: monthlyCost,
+                updated_at: new Date().toISOString()
+              } : inv
+            );
+            
+            setInvoices(updatedInvoices);
+            
+            toast({
+              title: t("success"),
+              description: t("invoiceUpdatedSuccessfully"),
+            });
+          }
+        } else {
+          // Generate a new invoice number with year 2025 and padded zeros for sequence
+          const currentYear = 2025;
+          let nextSequence = 1;
+          
+          // Find the highest sequence number for the current year
+          const yearInvoices = invoices.filter((inv: InvoiceHistory) => 
+            inv.invoice_number.includes(`INV-${currentYear}`)
           );
           
-          setInvoices(updatedInvoices);
+          if (yearInvoices.length > 0) {
+            const sequences = yearInvoices.map((inv: InvoiceHistory) => {
+              const seqStr = inv.invoice_number.split('-')[2];
+              return parseInt(seqStr, 10);
+            });
+            nextSequence = Math.max(...sequences) + 1;
+          }
           
-          toast({
-            title: t("success"),
-            description: t("invoiceUpdatedSuccessfully"),
-          });
+          const invoiceNumber = `INV-${currentYear}-${nextSequence.toString().padStart(6, '0')}`;
+          
+          // Create new invoice
+          const newInvoice = {
+            user_id: user.id,
+            agency_info: agencyInfo,
+            client_info: clientInfo,
+            setup_cost: setupCostValue,
+            total_amount: monthlyCost,
+            tax_rate: taxRate,
+            margin: margin,
+            total_minutes: totalMinutes,
+            call_duration: callDuration,
+            invoice_number: invoiceNumber,
+            monthly_service_cost: monthlyCost
+          };
+          
+          const { data, error } = await supabase
+            .from('invoices')
+            .insert(newInvoice)
+            .select();
+            
+          if (error) {
+            console.error('Error saving invoice:', error);
+            toast({
+              title: t("error"),
+              description: t("failedToSaveCalculation"),
+              variant: "destructive",
+            });
+          } else if (data) {
+            // Add the new invoice to the local state
+            setInvoices([...invoices, data[0]]);
+            
+            toast({
+              title: t("success"),
+              description: t("costCalculationCompletedAndSaved"),
+            });
+          }
         }
       } else {
-        const currentYear = 2025;
-        let nextSequence = 1;
-        
-        const yearInvoices = invoices.filter((inv: InvoiceHistory) => 
-          inv.invoice_number.includes(`INV-${currentYear}`)
-        );
-        
-        if (yearInvoices.length > 0) {
-          const sequences = yearInvoices.map((inv: InvoiceHistory) => {
-            const seqStr = inv.invoice_number.split('-')[2];
-            return parseInt(seqStr, 10);
-          });
-          nextSequence = Math.max(...sequences) + 1;
-        }
-        
-        const invoiceNumber = `INV-${currentYear}-${nextSequence.toString().padStart(6, '0')}`;
-        
-        const newInvoice = {
-          user_id: user.id,
-          agency_info: agencyInfo,
-          client_info: clientInfo,
-          setup_cost: setupCostValue,
-          total_amount: monthlyCost,
-          tax_rate: taxRate,
-          margin: margin,
-          total_minutes: totalMinutes,
-          call_duration: callDuration,
-          invoice_number: invoiceNumber,
-          monthly_service_cost: monthlyCost,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        
-        console.log("Creating new invoice:", newInvoice);
-        
-        const { data, error } = await supabase
-          .from('invoices')
-          .insert(newInvoice)
-          .select();
-          
-        if (error) {
-          console.error('Error saving invoice:', error);
-          toast({
-            title: t("error"),
-            description: t("failedToSaveCalculation"),
-            variant: "destructive",
-          });
-        } else if (data) {
-          console.log("Invoice created successfully:", data[0]);
-          
-          setInvoices([...invoices, data[0]]);
-          
-          toast({
-            title: t("success"),
-            description: t("costCalculationCompletedAndSaved"),
-          });
-        }
+        toast({
+          title: t("success"),
+          description: t("costCalculationCompleted"),
+        });
       }
     } catch (error) {
       console.error('Error in calculation save:', error);
       toast({
-        title: t("error"),
-        description: t("errorSavingData"),
-        variant: "destructive",
+        title: t("success"),
+        description: t("costCalculationCompleted"),
       });
     }
   };
@@ -265,26 +255,32 @@ export function useCalculatorLogic({
         windowHeight: element.scrollHeight
       });
       
+      // Calculate dimensions to fit on A4
       const imgWidth = 210; // A4 width in mm
       const pageHeight = 297; // A4 height in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
+      // Create PDF with proper orientation
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
 
+      // Calculate number of pages needed
       const pagesNeeded = Math.ceil(imgHeight / pageHeight);
       
+      // Split the canvas into pages
       for (let page = 0; page < pagesNeeded; page++) {
         if (page > 0) {
           pdf.addPage();
         }
         
+        // Calculate the portion of the image to use for this page
         const sourceY = page * canvas.height / pagesNeeded;
         const sourceHeight = canvas.height / pagesNeeded;
         
+        // Create a temporary canvas for this portion
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = sourceHeight;
@@ -304,6 +300,7 @@ export function useCalculatorLogic({
           );
         }
         
+        // Add this portion to the PDF
         const imgData = tempCanvas.toDataURL('image/png');
         pdf.addImage(
           imgData,
@@ -315,10 +312,12 @@ export function useCalculatorLogic({
         );
       }
 
+      // Filename includes invoice number if provided
       const currentInvoice = targetInvoice || (invoices.length > 0 ? invoices[invoices.length - 1] : null);
       const invoiceNumber = currentInvoice?.invoice_number || `invoice-${new Date().toISOString()}`;
       pdf.save(`${invoiceNumber}.pdf`);
 
+      // Update last_exported_at in Supabase for the specific invoice
       const { data: { user } } = await supabase.auth.getUser();
       if (user && currentInvoice) {
         const { error } = await supabase

@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
@@ -12,68 +11,6 @@ export const supabase = createClient<Database>(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      storageKey: 'sb-auth-token',
-      detectSessionInUrl: true
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10,
-      },
-    },
-    global: {
-      headers: {
-        'x-application-name': 'agent-calculator',
-      },
     },
   }
 );
-
-// Make the client refresh auth on initial page load
-const initializeAuth = async () => {
-  try {
-    const { data, error } = await supabase.auth.getSession();
-    if (data?.session) {
-      // Refresh token to ensure it's not expired
-      await supabase.auth.refreshSession();
-      console.log('Auth session refreshed successfully');
-    }
-  } catch (err) {
-    console.error('Error initializing auth:', err);
-  }
-};
-
-// Initialize auth on module load
-initializeAuth();
-
-// Subscribe to subscription changes
-export const subscribeToSubscriptionChanges = (userId: string, callback: () => void) => {
-  return supabase
-    .channel('subscription_changes')
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'subscriptions',
-        filter: `user_id=eq.${userId}`
-      },
-      (payload) => {
-        console.log('Subscription change detected:', payload);
-        callback();
-      }
-    )
-    .subscribe((status) => {
-      console.log('Subscription channel status:', status);
-    });
-};
-
-// Add debug function to help with troubleshooting
-export const logSupabaseResponse = (operation: string, error: any, data: any) => {
-  if (error) {
-    console.error(`Supabase ${operation} error:`, error);
-    return false;
-  }
-  
-  console.log(`Supabase ${operation} successful:`, data);
-  return true;
-};

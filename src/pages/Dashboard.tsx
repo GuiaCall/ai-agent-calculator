@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { AlertCircle, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 export default function Dashboard() {
@@ -19,7 +18,6 @@ export default function Dashboard() {
   const [subscription, setSubscription] = useState({ plan_type: "free", status: "active" });
   const [newPassword, setNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [isTestingSubscription, setIsTestingSubscription] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -74,119 +72,6 @@ export default function Dashboard() {
       console.error('Error fetching dashboard data:', error);
       toast({
         title: t("errorFetchingData"),
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const testActivateProSubscription = async () => {
-    try {
-      setIsTestingSubscription(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast({
-          title: t("testSubscriptionError"),
-          description: t("notLoggedIn"),
-          variant: "destructive",
-        });
-        return;
-      }
-      
-      console.log('Testing pro subscription activation for user:', user.id);
-      
-      // Update subscription to pro
-      const { error } = await supabase
-        .from('subscriptions')
-        .upsert({
-          user_id: user.id,
-          plan_type: 'pro',
-          status: 'active',
-          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
-        }, { onConflict: 'user_id' });
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: t("testSubscriptionSuccess"),
-        description: t("proSubscriptionActivated"),
-      });
-      
-      // Refresh data
-      await fetchDashboardData();
-      
-    } catch (error: any) {
-      console.error('Error activating test subscription:', error);
-      toast({
-        title: t("testSubscriptionError"),
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsTestingSubscription(false);
-    }
-  };
-
-  const resetToFreeSubscription = async () => {
-    try {
-      setIsTestingSubscription(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        return;
-      }
-      
-      console.log('Resetting to free subscription for user:', user.id);
-      
-      // Update subscription to free
-      const { error } = await supabase
-        .from('subscriptions')
-        .upsert({
-          user_id: user.id,
-          plan_type: 'free',
-          status: 'active'
-        }, { onConflict: 'user_id' });
-
-      if (error) {
-        throw error;
-      }
-
-      toast({
-        title: t("resetSubscriptionSuccess"),
-        description: t("freeSubscriptionRestored"),
-      });
-      
-      // Refresh data
-      await fetchDashboardData();
-      
-    } catch (error: any) {
-      console.error('Error resetting subscription:', error);
-      toast({
-        title: t("resetSubscriptionError"),
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsTestingSubscription(false);
-    }
-  };
-
-  const refreshSubscriptionStatus = async () => {
-    try {
-      setIsLoading(true);
-      await fetchDashboardData();
-      toast({
-        title: t("dataRefreshed"),
-        description: t("subscriptionStatusUpdated"),
-      });
-    } catch (error: any) {
-      toast({
-        title: t("refreshError"),
         description: error.message,
         variant: "destructive",
       });
@@ -291,17 +176,7 @@ export default function Dashboard() {
     <CalculatorStateProvider>
       <Navbar />
       <div className="container mx-auto px-4 py-8 mt-16 mb-16">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">{t("dashboard")}</h1>
-          <Button 
-            variant="outline" 
-            onClick={refreshSubscriptionStatus}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            {t("refreshStatus")}
-          </Button>
-        </div>
+        <h1 className="text-3xl font-bold mb-8">{t("dashboard")}</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="p-6">
@@ -348,7 +223,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 mb-8">
+        <div className="grid grid-cols-1 gap-6">
           <Card className="p-6">
             <CardHeader className="p-0 pb-4">
               <CardTitle className="text-lg font-semibold">{t("accountInformation")}</CardTitle>
@@ -372,38 +247,6 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Test Mode for Subscriptions */}
-        <div className="mt-8 border border-dashed border-gray-300 p-6 rounded-lg">
-          <h2 className="text-xl font-bold mb-4">{t("testMode")}</h2>
-          <p className="text-sm text-gray-600 mb-4">{t("testModeDescription")}</p>
-          
-          <div className="flex flex-wrap gap-4">
-            <Button 
-              variant="outline" 
-              onClick={testActivateProSubscription}
-              disabled={isTestingSubscription}
-              className="bg-green-50 border-green-200 hover:bg-green-100"
-            >
-              {isTestingSubscription ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : null}
-              {t("activateProPlan")}
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={resetToFreeSubscription}
-              disabled={isTestingSubscription}
-              className="bg-blue-50 border-blue-200 hover:bg-blue-100"
-            >
-              {isTestingSubscription ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : null}
-              {t("resetToFreePlan")}
-            </Button>
-          </div>
         </div>
       </div>
       <Footer />

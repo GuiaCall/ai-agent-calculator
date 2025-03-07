@@ -4,8 +4,7 @@ import { SynthflowPlan } from "@/types/synthflow";
 import { CalcomPlan } from "@/types/calcom";
 import { TwilioSelection } from "@/types/twilio";
 import { AgencyInfo, ClientInfo, InvoiceHistory } from "@/types/invoice";
-import { supabase, logSupabaseResponse } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export type CurrencyType = 'USD' | 'EUR';
 
@@ -18,6 +17,7 @@ const initialTechnologies = [
   { id: "blandai", name: "Bland AI", isSelected: true, costPerMinute: 0.009 },
 ];
 
+// Helper function to safely parse JSON data with fallback
 const safelyParseJSON = <T extends {}>(jsonData: any, defaultValue: T): T => {
   if (!jsonData) return defaultValue;
   
@@ -37,7 +37,6 @@ const safelyParseJSON = <T extends {}>(jsonData: any, defaultValue: T): T => {
 };
 
 export function useCalculatorState() {
-  const { toast } = useToast();
   const [callDuration, setCallDuration] = useState<number>(5);
   const [totalMinutes, setTotalMinutes] = useState<number>(1000);
   const [margin, setMargin] = useState<number>(20);
@@ -78,42 +77,28 @@ export function useCalculatorState() {
   const [totalCost, setTotalCost] = useState<number | null>(null);
   const [setupCost, setSetupCost] = useState<number | null>(null);
 
+  // Load saved calculator state from Supabase
   useEffect(() => {
     const loadCalculatorState = async () => {
       setIsLoading(true);
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          console.log("No authenticated user found");
           setIsLoading(false);
           return;
         }
 
-        console.log("Loading data for user:", user.id);
-
-        const { data: preferences, error: preferencesError } = await supabase
+        const { data: preferences } = await supabase
           .from('user_preferences')
           .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
 
-        if (preferencesError) {
-          console.error("Error loading user preferences:", preferencesError);
-        } else if (preferences) {
-          console.log("Loaded user preferences:", preferences);
+        if (preferences) {
           setThemeColor(preferences.theme_color || "#2563eb");
-        } else {
-          console.log("No user preferences found, creating default");
-          const { error: createError } = await supabase
-            .from('user_preferences')
-            .insert({ user_id: user.id });
-            
-          if (createError) {
-            console.error("Error creating default preferences:", createError);
-          }
         }
 
-        const { data: latestInvoice, error: invoiceError } = await supabase
+        const { data: latestInvoice } = await supabase
           .from('invoices')
           .select('*')
           .eq('user_id', user.id)
@@ -121,12 +106,8 @@ export function useCalculatorState() {
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
-          
-        if (invoiceError) {
-          console.error("Error loading latest invoice:", invoiceError);
-        } else if (latestInvoice) {
-          console.log("Loaded latest invoice:", latestInvoice);
-          
+
+        if (latestInvoice) {
           setCallDuration(latestInvoice.call_duration || 5);
           setTotalMinutes(latestInvoice.total_minutes || 1000);
           setMargin(latestInvoice.margin || 20);
@@ -171,22 +152,16 @@ export function useCalculatorState() {
           if (latestInvoice.total_amount) {
             setTotalCost(Number(latestInvoice.total_amount));
           }
-        } else {
-          console.log("No invoices found for user");
         }
 
-        const { data: allInvoices, error: allInvoicesError } = await supabase
+        const { data: allInvoices } = await supabase
           .from('invoices')
           .select('*')
           .eq('user_id', user.id)
           .eq('is_deleted', false)
           .order('created_at', { ascending: false });
 
-        if (allInvoicesError) {
-          console.error("Error loading all invoices:", allInvoicesError);
-        } else if (allInvoices) {
-          console.log(`Loaded ${allInvoices.length} invoices`);
-          
+        if (allInvoices) {
           const typedInvoices: InvoiceHistory[] = allInvoices.map(invoice => {
             const defaultAgencyInfo: AgencyInfo = {
               name: "",
@@ -217,16 +192,9 @@ export function useCalculatorState() {
           });
           
           setInvoices(typedInvoices);
-        } else {
-          console.log("No invoices returned from query");
         }
       } catch (error) {
         console.error('Error loading calculator state:', error);
-        toast({
-          title: "Error loading data",
-          description: "There was a problem loading your data from the database.",
-          variant: "destructive",
-        });
       } finally {
         setIsLoading(false);
       }
@@ -264,41 +232,12 @@ export function useCalculatorState() {
       if (isLoading) return;
 
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.log("Cannot save preferences: No authenticated user");
-        return;
-      }
+      if (!user) return;
 
-      console.log("Saving theme color preference:", themeColor);
-      
-      const { data: existingPrefs } = await supabase
+      await supabase
         .from('user_preferences')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-        
-      if (existingPrefs) {
-        const { error } = await supabase
-          .from('user_preferences')
-          .update({ theme_color: themeColor })
-          .eq('user_id', user.id);
-          
-        if (error) {
-          console.error("Error saving theme color:", error);
-        } else {
-          console.log("Theme color saved successfully");
-        }
-      } else {
-        const { error } = await supabase
-          .from('user_preferences')
-          .insert({ user_id: user.id, theme_color: themeColor });
-          
-        if (error) {
-          console.error("Error creating user preferences:", error);
-        } else {
-          console.log("Created user preferences with theme color");
-        }
-      }
+        .update({ theme_color: themeColor })
+        .eq('user_id', user.id);
     };
 
     saveCalculatorState();

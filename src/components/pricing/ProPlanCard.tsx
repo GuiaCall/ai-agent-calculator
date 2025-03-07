@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
@@ -13,17 +12,9 @@ interface ProPlanCardProps {
   setCouponCode: (code: string) => void;
   handleSubscribe: () => void;
   isCurrentPlan?: boolean;
-  testMode?: boolean;
 }
 
-export function ProPlanCard({ 
-  loading, 
-  couponCode, 
-  setCouponCode, 
-  handleSubscribe, 
-  isCurrentPlan = false,
-  testMode = false
-}: ProPlanCardProps) {
+export function ProPlanCard({ loading, couponCode, setCouponCode, handleSubscribe, isCurrentPlan = false }: ProPlanCardProps) {
   const { t } = useTranslation();
   const [showCouponInput, setShowCouponInput] = useState(false);
 
@@ -63,7 +54,7 @@ export function ProPlanCard({
 
       {!isCurrentPlan && (
         <>
-          {showCouponInput && !testMode && (
+          {showCouponInput && (
             <div className="mb-4">
               <p className="text-sm text-gray-500 mb-2">{t("haveCoupon")}</p>
               <Input
@@ -76,21 +67,17 @@ export function ProPlanCard({
           )}
 
           <div className="space-y-2">
-            <Button 
-              className={`w-full ${testMode ? "bg-green-600 hover:bg-green-700" : ""}`} 
-              onClick={handleSubscribe} 
-              disabled={loading}
-            >
+            <Button className="w-full" onClick={handleSubscribe} disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {t("processing")}
                 </>
               ) : (
-                testMode ? t("activateTestPro") : t("subscribeToPro")
+                t("subscribeToPro")
               )}
             </Button>
-            {!showCouponInput && !testMode && (
+            {!showCouponInput && (
               <Button variant="link" className="w-full" onClick={() => setShowCouponInput(true)}>
                 {t("haveCouponQuestion")}
               </Button>
