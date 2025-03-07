@@ -1,6 +1,13 @@
 
 import { supabase, logSupabaseResponse } from "@/integrations/supabase/client";
 
+interface SubscriptionData {
+  plan_type: string;
+  status: string;
+  updated_at: string;
+  current_period_end?: string;
+}
+
 export async function fetchUserSubscription(userId: string) {
   const { data, error } = await supabase
     .from('subscriptions')
@@ -69,7 +76,7 @@ export async function activateTestSubscription(planType: string, status: string,
     if (import.meta.env.DEV) {
       console.log("Development environment detected, using direct database update");
       
-      const updateData = {
+      const updateData: SubscriptionData = {
         plan_type: planType,
         status,
         updated_at: new Date().toISOString()
@@ -102,16 +109,22 @@ export async function activateTestSubscription(planType: string, status: string,
         result = data;
       } else {
         // Create new subscription
+        const insertData: SubscriptionData & { user_id: string } = {
+          user_id: user.id,
+          plan_type: planType,
+          status,
+          updated_at: new Date().toISOString()
+        };
+        
+        if (days) {
+          const futureDate = new Date();
+          futureDate.setDate(futureDate.getDate() + days);
+          insertData.current_period_end = futureDate.toISOString();
+        }
+        
         const { data, error } = await supabase
           .from('subscriptions')
-          .insert({
-            user_id: user.id,
-            plan_type: planType,
-            status,
-            ...(days && {
-              current_period_end: updateData.current_period_end
-            })
-          })
+          .insert(insertData)
           .select()
           .single();
         
@@ -161,7 +174,7 @@ export async function activateTestSubscription(planType: string, status: string,
     // Update the subscription directly in the database
     console.log("Edge function failed, falling back to direct database update");
     
-    const updateData = {
+    const updateData: SubscriptionData = {
       plan_type: planType, 
       status,
       updated_at: new Date().toISOString()
@@ -195,16 +208,22 @@ export async function activateTestSubscription(planType: string, status: string,
         return data;
       } else {
         // Create new subscription
+        const insertData: SubscriptionData & { user_id: string } = {
+          user_id: user.id,
+          plan_type: planType,
+          status,
+          updated_at: new Date().toISOString()
+        };
+        
+        if (days) {
+          const futureDate = new Date();
+          futureDate.setDate(futureDate.getDate() + days);
+          insertData.current_period_end = futureDate.toISOString();
+        }
+        
         const { data, error } = await supabase
           .from('subscriptions')
-          .insert({
-            user_id: user.id,
-            plan_type: planType,
-            status,
-            ...(days && { 
-              current_period_end: updateData.current_period_end 
-            })
-          })
+          .insert(insertData)
           .select()
           .single();
         
