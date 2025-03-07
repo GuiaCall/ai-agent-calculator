@@ -8,10 +8,6 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-// Valid plan types and statuses to match database constraints
-type PlanType = 'free' | 'pro';
-type SubscriptionStatus = 'active' | 'inactive' | 'canceled';
-
 // Handle CORS preflight requests
 serve(async (req) => {
   // Always respond to preflight requests
@@ -24,21 +20,6 @@ serve(async (req) => {
     // Get the request body
     const body = await req.json();
     const { plan_type, status, days } = body;
-    
-    // Validate inputs
-    if (!plan_type || !['free', 'pro'].includes(plan_type)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid plan type. Must be either "free" or "pro"' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
-    
-    if (!status || !['active', 'inactive', 'canceled'].includes(status)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid status. Must be one of "active", "inactive", or "canceled"' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      );
-    }
     
     // Get authorization token
     const authHeader = req.headers.get('Authorization');

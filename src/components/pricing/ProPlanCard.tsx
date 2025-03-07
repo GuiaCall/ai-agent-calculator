@@ -13,6 +13,7 @@ interface ProPlanCardProps {
   setCouponCode: (code: string) => void;
   handleSubscribe: () => void;
   isCurrentPlan?: boolean;
+  testMode?: boolean;
 }
 
 export function ProPlanCard({ 
@@ -20,7 +21,8 @@ export function ProPlanCard({
   couponCode, 
   setCouponCode, 
   handleSubscribe, 
-  isCurrentPlan = false
+  isCurrentPlan = false,
+  testMode = false
 }: ProPlanCardProps) {
   const { t } = useTranslation();
   const [showCouponInput, setShowCouponInput] = useState(false);
@@ -61,7 +63,7 @@ export function ProPlanCard({
 
       {!isCurrentPlan && (
         <>
-          {showCouponInput && (
+          {showCouponInput && !testMode && (
             <div className="mb-4">
               <p className="text-sm text-gray-500 mb-2">{t("haveCoupon")}</p>
               <Input
@@ -75,7 +77,7 @@ export function ProPlanCard({
 
           <div className="space-y-2">
             <Button 
-              className="w-full" 
+              className={`w-full ${testMode ? "bg-green-600 hover:bg-green-700" : ""}`} 
               onClick={handleSubscribe} 
               disabled={loading}
             >
@@ -85,10 +87,10 @@ export function ProPlanCard({
                   {t("processing")}
                 </>
               ) : (
-                t("subscribeToPro")
+                testMode ? t("activateTestPro") : t("subscribeToPro")
               )}
             </Button>
-            {!showCouponInput && (
+            {!showCouponInput && !testMode && (
               <Button variant="link" className="w-full" onClick={() => setShowCouponInput(true)}>
                 {t("haveCouponQuestion")}
               </Button>
