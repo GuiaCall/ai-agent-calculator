@@ -13,6 +13,7 @@ export const supabase = createClient<Database>(
       persistSession: true,
       autoRefreshToken: true,
       storageKey: 'sb-auth-token',
+      detectSessionInUrl: true
     },
     realtime: {
       params: {
@@ -26,6 +27,26 @@ export const supabase = createClient<Database>(
     },
   }
 );
+
+// Subscribe to subscription changes
+export const subscribeToSubscriptionChanges = (userId: string, callback: () => void) => {
+  return supabase
+    .channel('subscription_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'subscriptions',
+        filter: `user_id=eq.${userId}`
+      },
+      (payload) => {
+        console.log('Subscription change detected:', payload);
+        callback();
+      }
+    )
+    .subscribe();
+};
 
 // Add debug function to help with troubleshooting
 export const logSupabaseResponse = (operation: string, error: any, data: any) => {

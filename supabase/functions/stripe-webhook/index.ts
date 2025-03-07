@@ -23,11 +23,20 @@ serve(async (req) => {
       apiVersion: '2023-10-16',
     });
 
+    // Enhanced logging
+    console.log('Webhook request received', {
+      method: req.method,
+      url: req.url,
+      hasSignature: !!signature,
+      bodyLength: body.length
+    });
+
     // Verify the webhook signature
     let event;
     const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
 
     if (!signature || !endpointSecret) {
+      console.error('Missing signature or webhook secret');
       return new Response(
         JSON.stringify({ error: 'Missing signature or webhook secret' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
@@ -36,6 +45,7 @@ serve(async (req) => {
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
+      console.log('Webhook event constructed successfully');
     } catch (err) {
       console.error(`Webhook signature verification failed: ${err.message}`);
       return new Response(
@@ -58,7 +68,7 @@ serve(async (req) => {
     
     const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-    console.log(`Processing webhook event: ${event.type}`);
+    console.log(`Processing webhook event: ${event.type}`, { event_id: event.id });
 
     // Handle different event types
     switch (event.type) {
@@ -66,7 +76,7 @@ serve(async (req) => {
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = event.data.object;
-        console.log(`Processing subscription event for subscription ID: ${subscription.id}, status: ${subscription.status}`);
+        console.log(`Processing subscription event for subscription ID: ${subscription.id}, status: ${subscription.status}`, subscription);
         
         // Get the customer information
         const customer = await stripe.customers.retrieve(subscription.customer);
@@ -146,6 +156,19 @@ serve(async (req) => {
           );
         }
 
+        // Verify subscription was properly updated
+        const { data: verifySubscription, error: verifyError } = await supabaseClient
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        if (verifyError) {
+          console.error('Error verifying subscription update:', verifyError);
+        } else {
+          console.log('Verified subscription status after update:', verifySubscription);
+        }
+
         console.log(`Successfully ${subscriptionOperation}d subscription for user ${userId}`);
         break;
       }
@@ -179,7 +202,7 @@ serve(async (req) => {
       // Handle completed payment
       case 'checkout.session.completed': {
         const session = event.data.object;
-        console.log(`Processing checkout session completed: ${session.id}`);
+        console.log(`Processing checkout session completed: ${session.id}`, session);
         
         // If this is a subscription checkout
         if (session.mode === 'subscription') {
@@ -211,10 +234,16 @@ serve(async (req) => {
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
           
-          console.log(`Updating subscription from checkout for user ${userId}, status: ${subscription.status}`);
+          console.log(`Updating subscription from checkout for user ${userId}, status: ${subscription.status}`, {
+            subscription_details: {
+              id: subscription.id,
+              status: subscription.status,
+              current_period_end: currentPeriodEnd
+            }
+          });
           
           // Update the subscription in the database
-          const { error: subscriptionError } = await supabaseClient
+          const { data: updateResult, error: subscriptionError } = await supabaseClient
             .from('subscriptions')
             .upsert({
               user_id: userId,
@@ -233,7 +262,20 @@ serve(async (req) => {
             );
           }
           
-          console.log(`Successfully updated subscription from checkout for user ${userId}`);
+          console.log(`Successfully updated subscription from checkout for user ${userId}`, { result: updateResult });
+
+          // Verify subscription was properly updated
+          const { data: verifySubscription, error: verifyError } = await supabaseClient
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+          
+          if (verifyError) {
+            console.error('Error verifying subscription update from checkout:', verifyError);
+          } else {
+            console.log('Verified subscription status after checkout update:', verifySubscription);
+          }
         }
         
         break;
