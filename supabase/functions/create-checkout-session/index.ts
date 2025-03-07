@@ -91,9 +91,14 @@ const validateUser = async (req: Request, supabaseClient: any) => {
     console.log("Validating token...");
     const { data, error: userError } = await supabaseClient.auth.getUser(token);
     
-    if (userError || !data?.user) {
+    if (userError) {
       console.error("Auth error:", userError);
-      throw new Error("Authentication failed: " + (userError?.message || "User not found"));
+      throw new Error("Authentication failed: " + (userError?.message || "Invalid token"));
+    }
+    
+    if (!data || !data.user) {
+      console.error("No user found for token");
+      throw new Error("Authentication failed: User not found");
     }
 
     const user = data.user;
@@ -274,6 +279,7 @@ const handleRequest = async (req: Request) => {
         }
       );
     } catch (stripeError) {
+      console.error("Stripe error:", stripeError);
       return errorResponse(
         stripeError.message || "Failed to create checkout session",
         stripeError,
@@ -281,6 +287,7 @@ const handleRequest = async (req: Request) => {
       );
     }
   } catch (error) {
+    console.error("General error:", error);
     return errorResponse(
       error.message || "An unexpected error occurred",
       error,
