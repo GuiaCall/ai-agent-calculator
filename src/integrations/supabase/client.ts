@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
@@ -11,6 +12,28 @@ export const supabase = createClient<Database>(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
+      storageKey: 'sb-auth-token',
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+    },
+    global: {
+      headers: {
+        'x-application-name': 'agent-calculator',
+      },
     },
   }
 );
+
+// Add debug function to help with troubleshooting
+export const logSupabaseResponse = (operation: string, error: any, data: any) => {
+  if (error) {
+    console.error(`Supabase ${operation} error:`, error);
+    return false;
+  }
+  
+  console.log(`Supabase ${operation} successful:`, data);
+  return true;
+};

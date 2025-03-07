@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from 'https://esm.sh/stripe@14.21.0';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
@@ -46,10 +45,18 @@ serve(async (req) => {
     }
 
     // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase environment variables');
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
+    
+    const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
     console.log(`Processing webhook event: ${event.type}`);
 
@@ -83,27 +90,63 @@ serve(async (req) => {
 
         console.log(`Updating subscription for user ${userId} to plan type: ${planType}`);
 
-        // Update or create the subscription record
-        const { error: subscriptionError } = await supabaseClient
+        // Check if subscription record exists for this user
+        const { data: existingSubscription, error: fetchError } = await supabaseClient
           .from('subscriptions')
-          .upsert({
-            user_id: userId,
-            stripe_customer_id: subscription.customer,
-            stripe_subscription_id: subscription.id,
-            plan_type: planType,
-            status: subscription.status,
-            current_period_end: currentPeriodEnd
-          }, { onConflict: 'user_id' });
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+          
+        if (fetchError) {
+          console.error('Error checking for existing subscription:', fetchError);
+        }
+        
+        let subscriptionOperation;
+        let subscriptionError;
+        
+        // Either update or insert subscription record
+        if (existingSubscription) {
+          console.log(`Updating existing subscription record for user ${userId}`);
+          const { error } = await supabaseClient
+            .from('subscriptions')
+            .update({
+              stripe_customer_id: subscription.customer,
+              stripe_subscription_id: subscription.id,
+              plan_type: planType,
+              status: subscription.status,
+              current_period_end: currentPeriodEnd,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId);
+            
+          subscriptionOperation = 'update';
+          subscriptionError = error;
+        } else {
+          console.log(`Creating new subscription record for user ${userId}`);
+          const { error } = await supabaseClient
+            .from('subscriptions')
+            .insert({
+              user_id: userId,
+              stripe_customer_id: subscription.customer,
+              stripe_subscription_id: subscription.id,
+              plan_type: planType,
+              status: subscription.status,
+              current_period_end: currentPeriodEnd
+            });
+            
+          subscriptionOperation = 'insert';
+          subscriptionError = error;
+        }
 
         if (subscriptionError) {
-          console.error('Error updating subscription:', subscriptionError);
+          console.error(`Error ${subscriptionOperation} subscription:`, subscriptionError);
           return new Response(
-            JSON.stringify({ error: 'Error updating subscription' }),
+            JSON.stringify({ error: `Error ${subscriptionOperation} subscription` }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
           );
         }
 
-        console.log(`Successfully updated subscription for user ${userId}`);
+        console.log(`Successfully ${subscriptionOperation}d subscription for user ${userId}`);
         break;
       }
 
