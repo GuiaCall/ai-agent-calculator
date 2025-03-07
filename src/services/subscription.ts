@@ -26,16 +26,16 @@ export async function fetchUserSubscription(userId: string) {
 }
 
 export async function createCheckoutSession(couponCode?: string) {
-  // Get current user token to pass to edge function
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  
-  if (sessionError || !session) {
-    throw new Error(sessionError?.message || "No active session found. Please log in again.");
-  }
-  
-  console.log("Got session, preparing to call edge function");
-  
   try {
+    // Get current user token to pass to edge function
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      throw new Error(sessionError?.message || "No active session found. Please log in again.");
+    }
+    
+    console.log("Got session, preparing to call edge function");
+    
     // Call the edge function with proper authorization
     const { data: sessionData, error: functionError } = await supabase.functions.invoke(
       'create-checkout-session', 

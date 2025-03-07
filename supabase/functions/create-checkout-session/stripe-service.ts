@@ -26,19 +26,23 @@ export const getOrCreateCustomer = async (stripe: Stripe, email: string, userId:
     console.log("Found existing customer:", customers.data[0].id);
     const customer_id = customers.data[0].id;
     
+    // Check if customer already has an active subscription - removed test mode check
     try {
       const subscriptions = await stripe.subscriptions.list({
         customer: customers.data[0].id,
         status: 'active',
-        price: 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe',
         limit: 1
       });
 
       if (subscriptions.data.length > 0) {
         console.log("Customer already has an active subscription");
-        throw new Error("Customer already has an active subscription");
+        throw new Error("You already have an active subscription");
       }
     } catch (subErr) {
+      // Only re-throw if it's our custom error
+      if (subErr.message === "You already have an active subscription") {
+        throw subErr;
+      }
       console.error("Error checking subscriptions:", subErr);
       // Continue even if subscription check fails
     }
@@ -75,7 +79,7 @@ export const createCheckoutSession = async (
     customer: customerId,
     line_items: [
       {
-        price: 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe',
+        price: 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe', // Make sure this price ID exists in your Stripe account
         quantity: 1,
       },
     ],
