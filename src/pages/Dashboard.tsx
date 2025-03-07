@@ -12,25 +12,11 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import { Tables } from "@/integrations/supabase/types";
-
-type SubscriptionData = Tables<"subscriptions"> | null;
 
 export default function Dashboard() {
   const [totalInvoices, setTotalInvoices] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState("");
-  const [subscription, setSubscription] = useState<SubscriptionData>({
-    plan_type: "free",
-    status: "active",
-    id: "",
-    user_id: "",
-    created_at: "",
-    updated_at: "",
-    current_period_end: null,
-    invoice_count: 0,
-    stripe_customer_id: null,
-    stripe_subscription_id: null
-  });
+  const [subscription, setSubscription] = useState({ plan_type: "free", status: "active" });
   const [newPassword, setNewPassword] = useState("");
   const [refreshingStatus, setRefreshingStatus] = useState(false);
   const { toast } = useToast();
@@ -223,11 +209,6 @@ export default function Dashboard() {
     fetchDashboardData(true);
   };
 
-  // Get safe values with fallbacks for subscription properties
-  const planType = subscription?.plan_type || 'free';
-  const subscriptionStatus = subscription?.status || 'inactive';
-  const isSubscriptionActive = subscriptionStatus === 'active';
-
   return (
     <CalculatorStateProvider>
       <Navbar />
@@ -240,7 +221,7 @@ export default function Dashboard() {
             <p className="text-3xl font-bold">
               {totalInvoices === null ? t("loading") : totalInvoices}
             </p>
-            {planType === 'free' && totalInvoices !== null && (
+            {subscription.plan_type === 'free' && totalInvoices !== null && (
               <p className="text-sm text-gray-500 mt-2">
                 {t("freeInvoicesUsed", { used: totalInvoices, total: 5 })}
               </p>
@@ -272,21 +253,21 @@ export default function Dashboard() {
             </div>
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-3xl font-bold capitalize">{planType}</p>
-                {planType === 'pro' && isSubscriptionActive && (
+                <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>
+                {subscription.plan_type === 'pro' && subscription.status === 'active' && (
                   <div className="flex items-center text-green-500 mt-1">
                     <CheckCircle2 className="h-4 w-4 mr-1" />
                     <span className="text-sm">{t("subscriptionActive")}</span>
                   </div>
                 )}
-                {planType === 'pro' && !isSubscriptionActive && (
+                {subscription.plan_type === 'pro' && subscription.status !== 'active' && (
                   <div className="flex items-center text-amber-500 mt-1">
                     <AlertCircle className="h-4 w-4 mr-1" />
                     <span className="text-sm">{t("subscriptionInactive")}</span>
                   </div>
                 )}
               </div>
-              {(planType === 'free' || !isSubscriptionActive) && (
+              {(subscription.plan_type === 'free' || subscription.status !== 'active') && (
                 <Button onClick={() => navigate('/pricing')} variant="default">
                   {t("upgradePlan")}
                 </Button>

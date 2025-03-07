@@ -123,13 +123,10 @@ export default function Pricing() {
         console.log("Invoice count:", count);
       } catch (err) {
         console.error("Invoice count fetch error:", err);
-      } finally {
-        if (forceRefresh) {
-          setRefreshingStatus(false);
-        }
       }
     } catch (err) {
       console.error("Failed to fetch user data:", err);
+    } finally {
       if (forceRefresh) {
         setRefreshingStatus(false);
       }
@@ -168,14 +165,9 @@ export default function Pricing() {
       // Get a fresh session with a fresh token
       const { data: sessionData, error: refreshError } = await supabase.auth.refreshSession();
       
-      if (refreshError) {
+      if (refreshError || !sessionData?.session) {
         console.error("Session refresh error:", refreshError);
         throw new Error(refreshError?.message || "Failed to get session. Please log in again.");
-      }
-      
-      if (!sessionData?.session) {
-        console.error("No session available after refresh");
-        throw new Error("No active session. Please log in again.");
       }
       
       const session = sessionData.session;
@@ -188,15 +180,13 @@ export default function Pricing() {
         throw new Error("No access token available. Please log in again.");
       }
       
-      // Make the function call with explicit headers
-      console.log("Calling create-checkout-session function...");
+      // Make sure we explicitly set the Authorization header
       const { data: checkoutData, error: functionError } = await supabase.functions.invoke(
         'create-checkout-session', 
         {
           body: { couponCode: couponCode.trim() || undefined },
           headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${token}`
           }
         }
       );
@@ -208,7 +198,7 @@ export default function Pricing() {
         throw new Error(functionError.message || "Failed to create checkout session");
       }
       
-      if (!checkoutData || !checkoutData.url) {
+      if (!checkoutData?.url) {
         console.error("No checkout URL returned:", checkoutData);
         throw new Error('No checkout URL returned from server');
       }
@@ -222,6 +212,7 @@ export default function Pricing() {
         description: error.message || t("operationFailed"),
         variant: "destructive",
       });
+    } finally {
       setLoading(false);
     }
   };

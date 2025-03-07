@@ -91,14 +91,9 @@ const validateUser = async (req: Request, supabaseClient: any) => {
     console.log("Validating token...");
     const { data, error: userError } = await supabaseClient.auth.getUser(token);
     
-    if (userError) {
+    if (userError || !data?.user) {
       console.error("Auth error:", userError);
-      throw new Error("Authentication failed: " + (userError?.message || "Invalid token"));
-    }
-    
-    if (!data || !data.user) {
-      console.error("No user found for token");
-      throw new Error("Authentication failed: User not found");
+      throw new Error("Authentication failed: " + (userError?.message || "User not found"));
     }
 
     const user = data.user;
@@ -194,8 +189,8 @@ const createCheckoutSession = async (
   userId: string,
   validCouponCode: string | null
 ) => {
-  // Update with your actual price ID from Stripe dashboard
-  const priceId = 'price_1QzylyJxQ3vRyrS2kLcOPk0T';
+  // Use the exact price ID
+  const priceId = 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe';
   console.log("Using price ID:", priceId);
   
   const sessionParams: any = {
@@ -279,7 +274,6 @@ const handleRequest = async (req: Request) => {
         }
       );
     } catch (stripeError) {
-      console.error("Stripe error:", stripeError);
       return errorResponse(
         stripeError.message || "Failed to create checkout session",
         stripeError,
@@ -287,7 +281,6 @@ const handleRequest = async (req: Request) => {
       );
     }
   } catch (error) {
-    console.error("General error:", error);
     return errorResponse(
       error.message || "An unexpected error occurred",
       error,
