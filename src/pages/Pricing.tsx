@@ -1,256 +1,382 @@
-import { useState, useEffect } from "react";
+
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { CheckCircle2, LucideIcon, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Check, Loader2, RefreshCw } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
-interface PlanFeatureProps {
-  included: boolean;
-  feature: string;
-}
-
-const PlanFeature = ({ included, feature }: PlanFeatureProps) => (
-  <div className="flex items-center space-x-2">
-    {included ? (
-      <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-    ) : (
-      <X className="h-5 w-5 text-gray-400 flex-shrink-0" />
-    )}
-    <span className={included ? "text-gray-800" : "text-gray-400"}>{feature}</span>
-  </div>
-);
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Pricing() {
-  const { t } = useTranslation();
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [refreshingStatus, setRefreshingStatus] = useState(false);
+  const [invoiceCount, setInvoiceCount] = useState(0);
   const [couponCode, setCouponCode] = useState("");
-  const [currentSubscription, setCurrentSubscription] = useState<{
-    plan_type: string;
-    status: string;
-  } | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState("");
+  const { toast } = useToast();
+  const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  // Check for success parameter in URL
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+    const queryParams = new URLSearchParams(location.search);
+    const checkoutSuccess = queryParams.get('checkout_success');
+    
+    if (checkoutSuccess === 'true') {
+      toast({
+        title: t("checkoutSuccess"),
+        description: t("subscriptionActive"),
+      });
       
-      if (error) {
-        console.error("Session check error:", error);
-        return;
+      // Clean up the URL
+      const newUrl = location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      
+      // Refresh subscription data immediately
+      fetchUserData(true);
+    }
+  }, [location, toast, t]);
+
+  const fetchUserData = async (forceRefresh = false) => {
+    try {
+      if (forceRefresh) {
+        setRefreshingStatus(true);
       }
       
-      if (!session) {
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session?.user) {
+        console.log("No active session found, redirecting to login");
         navigate('/login');
         return;
       }
 
-      setUser(session.user);
-      
-      // Check current subscription
-      const { data: subscription, error: subError } = await supabase
-        .from('subscriptions')
-        .select('plan_type, status')
-        .eq('user_id', session.user.id)
-        .maybeSingle();
-      
-      if (subError) {
-        console.error("Error fetching subscription:", subError);
-      } else {
-        console.log("Current subscription:", subscription);
-        setCurrentSubscription(subscription);
+      const user = sessionData.session.user;
+      console.log("Current user:", user.id);
+
+      // Fetch subscription status
+      try {
+        const { data: subscription, error: subError } = await supabase
+          .from('subscriptions')
+          .select('plan_type, status')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (subError) {
+          console.error("Error fetching subscription:", subError);
+          toast({
+            title: t("error"),
+            description: "Failed to fetch subscription status",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (subscription) {
+          setIsSubscribed(subscription.plan_type === 'pro');
+          setSubscriptionStatus(subscription.status);
+          console.log("Current subscription:", subscription);
+          
+          if (forceRefresh && subscription.plan_type === 'pro' && subscription.status === 'active') {
+            toast({
+              title: t("subscriptionVerified"),
+              description: t("proFeaturesActive"),
+            });
+          }
+        } else {
+          console.log("No subscription found for user");
+        }
+      } catch (err) {
+        console.error("Subscription fetch error:", err);
       }
+
+      // Fetch invoice count
+      try {
+        const { count, error } = await supabase
+          .from('invoices')
+          .select('*', { count: 'exact' })
+          .eq('user_id', user.id)
+          .eq('is_deleted', false);
+        
+        if (error) {
+          console.error("Error fetching invoice count:", error);
+          return;
+        }
+
+        setInvoiceCount(count || 0);
+        console.log("Invoice count:", count);
+      } catch (err) {
+        console.error("Invoice count fetch error:", err);
+      }
+    } catch (err) {
+      console.error("Failed to fetch user data:", err);
+    } finally {
+      if (forceRefresh) {
+        setRefreshingStatus(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+
+    // Listen for subscription changes
+    const channel = supabase
+      .channel('subscription_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subscriptions'
+        },
+        (payload) => {
+          console.log('Subscription change detected:', payload);
+          fetchUserData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
-    
-    checkSession();
-  }, [navigate]);
+  }, []);
 
   const handleSubscribe = async () => {
     try {
-      setIsLoading(true);
+      setLoading(true);
+      console.log("Starting subscription process");
       
-      // First ensure we have a valid session
+      // Get current user session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session) {
         console.error("Session error:", sessionError);
-        toast({
-          title: t("authError"),
-          description: t("pleaseLoginAgain"),
-          variant: "destructive",
-        });
-        navigate('/login');
-        return;
+        throw new Error(sessionError?.message || "No active session found. Please log in again.");
       }
       
-      // Get fresh access token
-      const { data: { session: freshSession }, error: refreshError } = 
-        await supabase.auth.refreshSession();
+      console.log("Got session, preparing to call edge function");
+      console.log("Token exists:", !!session.access_token);
       
-      if (refreshError || !freshSession) {
-        console.error("Error refreshing session:", refreshError);
-        toast({
-          title: t("sessionRefreshError"),
-          description: t("pleaseLoginAgain"),
-          variant: "destructive",
-        });
-        navigate('/login');
-        return;
+      if (!session.access_token) {
+        throw new Error("No access token available. Please log in again.");
       }
       
-      const accessToken = freshSession.access_token;
-      console.log("Got fresh access token:", accessToken.substring(0, 10) + "...");
+      // Call the edge function with proper authorization
+      const { data: sessionData, error: functionError } = await supabase.functions.invoke(
+        'create-checkout-session', 
+        {
+          body: { couponCode: couponCode.trim() || undefined },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        }
+      );
       
-      const response = await supabase.functions.invoke('create-checkout-session', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: couponCode.trim() ? { couponCode: couponCode.trim() } : {},
-      });
+      console.log("Edge function response:", sessionData, functionError);
       
-      if (response.error) {
-        throw new Error(response.error.message || "Failed to create checkout session");
+      if (functionError) {
+        console.error("Edge function error:", functionError);
+        throw new Error(functionError.message || "Failed to create checkout session");
       }
       
-      if (!response.data.url) {
-        throw new Error("No checkout URL returned");
+      if (!sessionData?.url) {
+        console.error("No checkout URL returned:", sessionData);
+        throw new Error('No checkout URL returned from server');
       }
       
-      window.location.href = response.data.url;
+      // Redirect to Stripe checkout
+      console.log("Redirecting to Stripe checkout:", sessionData.url);
+      window.location.href = sessionData.url;
     } catch (error) {
-      console.error("Subscribe error:", error);
+      console.error("Subscription error:", error);
       toast({
-        title: t("subscriptionError"),
-        description: error.message || t("errorCreatingSubscription"),
+        title: t("error"),
+        description: error.message || t("operationFailed"),
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const isProActive = currentSubscription?.plan_type === 'pro' && 
-                     currentSubscription?.status === 'active';
+  const handleRefreshStatus = () => {
+    fetchUserData(true);
+  };
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-      <div className="container mx-auto px-4 py-16 mt-8 mb-16">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold mb-4">{t("choosePlan")}</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {t("pricingDescription")}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Free Plan */}
-          <Card className="p-6 border-2 relative overflow-hidden">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold">{t("freePlan")}</h2>
-              <p className="text-gray-600 mt-2">{t("freePlanDescription")}</p>
-              <div className="mt-4">
-                <span className="text-3xl font-bold">$0</span>
-                <span className="text-gray-600 ml-1">{t("forever")}</span>
-              </div>
-            </div>
-
-            <div className="space-y-3 mb-8">
-              <PlanFeature included={true} feature={t("freeFeature1")} />
-              <PlanFeature included={true} feature={t("freeFeature2")} />
-              <PlanFeature included={false} feature={t("proFeature1")} />
-              <PlanFeature included={false} feature={t("proFeature2")} />
-              <PlanFeature included={false} feature={t("proFeature3")} />
-            </div>
-
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={() => navigate('/calculator')}
-            >
-              {t("currentPlan")}
-            </Button>
-          </Card>
-
-          {/* Pro Plan */}
-          <Card className="p-6 border-2 border-primary relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-primary text-white px-4 py-1 text-sm font-semibold">
-              {t("popular")}
-            </div>
+      <main className="flex-1">
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-6">{t("pricingTitle")}</h1>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">{t("pricingDescription")}</p>
             
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold">{t("proPlan")}</h2>
-              <p className="text-gray-600 mt-2">{t("proPlanDescription")}</p>
-              <div className="mt-4">
-                <span className="text-3xl font-bold">$9.99</span>
-                <span className="text-gray-600 ml-1">{t("perMonth")}</span>
-              </div>
-            </div>
-
-            <div className="space-y-3 mb-8">
-              <PlanFeature included={true} feature={t("freeFeature1")} />
-              <PlanFeature included={true} feature={t("freeFeature2")} />
-              <PlanFeature included={true} feature={t("proFeature1")} />
-              <PlanFeature included={true} feature={t("proFeature2")} />
-              <PlanFeature included={true} feature={t("proFeature3")} />
-            </div>
-
-            {isProActive ? (
-              <Button 
-                variant="default" 
-                className="w-full bg-green-600 hover:bg-green-700"
-                disabled
-              >
-                <CheckCircle2 className="h-5 w-5 mr-2" />
-                {t("activeSubscription")}
-              </Button>
-            ) : (
-              <>
-                <div className="mb-4">
-                  <Input
-                    placeholder={t("enterCouponCode")}
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    disabled={isLoading}
-                  />
-                </div>
+            {isSubscribed && (
+              <div className="mt-4 flex justify-center">
                 <Button 
-                  variant="default" 
-                  className="w-full"
-                  onClick={handleSubscribe}
-                  disabled={isLoading}
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleRefreshStatus}
+                  disabled={refreshingStatus}
+                  className="flex items-center gap-2"
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      {t("processing")}
-                    </>
+                  {refreshingStatus ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    currentSubscription?.plan_type === 'pro' ? 
-                      t("reactivateSubscription") : 
-                      t("upgradeNow")
+                    <RefreshCw className="h-4 w-4" />
                   )}
+                  {t("refreshSubscriptionStatus")}
                 </Button>
-              </>
+              </div>
             )}
-          </Card>
-        </div>
+          </div>
 
-        <div className="text-center mt-12 text-gray-600 max-w-2xl mx-auto">
-          <p>{t("subscriptionTerms")}</p>
-          <p className="mt-2">{t("moneyBackGuarantee")}</p>
+          <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+            {/* Free Plan */}
+            <Card className={`p-8 border-2 hover:border-primary transition-all ${!isSubscribed ? 'border-primary' : ''}`}>
+              <div className="mb-10">
+                <h3 className="text-2xl font-bold mb-3">{t("freePlan")}</h3>
+                <p className="text-gray-600 mb-6">{t("freePlanDescription")}</p>
+                <div className="text-3xl font-bold">
+                  €0/<span className="text-xl text-gray-500">{t("month")}</span>
+                </div>
+              </div>
+
+              <div className="space-y-5 mb-10">
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                  <span>{t("generateUpToFiveInvoices", { count: invoiceCount })}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                  <span>{t("basicInvoiceGeneration")}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                  <span>{t("pdfExportFunctionality")}</span>
+                </div>
+              </div>
+
+              <Button 
+                className="w-full" 
+                variant="outline" 
+                disabled={true}
+              >
+                {isSubscribed ? t("upgradeToProFirst") : t("currentPlan")}
+              </Button>
+            </Card>
+
+            {/* Pro Plan */}
+            <Card className={`p-8 border-2 ${isSubscribed && subscriptionStatus === 'active' ? 'border-primary bg-primary/5' : ''} hover:bg-primary/10 transition-all`}>
+              <div className="mb-10">
+                <h3 className="text-2xl font-bold mb-3">{t("proPlan")}</h3>
+                <p className="text-gray-600 mb-6">{t("proPlanDescription")}</p>
+                <div className="text-3xl font-bold">
+                  €7.99/<span className="text-xl text-gray-500">{t("month")}</span>
+                </div>
+              </div>
+
+              <div className="space-y-5 mb-10">
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                  <span>{t("generateUnlimitedInvoices")}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                  <span>{t("accessToAllFeatures")}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                  <span>{t("futureFeatureUpgrades")}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                  <span>{t("pdfExportFunctionality")}</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" />
+                  <span>{t("accessToAllSavedInvoices")}</span>
+                </div>
+              </div>
+              
+              {isSubscribed && subscriptionStatus === 'active' ? (
+                <Button className="w-full" variant="outline" disabled>
+                  {t("currentPlan")}
+                </Button>
+              ) : isSubscribed && subscriptionStatus !== 'active' ? (
+                <>
+                  {/* Coupon Code Input */}
+                  <div className="mb-4">
+                    <Label htmlFor="couponCode" className="mb-2 block">
+                      {t("couponCode")}
+                    </Label>
+                    <Input
+                      id="couponCode"
+                      placeholder={t("enterCouponCode")}
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="mb-4"
+                    />
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={handleSubscribe}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {t("processing")}
+                      </span>
+                    ) : (
+                      t("reactivateSubscription")
+                    )}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {/* Coupon Code Input */}
+                  <div className="mb-4">
+                    <Label htmlFor="couponCode" className="mb-2 block">
+                      {t("couponCode")}
+                    </Label>
+                    <Input
+                      id="couponCode"
+                      placeholder={t("enterCouponCode")}
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="mb-4"
+                    />
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={handleSubscribe}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {t("processing")}
+                      </span>
+                    ) : (
+                      t("upgradeToPro")
+                    )}
+                  </Button>
+                </>
+              )}
+            </Card>
+          </div>
         </div>
-      </div>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 }
