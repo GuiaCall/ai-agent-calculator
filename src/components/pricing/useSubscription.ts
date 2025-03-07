@@ -130,6 +130,13 @@ export function useSubscription() {
 
       console.log("Activating test pro subscription for user:", user.id);
 
+      // Get the current session for the authorization token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("No active session found. Please log in again.");
+      }
+
       // Use edge function to handle subscription update through service role
       const { data: sessionData, error: functionError } = await supabase.functions.invoke(
         'update-subscription-status', 
@@ -140,7 +147,7 @@ export function useSubscription() {
             days: 30 // Set expiry to 30 days from now
           },
           headers: {
-            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            Authorization: `Bearer ${session.access_token}`
           }
         }
       );
@@ -149,6 +156,8 @@ export function useSubscription() {
         console.error("Function error:", functionError);
         throw new Error(functionError.message || "Failed to update subscription status");
       }
+      
+      console.log("Subscription updated successfully:", sessionData);
       
       // Fetch updated subscription
       const { data: updatedSubscription, error: refetchError } = await supabase
@@ -197,6 +206,13 @@ export function useSubscription() {
 
       console.log("Resetting to free plan for user:", user.id);
 
+      // Get the current session for the authorization token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error("No active session found. Please log in again.");
+      }
+
       // Use edge function to handle subscription update through service role
       const { data: sessionData, error: functionError } = await supabase.functions.invoke(
         'update-subscription-status', 
@@ -206,7 +222,7 @@ export function useSubscription() {
             status: 'inactive'
           },
           headers: {
-            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            Authorization: `Bearer ${session.access_token}`
           }
         }
       );
