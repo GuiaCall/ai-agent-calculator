@@ -189,7 +189,7 @@ const createCheckoutSession = async (
   userId: string,
   validCouponCode: string | null
 ) => {
-  // Use the exact price ID
+  // Updated price ID as specified by the user
   const priceId = 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe';
   console.log("Using price ID:", priceId);
   
