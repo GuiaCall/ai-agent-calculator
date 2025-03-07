@@ -50,47 +50,70 @@ export default function Pricing() {
         setRefreshingStatus(true);
       }
       
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Fetch subscription status
-      const { data: subscription, error: subError } = await supabase
-        .from('subscriptions')
-        .select('plan_type, status')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (subError) {
-        console.error("Error fetching subscription:", subError);
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session?.user) {
+        console.log("No active session found, redirecting to login");
+        navigate('/login');
         return;
       }
 
-      if (subscription) {
-        setIsSubscribed(subscription.plan_type === 'pro');
-        setSubscriptionStatus(subscription.status);
-        console.log("Current subscription:", subscription);
+      const user = sessionData.session.user;
+      console.log("Current user:", user.id);
+
+      // Fetch subscription status
+      try {
+        const { data: subscription, error: subError } = await supabase
+          .from('subscriptions')
+          .select('plan_type, status')
+          .eq('user_id', user.id)
+          .maybeSingle();
         
-        if (forceRefresh && subscription.plan_type === 'pro' && subscription.status === 'active') {
+        if (subError) {
+          console.error("Error fetching subscription:", subError);
           toast({
-            title: t("subscriptionVerified"),
-            description: t("proFeaturesActive"),
+            title: t("error"),
+            description: "Failed to fetch subscription status",
+            variant: "destructive",
           });
+          return;
         }
+
+        if (subscription) {
+          setIsSubscribed(subscription.plan_type === 'pro');
+          setSubscriptionStatus(subscription.status);
+          console.log("Current subscription:", subscription);
+          
+          if (forceRefresh && subscription.plan_type === 'pro' && subscription.status === 'active') {
+            toast({
+              title: t("subscriptionVerified"),
+              description: t("proFeaturesActive"),
+            });
+          }
+        } else {
+          console.log("No subscription found for user");
+        }
+      } catch (err) {
+        console.error("Subscription fetch error:", err);
       }
 
       // Fetch invoice count
-      const { count, error } = await supabase
-        .from('invoices')
-        .select('*', { count: 'exact' })
-        .eq('user_id', user.id)
-        .eq('is_deleted', false);
-      
-      if (error) {
-        console.error("Error fetching invoice count:", error);
-        return;
-      }
+      try {
+        const { count, error } = await supabase
+          .from('invoices')
+          .select('*', { count: 'exact' })
+          .eq('user_id', user.id)
+          .eq('is_deleted', false);
+        
+        if (error) {
+          console.error("Error fetching invoice count:", error);
+          return;
+        }
 
-      setInvoiceCount(count || 0);
+        setInvoiceCount(count || 0);
+        console.log("Invoice count:", count);
+      } catch (err) {
+        console.error("Invoice count fetch error:", err);
+      }
     } catch (err) {
       console.error("Failed to fetch user data:", err);
     } finally {
@@ -134,10 +157,12 @@ export default function Pricing() {
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session) {
+        console.error("Session error:", sessionError);
         throw new Error(sessionError?.message || "No active session found. Please log in again.");
       }
       
       console.log("Got session, preparing to call edge function");
+      console.log("Token exists:", !!session.access_token);
       
       // Call the edge function with proper authorization
       const { data: sessionData, error: functionError } = await supabase.functions.invoke(

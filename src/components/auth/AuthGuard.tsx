@@ -56,26 +56,64 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        // If we have a successful checkout, check subscription status
+        // If we have a successful checkout, handle subscription checking
         if (checkForCheckoutSuccess()) {
           try {
-            // Wait for subscription status to update
-            const checkSubscriptionStatus = async () => {
+            console.log("Detected checkout success, checking subscription status");
+            
+            // Poll for subscription status updates
+            let attempts = 0;
+            const maxAttempts = 5;
+            const checkSubscriptionStatus = async (): Promise<boolean> => {
               const { data: subscription } = await supabase
                 .from('subscriptions')
                 .select('plan_type, status')
                 .eq('user_id', user.id)
                 .maybeSingle();
-                
+              
+              console.log(`Subscription status check (attempt ${attempts + 1}/${maxAttempts}):`, subscription);
               return subscription?.plan_type === 'pro' && subscription?.status === 'active';
             };
             
-            const isSubscribed = await checkSubscriptionStatus();
+            const pollSubscription = async () => {
+              let isSubscribed = await checkSubscriptionStatus();
+              
+              if (isSubscribed) {
+                console.log("Pro subscription confirmed active!");
+                if (mounted) {
+                  toast({
+                    title: "Subscription activated",
+                    description: "You now have access to all pro features!",
+                  });
+                  
+                  // Remove checkout_success from URL
+                  const newUrl = location.pathname;
+                  window.history.replaceState({}, document.title, newUrl);
+                }
+                return true;
+              }
+              
+              if (attempts < maxAttempts - 1) {
+                attempts++;
+                console.log(`Subscription not active yet, waiting... (${attempts}/${maxAttempts})`);
+                // Wait 2 seconds before next check
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                return pollSubscription();
+              }
+              
+              console.log("Max attempts reached, subscription may not be active yet");
+              return false;
+            };
             
-            if (!isSubscribed) {
-              console.log("Subscription not active yet, waiting...");
-              // We'll let the component handle this case
-            }
+            // Start polling
+            pollSubscription().then(success => {
+              if (!success && mounted) {
+                toast({
+                  title: "Subscription processing",
+                  description: "Your subscription is being processed. This may take a few moments.",
+                });
+              }
+            });
           } catch (subError) {
             console.error("Error checking subscription:", subError);
           }

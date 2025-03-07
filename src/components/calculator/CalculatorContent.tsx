@@ -32,35 +32,57 @@ export function CalculatorContent() {
     const checkSubscriptionAndInvoices = async () => {
       setIsCheckingSubscription(true);
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !sessionData?.session?.user) {
+          console.error("Session error:", sessionError);
           setIsCheckingSubscription(false);
           return;
         }
+        
+        const user = sessionData.session.user;
+        console.log("Checking subscription for user:", user.id);
 
         // Get subscription details
-        const { data: subscription } = await supabase
-          .from('subscriptions')
-          .select('plan_type, status')
-          .eq('user_id', user.id)
-          .maybeSingle();
+        try {
+          const { data: subscription, error: subError } = await supabase
+            .from('subscriptions')
+            .select('plan_type, status')
+            .eq('user_id', user.id)
+            .maybeSingle();
 
-        console.log("Subscription check result:", subscription);
-        
-        const isPro = subscription?.plan_type === 'pro';
-        const isActive = subscription?.status === 'active';
-        
-        setIsSubscribed(isPro);
-        setIsSubscriptionActive(isActive);
+          if (subError) {
+            console.error("Subscription fetch error:", subError);
+          }
+
+          console.log("Subscription check result:", subscription);
+          
+          const isPro = subscription?.plan_type === 'pro';
+          const isActive = subscription?.status === 'active';
+          
+          setIsSubscribed(isPro);
+          setIsSubscriptionActive(isActive);
+        } catch (subErr) {
+          console.error("Error processing subscription data:", subErr);
+        }
 
         // Get invoice count
-        const { count } = await supabase
-          .from('invoices')
-          .select('*', { count: 'exact' })
-          .eq('user_id', user.id)
-          .eq('is_deleted', false);
+        try {
+          const { count, error: countError } = await supabase
+            .from('invoices')
+            .select('*', { count: 'exact' })
+            .eq('user_id', user.id)
+            .eq('is_deleted', false);
 
-        setInvoiceCount(count || 0);
+          if (countError) {
+            console.error("Invoice count error:", countError);
+          }
+
+          setInvoiceCount(count || 0);
+          console.log("Invoice count:", count);
+        } catch (invErr) {
+          console.error("Error processing invoice count:", invErr);
+        }
       } catch (error) {
         console.error("Error checking subscription:", error);
       } finally {

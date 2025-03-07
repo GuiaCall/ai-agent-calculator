@@ -127,20 +127,24 @@ serve(async (req) => {
         
         try {
           const subscriptions = await stripe.subscriptions.list({
-            customer: customers.data[0].id,
+            customer: customer_id,
             status: 'active',
             limit: 1
           });
 
           if (subscriptions.data.length > 0) {
-            console.log("Customer already has an active subscription");
-            return new Response(
-              JSON.stringify({ error: "Customer already has an active subscription" }),
-              { 
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                status: 400,
-              }
-            );
+            // Instead of returning an error, let's allow them to go to checkout again
+            // This can handle cases where the user wants to update their subscription
+            console.log("Customer has an existing subscription, will proceed to update it");
+            
+            // Option 1: Cancel existing subscription first
+            try {
+              await stripe.subscriptions.cancel(subscriptions.data[0].id);
+              console.log("Cancelled existing subscription:", subscriptions.data[0].id);
+            } catch (cancelErr) {
+              console.error("Failed to cancel existing subscription:", cancelErr);
+              // Continue anyway, as we'll try to create a new checkout session
+            }
           }
         } catch (subErr) {
           console.error("Error checking subscriptions:", subErr);
