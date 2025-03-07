@@ -20,5 +20,20 @@ export const dashboard = {
   "subscriptionActivated": "Votre abonnement Pro a été activé avec succès!",
   "subscriptionActive": "Abonnement actif",
   "subscriptionInactive": "Abonnement inactif",
-  "loadingYourDashboard": "Chargement de votre tableau de bord..."
+  "loadingYourDashboard": "Chargement de votre tableau de bord...",
+  "testMode": "Mode Test",
+  "testModeDescription": "Utilisez ces options pour tester rapidement les fonctionnalités d'abonnement sans passer par le processus de paiement.",
+  "activateProPlan": "Activer Plan Pro (Test)",
+  "resetToFreePlan": "Réinitialiser au Plan Gratuit",
+  "testSubscriptionSuccess": "Test activé",
+  "proSubscriptionActivated": "L'abonnement Pro a été activé en mode test.",
+  "testSubscriptionError": "Erreur d'activation du test",
+  "notLoggedIn": "Vous devez être connecté pour tester les fonctionnalités d'abonnement.",
+  "resetSubscriptionSuccess": "Réinitialisation réussie",
+  "freeSubscriptionRestored": "Votre abonnement a été réinitialisé au plan gratuit.",
+  "resetSubscriptionError": "Erreur de réinitialisation",
+  "refreshStatus": "Actualiser le Statut",
+  "dataRefreshed": "Données actualisées",
+  "subscriptionStatusUpdated": "Le statut de votre abonnement a été mis à jour.",
+  "refreshError": "Erreur d'actualisation"
 };

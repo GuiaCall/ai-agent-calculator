@@ -51,35 +51,37 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
+    console.log(`Processing webhook event: ${event.type}`);
+
     // Handle different event types
     switch (event.type) {
       // When a subscription is created or updated
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = event.data.object;
+        console.log(`Processing subscription event for subscription ID: ${subscription.id}, status: ${subscription.status}`);
         
         // Get the customer information
         const customer = await stripe.customers.retrieve(subscription.customer);
         const customerEmail = customer.email;
+        console.log(`Customer email for subscription: ${customerEmail}`);
 
         // Find the user by email
-        const { data: userData, error: userError } = await supabaseClient
-          .from('auth.users')
-          .select('id')
-          .eq('email', customerEmail)
-          .maybeSingle();
+        const { data: userData, error: userError } = await supabaseClient.auth.admin.getUserByEmail(customerEmail);
 
         if (userError || !userData) {
-          console.error('Error finding user:', userError);
+          console.error('Error finding user:', userError || 'No user found with email ' + customerEmail);
           return new Response(
             JSON.stringify({ error: 'Error finding user' }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
           );
         }
 
-        const userId = userData.id;
+        const userId = userData.user.id;
         const planType = subscription.status === 'active' ? 'pro' : 'free';
         const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
+
+        console.log(`Updating subscription for user ${userId} to plan type: ${planType}`);
 
         // Update or create the subscription record
         const { error: subscriptionError } = await supabaseClient
@@ -91,7 +93,7 @@ serve(async (req) => {
             plan_type: planType,
             status: subscription.status,
             current_period_end: currentPeriodEnd
-          });
+          }, { onConflict: 'user_id' });
 
         if (subscriptionError) {
           console.error('Error updating subscription:', subscriptionError);
@@ -101,12 +103,14 @@ serve(async (req) => {
           );
         }
 
+        console.log(`Successfully updated subscription for user ${userId}`);
         break;
       }
 
       // Handle canceled subscriptions
       case 'customer.subscription.deleted': {
         const subscription = event.data.object;
+        console.log(`Processing subscription deletion for subscription ID: ${subscription.id}`);
         
         // Update the subscription status to inactive
         const { error: subscriptionError } = await supabaseClient
@@ -125,12 +129,14 @@ serve(async (req) => {
           );
         }
 
+        console.log(`Successfully marked subscription ${subscription.id} as canceled`);
         break;
       }
 
       // Handle completed payment
       case 'checkout.session.completed': {
         const session = event.data.object;
+        console.log(`Processing checkout session completed: ${session.id}`);
         
         // If this is a subscription checkout
         if (session.mode === 'subscription') {
@@ -138,15 +144,18 @@ serve(async (req) => {
           const subscriptionId = session.subscription;
           const customerId = session.customer;
           
+          console.log(`Checkout completed for subscription: ${subscriptionId}, customer: ${customerId}`);
+          
           // Get customer details to find user
           const customer = await stripe.customers.retrieve(customerId);
           const customerEmail = customer.email;
+          console.log(`Customer email from checkout: ${customerEmail}`);
           
           // Find the user by email
           const { data: userData, error: userError } = await supabaseClient.auth.admin.getUserByEmail(customerEmail);
 
           if (userError || !userData) {
-            console.error('Error finding user:', userError);
+            console.error('Error finding user:', userError || 'No user found with email ' + customerEmail);
             return new Response(
               JSON.stringify({ error: 'Error finding user' }),
               { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
@@ -159,6 +168,8 @@ serve(async (req) => {
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
           
+          console.log(`Updating subscription from checkout for user ${userId}, status: ${subscription.status}`);
+          
           // Update the subscription in the database
           const { error: subscriptionError } = await supabaseClient
             .from('subscriptions')
@@ -169,7 +180,7 @@ serve(async (req) => {
               plan_type: 'pro',
               status: 'active',
               current_period_end: currentPeriodEnd
-            });
+            }, { onConflict: 'user_id' });
 
           if (subscriptionError) {
             console.error('Error updating subscription:', subscriptionError);
@@ -178,6 +189,8 @@ serve(async (req) => {
               { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
             );
           }
+          
+          console.log(`Successfully updated subscription from checkout for user ${userId}`);
         }
         
         break;
