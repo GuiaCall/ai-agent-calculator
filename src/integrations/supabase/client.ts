@@ -28,6 +28,23 @@ export const supabase = createClient<Database>(
   }
 );
 
+// Make the client refresh auth on initial page load
+const initializeAuth = async () => {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (data?.session) {
+      // Refresh token to ensure it's not expired
+      await supabase.auth.refreshSession();
+      console.log('Auth session refreshed successfully');
+    }
+  } catch (err) {
+    console.error('Error initializing auth:', err);
+  }
+};
+
+// Initialize auth on module load
+initializeAuth();
+
 // Subscribe to subscription changes
 export const subscribeToSubscriptionChanges = (userId: string, callback: () => void) => {
   return supabase
@@ -45,7 +62,9 @@ export const subscribeToSubscriptionChanges = (userId: string, callback: () => v
         callback();
       }
     )
-    .subscribe();
+    .subscribe((status) => {
+      console.log('Subscription channel status:', status);
+    });
 };
 
 // Add debug function to help with troubleshooting

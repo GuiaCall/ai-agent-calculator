@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from 'https://esm.sh/stripe@14.21.0';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
@@ -45,7 +46,7 @@ serve(async (req) => {
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
-      console.log('Webhook event constructed successfully');
+      console.log('Webhook event constructed successfully:', event.type);
     } catch (err) {
       console.error(`Webhook signature verification failed: ${err.message}`);
       return new Response(
@@ -98,7 +99,7 @@ serve(async (req) => {
         const planType = subscription.status === 'active' ? 'pro' : 'free';
         const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
 
-        console.log(`Updating subscription for user ${userId} to plan type: ${planType}`);
+        console.log(`Updating subscription for user ${userId} to plan type: ${planType}, subscription status: ${subscription.status}`);
 
         // Check if subscription record exists for this user
         const { data: existingSubscription, error: fetchError } = await supabaseClient
