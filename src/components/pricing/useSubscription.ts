@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { supabase, logSupabaseResponse } from "@/integrations/supabase/client";
+import { supabase, logSupabaseResponse, subscribeToSubscriptionChanges } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 
@@ -12,7 +12,7 @@ export function useSubscription() {
   const [testMode, setTestMode] = useState(false);
   const { toast } = useToast();
   const { t } = useTranslation();
-
+  
   // Fetch current subscription status
   useEffect(() => {
     const fetchSubscription = async () => {
@@ -39,6 +39,16 @@ export function useSubscription() {
         
         // Even if data is null, we still want to set it
         setCurrentSubscription(data || {});
+        
+        // Set up subscription to changes
+        const subscription = subscribeToSubscriptionChanges(user.id, () => {
+          console.log("Subscription change detected, refreshing...");
+          fetchSubscription();
+        });
+        
+        return () => {
+          subscription.unsubscribe();
+        };
       } catch (error) {
         console.error("Error fetching subscription:", error);
         // Set empty subscription to prevent infinite loading
@@ -118,55 +128,28 @@ export function useSubscription() {
         return;
       }
 
-      // Check if subscription record exists
-      const { data: existingSubscription, error: fetchError } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      console.log("Activating test pro subscription for user:", user.id);
+
+      // Use edge function to handle subscription update through service role
+      const { data: sessionData, error: functionError } = await supabase.functions.invoke(
+        'update-subscription-status', 
+        {
+          body: { 
+            plan_type: 'pro',
+            status: 'active',
+            days: 30 // Set expiry to 30 days from now
+          },
+          headers: {
+            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          }
+        }
+      );
       
-      if (fetchError) {
-        console.error("Error fetching subscription:", fetchError);
-        throw new Error(fetchError.message);
+      if (functionError) {
+        console.error("Function error:", functionError);
+        throw new Error(functionError.message || "Failed to update subscription status");
       }
-
-      const currentDate = new Date();
-      const futureDate = new Date();
-      futureDate.setDate(currentDate.getDate() + 30); // Set expiry to 30 days from now
-
-      if (existingSubscription) {
-        // Update existing subscription
-        const { error: updateError } = await supabase
-          .from('subscriptions')
-          .update({
-            plan_type: 'pro',
-            status: 'active',
-            current_period_end: futureDate.toISOString(),
-            updated_at: currentDate.toISOString()
-          })
-          .eq('user_id', user.id);
-
-        if (updateError) {
-          console.error("Error updating subscription:", updateError);
-          throw new Error(updateError.message);
-        }
-      } else {
-        // Create new subscription
-        const { error: insertError } = await supabase
-          .from('subscriptions')
-          .insert({
-            user_id: user.id,
-            plan_type: 'pro',
-            status: 'active',
-            current_period_end: futureDate.toISOString()
-          });
-
-        if (insertError) {
-          console.error("Error creating subscription:", insertError);
-          throw new Error(insertError.message);
-        }
-      }
-
+      
       // Fetch updated subscription
       const { data: updatedSubscription, error: refetchError } = await supabase
         .from('subscriptions')
@@ -177,6 +160,7 @@ export function useSubscription() {
       if (refetchError) {
         console.error("Error fetching updated subscription:", refetchError);
       } else {
+        console.log("Updated subscription:", updatedSubscription);
         setCurrentSubscription(updatedSubscription);
       }
 
@@ -211,18 +195,25 @@ export function useSubscription() {
         return;
       }
 
-      const { error } = await supabase
-        .from('subscriptions')
-        .update({
-          plan_type: 'free',
-          status: 'inactive',
-          updated_at: new Date().toISOString()
-        })
-        .eq('user_id', user.id);
+      console.log("Resetting to free plan for user:", user.id);
 
-      if (error) {
-        console.error("Error resetting subscription:", error);
-        throw new Error(error.message);
+      // Use edge function to handle subscription update through service role
+      const { data: sessionData, error: functionError } = await supabase.functions.invoke(
+        'update-subscription-status', 
+        {
+          body: { 
+            plan_type: 'free',
+            status: 'inactive'
+          },
+          headers: {
+            Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          }
+        }
+      );
+      
+      if (functionError) {
+        console.error("Function error:", functionError);
+        throw new Error(functionError.message || "Failed to update subscription status");
       }
 
       // Fetch updated subscription
@@ -235,6 +226,7 @@ export function useSubscription() {
       if (refetchError) {
         console.error("Error fetching updated subscription:", refetchError);
       } else {
+        console.log("Updated subscription:", updatedSubscription);
         setCurrentSubscription(updatedSubscription);
       }
 
