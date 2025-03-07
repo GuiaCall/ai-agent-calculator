@@ -108,7 +108,7 @@ serve(async (req) => {
         );
       }
 
-      console.log("Initializing Stripe");
+      console.log("Initializing Stripe with key:", stripeSecretKey.substring(0, 8) + "...");
       const stripe = new Stripe(stripeSecretKey, {
         apiVersion: '2023-10-16',
       });
@@ -174,9 +174,9 @@ serve(async (req) => {
       const origin = req.headers.get('origin') || 'http://localhost:5173';
       console.log("Using origin:", origin);
       
-      // The price ID should match the one from your Stripe dashboard
-      // Using the 2025-02-24.acacia version mentioned by the user
+      // Use the exact price ID for 2025-02-24.acacia version
       const priceId = 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe';
+      console.log("Using price ID:", priceId);
       
       const sessionParams = {
         customer: customer_id,
@@ -218,7 +218,7 @@ serve(async (req) => {
 
       // Create the checkout session
       try {
-        console.log("Creating checkout session with params:", JSON.stringify(sessionParams));
+        console.log("Creating checkout session with params:", JSON.stringify(sessionParams, null, 2));
         const session = await stripe.checkout.sessions.create(sessionParams);
         console.log("Checkout session created:", session.id);
         console.log("Session URL:", session.url);

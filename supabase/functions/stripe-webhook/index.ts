@@ -84,6 +84,8 @@ serve(async (req) => {
       case 'customer.subscription.updated': {
         const subscription = event.data.object;
         console.log("Processing subscription event:", subscription.id);
+        console.log("Subscription status:", subscription.status);
+        console.log("Subscription object:", JSON.stringify(subscription, null, 2));
         
         // Get the customer information
         const customer = await stripe.customers.retrieve(subscription.customer);
@@ -112,25 +114,58 @@ serve(async (req) => {
         const userId = userData.user.id;
         console.log("Found user ID:", userId);
         
+        // Determine plan type based on status
         const planType = subscription.status === 'active' ? 'pro' : 'free';
         const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
 
         console.log(`Updating subscription for user ${userId} to plan: ${planType}, status: ${subscription.status}`);
         
-        // Update or create the subscription record
-        const { error: subscriptionError } = await supabaseClient
+        // Check if the subscription already exists
+        const { data: existingSubscription, error: checkError } = await supabaseClient
           .from('subscriptions')
-          .upsert({
-            user_id: userId,
-            stripe_customer_id: subscription.customer,
-            stripe_subscription_id: subscription.id,
-            plan_type: planType,
-            status: subscription.status,
-            current_period_end: currentPeriodEnd
-          });
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+          
+        if (checkError) {
+          console.error('Error checking existing subscription:', checkError);
+        }
+        
+        let updateError;
+        
+        if (existingSubscription) {
+          // Update existing subscription
+          const { error } = await supabaseClient
+            .from('subscriptions')
+            .update({
+              stripe_customer_id: subscription.customer,
+              stripe_subscription_id: subscription.id,
+              plan_type: planType,
+              status: subscription.status,
+              current_period_end: currentPeriodEnd,
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId);
+            
+          updateError = error;
+        } else {
+          // Insert new subscription
+          const { error } = await supabaseClient
+            .from('subscriptions')
+            .insert({
+              user_id: userId,
+              stripe_customer_id: subscription.customer,
+              stripe_subscription_id: subscription.id,
+              plan_type: planType,
+              status: subscription.status,
+              current_period_end: currentPeriodEnd
+            });
+            
+          updateError = error;
+        }
 
-        if (subscriptionError) {
-          console.error('Error updating subscription:', subscriptionError);
+        if (updateError) {
+          console.error('Error updating subscription:', updateError);
           return new Response(
             JSON.stringify({ error: 'Error updating subscription' }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
@@ -151,7 +186,8 @@ serve(async (req) => {
           .from('subscriptions')
           .update({ 
             status: 'canceled',
-            plan_type: 'free'
+            plan_type: 'free',
+            updated_at: new Date().toISOString()
           })
           .eq('stripe_subscription_id', subscription.id);
 
@@ -171,6 +207,7 @@ serve(async (req) => {
       case 'checkout.session.completed': {
         const session = event.data.object;
         console.log("Processing completed checkout session:", session.id);
+        console.log("Session details:", JSON.stringify(session, null, 2));
         
         // If this is a subscription checkout
         if (session.mode === 'subscription') {
@@ -222,20 +259,52 @@ serve(async (req) => {
           
           console.log(`Updating subscription for user ${userId} to pro plan, status: active`);
           
-          // Update the subscription in the database
-          const { error: subscriptionError } = await supabaseClient
+          // Check if the subscription already exists
+          const { data: existingSubscription, error: checkError } = await supabaseClient
             .from('subscriptions')
-            .upsert({
-              user_id: userId,
-              stripe_customer_id: customerId,
-              stripe_subscription_id: subscriptionId,
-              plan_type: 'pro',
-              status: 'active',
-              current_period_end: currentPeriodEnd
-            });
+            .select('*')
+            .eq('user_id', userId)
+            .maybeSingle();
+            
+          if (checkError) {
+            console.error('Error checking existing subscription:', checkError);
+          }
+          
+          let updateError;
+          
+          if (existingSubscription) {
+            // Update existing subscription
+            const { error } = await supabaseClient
+              .from('subscriptions')
+              .update({
+                stripe_customer_id: customerId,
+                stripe_subscription_id: subscriptionId,
+                plan_type: 'pro',
+                status: 'active',
+                current_period_end: currentPeriodEnd,
+                updated_at: new Date().toISOString()
+              })
+              .eq('user_id', userId);
+              
+            updateError = error;
+          } else {
+            // Insert new subscription
+            const { error } = await supabaseClient
+              .from('subscriptions')
+              .insert({
+                user_id: userId,
+                stripe_customer_id: customerId,
+                stripe_subscription_id: subscriptionId,
+                plan_type: 'pro',
+                status: 'active',
+                current_period_end: currentPeriodEnd
+              });
+              
+            updateError = error;
+          }
 
-          if (subscriptionError) {
-            console.error('Error updating subscription:', subscriptionError);
+          if (updateError) {
+            console.error('Error updating subscription:', updateError);
             return new Response(
               JSON.stringify({ error: 'Error updating subscription' }),
               { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }

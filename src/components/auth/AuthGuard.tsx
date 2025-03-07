@@ -1,17 +1,24 @@
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     let mounted = true;
+
+    // Check for checkout success parameter
+    const checkForCheckoutSuccess = () => {
+      const queryParams = new URLSearchParams(location.search);
+      return queryParams.get('checkout_success') === 'true';
+    };
 
     const checkAuth = async () => {
       try {
@@ -49,6 +56,31 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           return;
         }
 
+        // If we have a successful checkout, check subscription status
+        if (checkForCheckoutSuccess()) {
+          try {
+            // Wait for subscription status to update
+            const checkSubscriptionStatus = async () => {
+              const { data: subscription } = await supabase
+                .from('subscriptions')
+                .select('plan_type, status')
+                .eq('user_id', user.id)
+                .maybeSingle();
+                
+              return subscription?.plan_type === 'pro' && subscription?.status === 'active';
+            };
+            
+            const isSubscribed = await checkSubscriptionStatus();
+            
+            if (!isSubscribed) {
+              console.log("Subscription not active yet, waiting...");
+              // We'll let the component handle this case
+            }
+          } catch (subError) {
+            console.error("Error checking subscription:", subError);
+          }
+        }
+
         if (mounted) {
           setIsLoading(false);
         }
@@ -80,7 +112,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+  }, [navigate, toast, location]);
 
   if (isLoading) {
     return (

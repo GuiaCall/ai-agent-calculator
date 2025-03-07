@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, RefreshCw } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { useToast } from "@/hooks/use-toast";
@@ -10,57 +10,97 @@ import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function Pricing() {
   const [loading, setLoading] = useState(false);
+  const [refreshingStatus, setRefreshingStatus] = useState(false);
   const [invoiceCount, setInvoiceCount] = useState(0);
   const [couponCode, setCouponCode] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState("");
   const { toast } = useToast();
   const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check for success parameter in URL
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const checkoutSuccess = queryParams.get('checkout_success');
+    
+    if (checkoutSuccess === 'true') {
+      toast({
+        title: t("checkoutSuccess"),
+        description: t("subscriptionActive"),
+      });
+      
+      // Clean up the URL
+      const newUrl = location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      
+      // Refresh subscription data immediately
+      fetchUserData(true);
+    }
+  }, [location, toast, t]);
+
+  const fetchUserData = async (forceRefresh = false) => {
+    try {
+      if (forceRefresh) {
+        setRefreshingStatus(true);
+      }
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch subscription status
+      const { data: subscription, error: subError } = await supabase
+        .from('subscriptions')
+        .select('plan_type, status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (subError) {
+        console.error("Error fetching subscription:", subError);
+        return;
+      }
+
+      if (subscription) {
+        setIsSubscribed(subscription.plan_type === 'pro');
+        setSubscriptionStatus(subscription.status);
+        console.log("Current subscription:", subscription);
+        
+        if (forceRefresh && subscription.plan_type === 'pro' && subscription.status === 'active') {
+          toast({
+            title: t("subscriptionVerified"),
+            description: t("proFeaturesActive"),
+          });
+        }
+      }
+
+      // Fetch invoice count
+      const { count, error } = await supabase
+        .from('invoices')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user.id)
+        .eq('is_deleted', false);
+      
+      if (error) {
+        console.error("Error fetching invoice count:", error);
+        return;
+      }
+
+      setInvoiceCount(count || 0);
+    } catch (err) {
+      console.error("Failed to fetch user data:", err);
+    } finally {
+      if (forceRefresh) {
+        setRefreshingStatus(false);
+      }
+    }
+  };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        // Fetch subscription status
-        const { data: subscription, error: subError } = await supabase
-          .from('subscriptions')
-          .select('plan_type, status')
-          .eq('user_id', user.id)
-          .maybeSingle();
-        
-        if (subError) {
-          console.error("Error fetching subscription:", subError);
-          return;
-        }
-
-        if (subscription) {
-          setIsSubscribed(subscription.plan_type === 'pro');
-          setSubscriptionStatus(subscription.status);
-          console.log("Current subscription:", subscription);
-        }
-
-        // Fetch invoice count
-        const { count, error } = await supabase
-          .from('invoices')
-          .select('*', { count: 'exact' })
-          .eq('user_id', user.id);
-        
-        if (error) {
-          console.error("Error fetching invoice count:", error);
-          return;
-        }
-
-        setInvoiceCount(count || 0);
-      } catch (err) {
-        console.error("Failed to fetch user data:", err);
-      }
-    };
-
     fetchUserData();
 
     // Listen for subscription changes
@@ -137,19 +177,42 @@ export default function Pricing() {
     }
   };
 
+  const handleRefreshStatus = () => {
+    fetchUserData(true);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-16">
-          <div className="text-center mb-16">
+          <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-6">{t("pricingTitle")}</h1>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg">{t("pricingDescription")}</p>
+            
+            {isSubscribed && (
+              <div className="mt-4 flex justify-center">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleRefreshStatus}
+                  disabled={refreshingStatus}
+                  className="flex items-center gap-2"
+                >
+                  {refreshingStatus ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4" />
+                  )}
+                  {t("refreshSubscriptionStatus")}
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
             {/* Free Plan */}
-            <Card className="p-8 border-2 hover:border-primary transition-all">
+            <Card className={`p-8 border-2 hover:border-primary transition-all ${!isSubscribed ? 'border-primary' : ''}`}>
               <div className="mb-10">
                 <h3 className="text-2xl font-bold mb-3">{t("freePlan")}</h3>
                 <p className="text-gray-600 mb-6">{t("freePlanDescription")}</p>
@@ -176,14 +239,14 @@ export default function Pricing() {
               <Button 
                 className="w-full" 
                 variant="outline" 
-                disabled={!isSubscribed || isSubscribed}
+                disabled={true}
               >
                 {isSubscribed ? t("upgradeToProFirst") : t("currentPlan")}
               </Button>
             </Card>
 
             {/* Pro Plan */}
-            <Card className="p-8 border-2 border-primary bg-primary/5 hover:bg-primary/10 transition-all">
+            <Card className={`p-8 border-2 ${isSubscribed && subscriptionStatus === 'active' ? 'border-primary bg-primary/5' : ''} hover:bg-primary/10 transition-all`}>
               <div className="mb-10">
                 <h3 className="text-2xl font-bold mb-3">{t("proPlan")}</h3>
                 <p className="text-gray-600 mb-6">{t("proPlanDescription")}</p>

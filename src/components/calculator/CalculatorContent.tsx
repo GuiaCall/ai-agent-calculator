@@ -26,30 +26,46 @@ export function CalculatorContent() {
   const [invoiceCount, setInvoiceCount] = useState(0);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
 
   useEffect(() => {
     const checkSubscriptionAndInvoices = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      setIsCheckingSubscription(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setIsCheckingSubscription(false);
+          return;
+        }
 
-      // Get subscription details
-      const { data: subscription } = await supabase
-        .from('subscriptions')
-        .select('plan_type, status')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        // Get subscription details
+        const { data: subscription } = await supabase
+          .from('subscriptions')
+          .select('plan_type, status')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      setIsSubscribed(subscription?.plan_type === 'pro');
-      setIsSubscriptionActive(subscription?.status === 'active');
+        console.log("Subscription check result:", subscription);
+        
+        const isPro = subscription?.plan_type === 'pro';
+        const isActive = subscription?.status === 'active';
+        
+        setIsSubscribed(isPro);
+        setIsSubscriptionActive(isActive);
 
-      // Get invoice count
-      const { count } = await supabase
-        .from('invoices')
-        .select('*', { count: 'exact' })
-        .eq('user_id', user.id)
-        .eq('is_deleted', false);
+        // Get invoice count
+        const { count } = await supabase
+          .from('invoices')
+          .select('*', { count: 'exact' })
+          .eq('user_id', user.id)
+          .eq('is_deleted', false);
 
-      setInvoiceCount(count || 0);
+        setInvoiceCount(count || 0);
+      } catch (error) {
+        console.error("Error checking subscription:", error);
+      } finally {
+        setIsCheckingSubscription(false);
+      }
     };
 
     checkSubscriptionAndInvoices();
@@ -77,6 +93,15 @@ export function CalculatorContent() {
   }, []);
 
   const handleCalculate = async () => {
+    // If still checking subscription status, show loading toast
+    if (isCheckingSubscription) {
+      toast({
+        title: t("checkingSubscription"),
+        description: t("pleaseWait"),
+      });
+      return;
+    }
+    
     // Check if user is on free plan, has reached limit, and is not editing an existing invoice
     if (!isSubscribed && invoiceCount >= 5 && !state.editingInvoice) {
       toast({
@@ -116,7 +141,7 @@ export function CalculatorContent() {
     logic.calculateCost();
   };
 
-  if (state.isLoading) {
+  if (state.isLoading || isCheckingSubscription) {
     return (
       <>
         <Navbar />
