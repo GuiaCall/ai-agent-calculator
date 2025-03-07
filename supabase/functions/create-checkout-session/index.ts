@@ -189,7 +189,7 @@ const createCheckoutSession = async (
   userId: string,
   validCouponCode: string | null
 ) => {
-  // Use the new price ID
+  // Update with your actual price ID from Stripe dashboard
   const priceId = 'price_1QzylyJxQ3vRyrS2kLcOPk0T';
   console.log("Using price ID:", priceId);
   
