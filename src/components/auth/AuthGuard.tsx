@@ -63,7 +63,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             
             // Poll for subscription status updates
             let attempts = 0;
-            const maxAttempts = 5;
+            const maxAttempts = 10; // Increased from 5 to 10
             const checkSubscriptionStatus = async (): Promise<boolean> => {
               const { data: subscription } = await supabase
                 .from('subscriptions')
@@ -96,8 +96,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               if (attempts < maxAttempts - 1) {
                 attempts++;
                 console.log(`Subscription not active yet, waiting... (${attempts}/${maxAttempts})`);
-                // Wait 2 seconds before next check
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // Wait 3 seconds before next check (increased from 2)
+                await new Promise(resolve => setTimeout(resolve, 3000));
                 return pollSubscription();
               }
               

@@ -153,7 +153,7 @@ export default function Pricing() {
       setLoading(true);
       console.log("Starting subscription process");
       
-      // Get current user token to pass to edge function
+      // Get current user session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError || !session) {
@@ -163,6 +163,10 @@ export default function Pricing() {
       
       console.log("Got session, preparing to call edge function");
       console.log("Token exists:", !!session.access_token);
+      
+      if (!session.access_token) {
+        throw new Error("No access token available. Please log in again.");
+      }
       
       // Call the edge function with proper authorization
       const { data: sessionData, error: functionError } = await supabase.functions.invoke(

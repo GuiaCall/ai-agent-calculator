@@ -62,6 +62,14 @@ export function CalculatorContent() {
           
           setIsSubscribed(isPro);
           setIsSubscriptionActive(isActive);
+          
+          if (isPro && isActive) {
+            console.log("User has active pro subscription");
+          } else if (isPro && !isActive) {
+            console.log("User has pro subscription but it's not active");
+          } else {
+            console.log("User has free subscription");
+          }
         } catch (subErr) {
           console.error("Error processing subscription data:", subErr);
         }

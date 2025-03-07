@@ -111,6 +111,7 @@ serve(async (req) => {
       console.log("Initializing Stripe with key:", stripeSecretKey.substring(0, 8) + "...");
       const stripe = new Stripe(stripeSecretKey, {
         apiVersion: '2023-10-16',
+        httpClient: Stripe.createFetchHttpClient(),
       });
 
       // Check for existing customer
@@ -133,11 +134,9 @@ serve(async (req) => {
           });
 
           if (subscriptions.data.length > 0) {
-            // Instead of returning an error, let's allow them to go to checkout again
-            // This can handle cases where the user wants to update their subscription
             console.log("Customer has an existing subscription, will proceed to update it");
             
-            // Option 1: Cancel existing subscription first
+            // Cancel existing subscription first
             try {
               await stripe.subscriptions.cancel(subscriptions.data[0].id);
               console.log("Cancelled existing subscription:", subscriptions.data[0].id);
@@ -165,7 +164,7 @@ serve(async (req) => {
         } catch (err) {
           console.error("Failed to create customer:", err);
           return new Response(
-            JSON.stringify({ error: "Failed to create customer in Stripe" }),
+            JSON.stringify({ error: "Failed to create customer in Stripe", details: err.message }),
             { 
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
               status: 500,
@@ -178,7 +177,7 @@ serve(async (req) => {
       const origin = req.headers.get('origin') || 'http://localhost:5173';
       console.log("Using origin:", origin);
       
-      // Use the exact price ID for 2025-02-24.acacia version
+      // Use the exact price ID
       const priceId = 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe';
       console.log("Using price ID:", priceId);
       
@@ -241,7 +240,10 @@ serve(async (req) => {
       } catch (stripeError) {
         console.error("Stripe session creation error:", stripeError);
         return new Response(
-          JSON.stringify({ error: stripeError.message || "Failed to create checkout session" }),
+          JSON.stringify({ 
+            error: stripeError.message || "Failed to create checkout session",
+            details: stripeError
+          }),
           { 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: 500,
@@ -251,7 +253,7 @@ serve(async (req) => {
     } catch (authError) {
       console.error("Error validating token:", authError);
       return new Response(
-        JSON.stringify({ error: "Authentication error" }),
+        JSON.stringify({ error: "Authentication error", details: authError }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           status: 401,
@@ -261,7 +263,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Unexpected error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "An unexpected error occurred" }),
+      JSON.stringify({ error: error.message || "An unexpected error occurred", details: error }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
