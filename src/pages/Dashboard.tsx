@@ -223,6 +223,11 @@ export default function Dashboard() {
     fetchDashboardData(true);
   };
 
+  // Get safe values with fallbacks for subscription properties
+  const planType = subscription?.plan_type || 'free';
+  const subscriptionStatus = subscription?.status || 'inactive';
+  const isSubscriptionActive = subscriptionStatus === 'active';
+
   return (
     <CalculatorStateProvider>
       <Navbar />
@@ -235,7 +240,7 @@ export default function Dashboard() {
             <p className="text-3xl font-bold">
               {totalInvoices === null ? t("loading") : totalInvoices}
             </p>
-            {subscription?.plan_type === 'free' && totalInvoices !== null && (
+            {planType === 'free' && totalInvoices !== null && (
               <p className="text-sm text-gray-500 mt-2">
                 {t("freeInvoicesUsed", { used: totalInvoices, total: 5 })}
               </p>
@@ -267,21 +272,21 @@ export default function Dashboard() {
             </div>
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-3xl font-bold capitalize">{subscription?.plan_type || 'free'}</p>
-                {subscription?.plan_type === 'pro' && subscription?.status === 'active' && (
+                <p className="text-3xl font-bold capitalize">{planType}</p>
+                {planType === 'pro' && isSubscriptionActive && (
                   <div className="flex items-center text-green-500 mt-1">
                     <CheckCircle2 className="h-4 w-4 mr-1" />
                     <span className="text-sm">{t("subscriptionActive")}</span>
                   </div>
                 )}
-                {subscription?.plan_type === 'pro' && subscription?.status !== 'active' && (
+                {planType === 'pro' && !isSubscriptionActive && (
                   <div className="flex items-center text-amber-500 mt-1">
                     <AlertCircle className="h-4 w-4 mr-1" />
                     <span className="text-sm">{t("subscriptionInactive")}</span>
                   </div>
                 )}
               </div>
-              {(subscription?.plan_type === 'free' || subscription?.status !== 'active') && (
+              {(planType === 'free' || !isSubscriptionActive) && (
                 <Button onClick={() => navigate('/pricing')} variant="default">
                   {t("upgradePlan")}
                 </Button>
