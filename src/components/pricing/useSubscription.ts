@@ -12,6 +12,7 @@ export function useSubscription() {
   const [couponCode, setCouponCode] = useState("");
   const [currentSubscription, setCurrentSubscription] = useState(null);
   const [testMode, setTestMode] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const { toast } = useToast();
   const { t } = useTranslation();
   
@@ -35,10 +36,16 @@ export function useSubscription() {
       console.error("Error fetching subscription:", error);
       // Set empty subscription to prevent infinite loading
       setCurrentSubscription({});
+      
+      toast({
+        title: t("error"),
+        description: t("errorFetchingSubscription"),
+        variant: "destructive",
+      });
     } finally {
       setLoadingSubscription(false);
     }
-  }, []);
+  }, [t, toast]);
 
   // Fetch current subscription status on mount
   useEffect(() => {
@@ -83,11 +90,60 @@ export function useSubscription() {
       });
     } catch (error) {
       console.error("Error activating test pro subscription:", error);
-      toast({
-        title: t("error"),
-        description: error.message || t("operationFailed"),
-        variant: "destructive",
-      });
+      
+      if (retryCount < 3) {
+        // Retry the operation with the fallback mechanism
+        setRetryCount(prev => prev + 1);
+        toast({
+          title: t("retrying"),
+          description: t("retryingOperation"),
+        });
+        
+        try {
+          // Try the direct database approach as a fallback
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (!user) throw new Error("Not logged in");
+          
+          const futureDate = new Date();
+          futureDate.setDate(futureDate.getDate() + 30);
+          
+          // Update subscription directly
+          const { data, error } = await supabase
+            .from('subscriptions')
+            .upsert({
+              user_id: user.id,
+              plan_type: 'pro',
+              status: 'active',
+              current_period_end: futureDate.toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+          
+          if (error) throw error;
+          
+          setCurrentSubscription(data);
+          
+          toast({
+            title: t("success"),
+            description: t("testProActivated"),
+          });
+        } catch (fallbackError) {
+          console.error("Fallback error:", fallbackError);
+          toast({
+            title: t("error"),
+            description: t("couldNotActivateSubscription"),
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: t("error"),
+          description: t("couldNotActivateSubscription"),
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -106,11 +162,56 @@ export function useSubscription() {
       });
     } catch (error) {
       console.error("Error resetting to free plan:", error);
-      toast({
-        title: t("error"),
-        description: error.message || t("operationFailed"),
-        variant: "destructive",
-      });
+      
+      if (retryCount < 3) {
+        // Retry the operation with the fallback mechanism
+        setRetryCount(prev => prev + 1);
+        toast({
+          title: t("retrying"),
+          description: t("retryingOperation"),
+        });
+        
+        try {
+          // Try the direct database approach as a fallback
+          const { data: { user } } = await supabase.auth.getUser();
+          
+          if (!user) throw new Error("Not logged in");
+          
+          // Update subscription directly
+          const { data, error } = await supabase
+            .from('subscriptions')
+            .upsert({
+              user_id: user.id,
+              plan_type: 'free',
+              status: 'inactive',
+              updated_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+          
+          if (error) throw error;
+          
+          setCurrentSubscription(data);
+          
+          toast({
+            title: t("success"),
+            description: t("resetToFreePlan"),
+          });
+        } catch (fallbackError) {
+          console.error("Fallback error:", fallbackError);
+          toast({
+            title: t("error"),
+            description: error.message || t("operationFailed"),
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: t("error"),
+          description: error.message || t("operationFailed"),
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
