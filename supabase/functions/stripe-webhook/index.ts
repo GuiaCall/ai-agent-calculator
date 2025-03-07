@@ -39,7 +39,8 @@ serve(async (req) => {
       httpClient: Stripe.createFetchHttpClient(),
     });
 
-    // Verify the webhook signature
+    // For Stripe webhooks, we don't need authorization headers
+    // Verify the webhook signature instead
     let event;
     const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
 
@@ -52,7 +53,7 @@ serve(async (req) => {
     }
 
     try {
-      // Replace constructEvent with constructEventAsync
+      // We use constructEventAsync with Deno
       event = await stripe.webhooks.constructEventAsync(body, signature, endpointSecret);
       console.log("Event constructed successfully:", event.type);
     } catch (err) {

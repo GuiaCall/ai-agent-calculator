@@ -32,15 +32,29 @@ export default function Pricing() {
     if (checkoutSuccess === 'true') {
       toast({
         title: t("checkoutSuccess"),
-        description: t("subscriptionActive"),
+        description: t("subscriptionProcessing"),
+        duration: 8000,
       });
       
       // Clean up the URL
       const newUrl = location.pathname;
       window.history.replaceState({}, document.title, newUrl);
       
-      // Refresh subscription data immediately
-      fetchUserData(true);
+      // Refresh subscription data immediately and then periodically
+      let checkCount = 0;
+      const maxChecks = 10; 
+      
+      const checkInterval = setInterval(() => {
+        checkCount++;
+        console.log(`Checking subscription status update (${checkCount}/${maxChecks})`);
+        fetchUserData(true);
+        
+        if (checkCount >= maxChecks) {
+          clearInterval(checkInterval);
+        }
+      }, 5000);
+      
+      return () => clearInterval(checkInterval);
     }
   }, [location, toast, t]);
 
@@ -138,7 +152,7 @@ export default function Pricing() {
         },
         (payload) => {
           console.log('Subscription change detected:', payload);
-          fetchUserData();
+          fetchUserData(true);
         }
       )
       .subscribe();
@@ -153,16 +167,16 @@ export default function Pricing() {
       setLoading(true);
       console.log("Starting subscription process");
       
-      // Get current user session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      // Get a fresh session to ensure the access token is valid
+      const { data: { session }, error: refreshError } = await supabase.auth.refreshSession();
       
-      if (sessionError || !session) {
-        console.error("Session error:", sessionError);
-        throw new Error(sessionError?.message || "No active session found. Please log in again.");
+      if (refreshError || !session) {
+        console.error("Session refresh error:", refreshError);
+        throw new Error(refreshError?.message || "Failed to refresh session. Please log in again.");
       }
       
-      console.log("Got session, preparing to call edge function");
-      console.log("Token exists:", !!session.access_token);
+      console.log("Got fresh session, preparing to call edge function");
+      console.log("Access token exists:", !!session.access_token);
       
       if (!session.access_token) {
         throw new Error("No access token available. Please log in again.");

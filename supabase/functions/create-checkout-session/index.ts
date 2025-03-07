@@ -70,19 +70,23 @@ const parseRequestData = async (req: Request) => {
 // Validate user from auth token
 const validateUser = async (authHeader: string | null, supabaseClient: any) => {
   if (!authHeader) {
+    console.error("No Authorization header provided");
     throw new Error("Authorization header is required");
   }
 
+  console.log("Authorization header is present");
   const token = authHeader.replace('Bearer ', '');
   
+  console.log("Validating token...");
   const { data, error: userError } = await supabaseClient.auth.getUser(token);
   
   if (userError || !data?.user) {
     console.error("Auth error:", userError);
-    throw new Error("Authentication failed");
+    throw new Error("Authentication failed: " + (userError?.message || "User not found"));
   }
 
   const user = data.user;
+  console.log("User validated successfully:", user.id);
   
   if (!user.email) {
     throw new Error("No email found for authenticated user");
@@ -212,12 +216,15 @@ const createCheckoutSession = async (
 const handleRequest = async (req: Request) => {
   try {
     console.log("Starting checkout session creation");
+    console.log("Request headers:", JSON.stringify(Object.fromEntries(req.headers.entries())));
     
     const supabaseClient = initSupabaseClient();
     const requestData = await parseRequestData(req);
     
     // Get auth token
     const authHeader = req.headers.get('Authorization');
+    console.log("Auth header present:", !!authHeader);
+    
     const user = await validateUser(authHeader, supabaseClient);
     
     // Initialize Stripe

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 export default function Dashboard() {
@@ -18,14 +18,19 @@ export default function Dashboard() {
   const [userEmail, setUserEmail] = useState("");
   const [subscription, setSubscription] = useState({ plan_type: "free", status: "active" });
   const [newPassword, setNewPassword] = useState("");
+  const [refreshingStatus, setRefreshingStatus] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const checkoutSuccess = searchParams.get('checkout_success') === 'true';
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (forceRefresh = false) => {
     try {
+      if (forceRefresh) {
+        setRefreshingStatus(true);
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         console.log('No user found');
@@ -50,6 +55,14 @@ export default function Dashboard() {
       if (subscriptionData) {
         console.log('Subscription data:', subscriptionData);
         setSubscription(subscriptionData);
+        
+        // If the user has just completed checkout and has an active subscription, show success message
+        if (forceRefresh && subscriptionData.plan_type === 'pro' && subscriptionData.status === 'active') {
+          toast({
+            title: t("subscriptionVerified"),
+            description: t("proFeaturesActive"),
+          });
+        }
       }
 
       // Fetch non-deleted invoices count
@@ -69,10 +82,14 @@ export default function Dashboard() {
     } catch (error: any) {
       console.error('Error fetching dashboard data:', error);
       toast({
-        title: t("errorUpdatingPassword"),
+        title: t("errorFetchingData"),
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      if (forceRefresh) {
+        setRefreshingStatus(false);
+      }
     }
   };
 
@@ -84,11 +101,30 @@ export default function Dashboard() {
     if (checkoutSuccess) {
       toast({
         title: t("checkoutSuccessful"),
-        description: t("subscriptionActivated"),
+        description: t("subscriptionProcessing"),
+        duration: 6000,
       });
       
-      // Remove the query parameter from the URL
-      navigate('/dashboard', { replace: true });
+      // Remove the query parameter from the URL but don't trigger a reload
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+      
+      // Aggressively check for subscription updates for the next minute
+      let checkCount = 0;
+      const maxChecks = 12; // Check for up to a minute
+      
+      const checkInterval = setInterval(() => {
+        checkCount++;
+        console.log(`Checking subscription status update ${checkCount}/${maxChecks}`);
+        fetchDashboardData(true);
+        
+        if (checkCount >= maxChecks) {
+          clearInterval(checkInterval);
+          console.log("Finished polling for subscription status updates");
+        }
+      }, 5000);
+      
+      return () => clearInterval(checkInterval);
     }
 
     const channel = supabase
@@ -119,7 +155,7 @@ export default function Dashboard() {
         },
         (payload) => {
           console.log('Subscription change detected:', payload);
-          fetchDashboardData();
+          fetchDashboardData(true);
         }
       )
       .subscribe();
@@ -153,6 +189,10 @@ export default function Dashboard() {
     }
   };
 
+  const handleRefreshStatus = () => {
+    fetchDashboardData(true);
+  };
+
   return (
     <CalculatorStateProvider>
       <Navbar />
@@ -173,7 +213,28 @@ export default function Dashboard() {
           </Card>
           
           <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-2">{t("currentPlan")}</h3>
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-lg font-semibold">{t("currentPlan")}</h3>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleRefreshStatus}
+                disabled={refreshingStatus}
+                className="flex items-center gap-2"
+              >
+                {refreshingStatus ? (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{t("refreshing")}</span>
+                    <RefreshCw className="h-3 w-3 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs">{t("refresh")}</span>
+                    <RefreshCw className="h-3 w-3" />
+                  </div>
+                )}
+              </Button>
+            </div>
             <div className="flex justify-between items-center">
               <div>
                 <p className="text-3xl font-bold capitalize">{subscription.plan_type}</p>

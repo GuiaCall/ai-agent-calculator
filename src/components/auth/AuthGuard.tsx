@@ -61,10 +61,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           try {
             console.log("Detected checkout success, checking subscription status");
             
-            // Poll for subscription status updates
+            // Poll for subscription status updates with increased attempts and timeout
             let attempts = 0;
-            const maxAttempts = 10; // Increased from 5 to 10
+            const maxAttempts = 15; // Increased from 10
             const checkSubscriptionStatus = async (): Promise<boolean> => {
+              // Force refresh the subscription data to ensure we have the latest
               const { data: subscription } = await supabase
                 .from('subscriptions')
                 .select('plan_type, status')
@@ -89,6 +90,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                   // Remove checkout_success from URL
                   const newUrl = location.pathname;
                   window.history.replaceState({}, document.title, newUrl);
+                  
+                  // Refresh the page to ensure all components update with new subscription status
+                  window.location.reload();
                 }
                 return true;
               }
@@ -96,8 +100,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               if (attempts < maxAttempts - 1) {
                 attempts++;
                 console.log(`Subscription not active yet, waiting... (${attempts}/${maxAttempts})`);
-                // Wait 3 seconds before next check (increased from 2)
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                // Wait 4 seconds before next check (increased from 3)
+                await new Promise(resolve => setTimeout(resolve, 4000));
                 return pollSubscription();
               }
               
@@ -110,7 +114,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               if (!success && mounted) {
                 toast({
                   title: "Subscription processing",
-                  description: "Your subscription is being processed. This may take a few moments.",
+                  description: "Your subscription is being processed. This may take a few minutes. You can refresh the page to check again.",
+                  duration: 10000,
                 });
               }
             });
