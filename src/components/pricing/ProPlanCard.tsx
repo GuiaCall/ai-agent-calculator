@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
@@ -30,7 +29,7 @@ export function ProPlanCard({ loading, couponCode, setCouponCode, handleSubscrib
         </div>
         <p className="text-gray-600 mb-6">{t("proPlanDescription")}</p>
         <div className="text-3xl font-bold">
-          €9.99/<span className="text-xl text-gray-500">{t("month")}</span>
+          €7.99/<span className="text-xl text-gray-500">{t("month")}</span>
         </div>
       </div>
 
