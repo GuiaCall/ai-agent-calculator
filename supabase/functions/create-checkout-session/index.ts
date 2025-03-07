@@ -9,21 +9,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Error response helper
-const errorResponse = (message: string, details: any = null, status = 400) => {
-  console.error(`Error: ${message}`, details);
-  return new Response(
-    JSON.stringify({ 
-      error: message, 
-      details: details 
-    }),
-    { 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status,
-    }
-  );
-};
-
 // Initialize Supabase client
 const initSupabaseClient = () => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -44,15 +29,29 @@ const initStripeClient = () => {
     throw new Error("Stripe secret key not found in environment");
   }
 
-  console.log("Initializing Stripe with key:", stripeSecretKey.substring(0, 8) + "...");
   return new Stripe(stripeSecretKey, {
     apiVersion: '2023-10-16',
     httpClient: Stripe.createFetchHttpClient(),
   });
 };
 
+// Error response helper
+const errorResponse = (message, details = null, status = 400) => {
+  console.error(`Error: ${message}`, details);
+  return new Response(
+    JSON.stringify({ 
+      error: message, 
+      details: details 
+    }),
+    { 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status,
+    }
+  );
+};
+
 // Parse and validate request data
-const parseRequestData = async (req: Request) => {
+const parseRequestData = async (req) => {
   try {
     if (req.body) {
       const body = await req.json();
@@ -68,17 +67,21 @@ const parseRequestData = async (req: Request) => {
 };
 
 // Validate user from auth token
-const validateUser = async (authHeader: string | null, supabaseClient: any) => {
+const validateUser = async (req, supabaseClient) => {
+  const authHeader = req.headers.get('Authorization');
+  
   if (!authHeader) {
+    console.error("No Authorization header provided");
     throw new Error("Authorization header is required");
   }
 
   const token = authHeader.replace('Bearer ', '');
+  console.log("Authenticating with token:", token.substring(0, 10) + "...");
   
-  const { data, error: userError } = await supabaseClient.auth.getUser(token);
+  const { data, error } = await supabaseClient.auth.getUser(token);
   
-  if (userError || !data?.user) {
-    console.error("Auth error:", userError);
+  if (error || !data?.user) {
+    console.error("Auth error:", error);
     throw new Error("Authentication failed");
   }
 
@@ -92,7 +95,7 @@ const validateUser = async (authHeader: string | null, supabaseClient: any) => {
 };
 
 // Get or create Stripe customer
-const getOrCreateCustomer = async (stripe: Stripe, email: string, userId: string) => {
+const getOrCreateCustomer = async (stripe, email, userId) => {
   console.log("Checking for existing customer with email:", email);
   const customers = await stripe.customers.list({
     email: email,
@@ -117,7 +120,7 @@ const getOrCreateCustomer = async (stripe: Stripe, email: string, userId: string
 };
 
 // Handle existing subscriptions
-const handleExistingSubscriptions = async (stripe: Stripe, customerId: string) => {
+const handleExistingSubscriptions = async (stripe, customerId) => {
   try {
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
@@ -144,7 +147,7 @@ const handleExistingSubscriptions = async (stripe: Stripe, customerId: string) =
 };
 
 // Validate coupon code
-const validateCouponCode = async (stripe: Stripe, couponCode: string | undefined) => {
+const validateCouponCode = async (stripe, couponCode) => {
   if (!couponCode || typeof couponCode !== 'string' || !couponCode.trim()) {
     return null;
   }
@@ -164,17 +167,17 @@ const validateCouponCode = async (stripe: Stripe, couponCode: string | undefined
 
 // Create checkout session
 const createCheckoutSession = async (
-  stripe: Stripe, 
-  customerId: string, 
-  origin: string,
-  userId: string,
-  validCouponCode: string | null
+  stripe, 
+  customerId, 
+  origin, 
+  userId,
+  validCouponCode
 ) => {
   // Use the exact price ID
   const priceId = 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe';
   console.log("Using price ID:", priceId);
   
-  const sessionParams: any = {
+  const sessionParams = {
     customer: customerId,
     line_items: [
       {
@@ -209,16 +212,16 @@ const createCheckoutSession = async (
 };
 
 // Main request handler
-const handleRequest = async (req: Request) => {
+const handleRequest = async (req) => {
   try {
     console.log("Starting checkout session creation");
+    console.log("Request headers:", JSON.stringify(Object.fromEntries([...req.headers.entries()]), null, 2));
     
     const supabaseClient = initSupabaseClient();
     const requestData = await parseRequestData(req);
     
-    // Get auth token
-    const authHeader = req.headers.get('Authorization');
-    const user = await validateUser(authHeader, supabaseClient);
+    // Get auth token and validate user
+    const user = await validateUser(req, supabaseClient);
     
     // Initialize Stripe
     const stripe = initStripeClient();
