@@ -36,6 +36,7 @@ serve(async (req) => {
     
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2023-10-16',
+      httpClient: Stripe.createFetchHttpClient(),
     });
 
     // Verify the webhook signature
@@ -51,7 +52,8 @@ serve(async (req) => {
     }
 
     try {
-      event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
+      // Replace constructEvent with constructEventAsync
+      event = await stripe.webhooks.constructEventAsync(body, signature, endpointSecret);
       console.log("Event constructed successfully:", event.type);
     } catch (err) {
       console.error(`Webhook signature verification failed: ${err.message}`);
