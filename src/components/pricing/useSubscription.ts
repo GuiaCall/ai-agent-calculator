@@ -1,52 +1,14 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 
 export function useSubscription() {
   const [loading, setLoading] = useState(false);
-  const [loadingSubscription, setLoadingSubscription] = useState(true);
   const [couponCode, setCouponCode] = useState("");
-  const [currentSubscription, setCurrentSubscription] = useState(null);
   const { toast } = useToast();
   const { t } = useTranslation();
-
-  // Fetch current subscription status
-  useEffect(() => {
-    const fetchSubscription = async () => {
-      try {
-        setLoadingSubscription(true);
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          // If no user, set subscription to empty object to avoid loading forever
-          setCurrentSubscription({});
-          setLoadingSubscription(false);
-          return;
-        }
-
-        const { data, error } = await supabase
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (error) throw error;
-        
-        // Even if data is null, we still want to set it
-        setCurrentSubscription(data || {});
-      } catch (error) {
-        console.error("Error fetching subscription:", error);
-        // Set empty subscription to prevent infinite loading
-        setCurrentSubscription({});
-      } finally {
-        setLoadingSubscription(false);
-      }
-    };
-
-    fetchSubscription();
-  }, []);
 
   const handleSubscribe = async () => {
     try {
@@ -102,10 +64,8 @@ export function useSubscription() {
 
   return {
     loading,
-    loadingSubscription,
     couponCode,
     setCouponCode,
-    handleSubscribe,
-    currentSubscription
+    handleSubscribe
   };
 }
