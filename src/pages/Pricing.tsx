@@ -15,15 +15,36 @@ export default function Pricing() {
   const [loading, setLoading] = useState(false);
   const [invoiceCount, setInvoiceCount] = useState(0);
   const [couponCode, setCouponCode] = useState("");
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState("");
   const { toast } = useToast();
   const { t } = useTranslation();
 
   useEffect(() => {
-    const fetchInvoiceCount = async () => {
+    const fetchUserData = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
+        // Fetch subscription status
+        const { data: subscription, error: subError } = await supabase
+          .from('subscriptions')
+          .select('plan_type, status')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        if (subError) {
+          console.error("Error fetching subscription:", subError);
+          return;
+        }
+
+        if (subscription) {
+          setIsSubscribed(subscription.plan_type === 'pro');
+          setSubscriptionStatus(subscription.status);
+          console.log("Current subscription:", subscription);
+        }
+
+        // Fetch invoice count
         const { count, error } = await supabase
           .from('invoices')
           .select('*', { count: 'exact' })
@@ -36,11 +57,32 @@ export default function Pricing() {
 
         setInvoiceCount(count || 0);
       } catch (err) {
-        console.error("Failed to fetch invoice count:", err);
+        console.error("Failed to fetch user data:", err);
       }
     };
 
-    fetchInvoiceCount();
+    fetchUserData();
+
+    // Listen for subscription changes
+    const channel = supabase
+      .channel('subscription_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'subscriptions'
+        },
+        (payload) => {
+          console.log('Subscription change detected:', payload);
+          fetchUserData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleSubscribe = async () => {
@@ -131,8 +173,12 @@ export default function Pricing() {
                 </div>
               </div>
 
-              <Button className="w-full" variant="outline" disabled>
-                {t("currentPlan")}
+              <Button 
+                className="w-full" 
+                variant="outline" 
+                disabled={!isSubscribed || isSubscribed}
+              >
+                {isSubscribed ? t("upgradeToProFirst") : t("currentPlan")}
               </Button>
             </Card>
 
@@ -169,34 +215,71 @@ export default function Pricing() {
                 </div>
               </div>
               
-              {/* Coupon Code Input */}
-              <div className="mb-4">
-                <Label htmlFor="couponCode" className="mb-2 block">
-                  {t("couponCode")}
-                </Label>
-                <Input
-                  id="couponCode"
-                  placeholder={t("enterCouponCode")}
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  className="mb-4"
-                />
-              </div>
-
-              <Button 
-                className="w-full" 
-                onClick={handleSubscribe}
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {t("processing")}
-                  </span>
-                ) : (
-                  t("upgradeToPro")
-                )}
-              </Button>
+              {isSubscribed && subscriptionStatus === 'active' ? (
+                <Button className="w-full" variant="outline" disabled>
+                  {t("currentPlan")}
+                </Button>
+              ) : isSubscribed && subscriptionStatus !== 'active' ? (
+                <>
+                  {/* Coupon Code Input */}
+                  <div className="mb-4">
+                    <Label htmlFor="couponCode" className="mb-2 block">
+                      {t("couponCode")}
+                    </Label>
+                    <Input
+                      id="couponCode"
+                      placeholder={t("enterCouponCode")}
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="mb-4"
+                    />
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={handleSubscribe}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {t("processing")}
+                      </span>
+                    ) : (
+                      t("reactivateSubscription")
+                    )}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {/* Coupon Code Input */}
+                  <div className="mb-4">
+                    <Label htmlFor="couponCode" className="mb-2 block">
+                      {t("couponCode")}
+                    </Label>
+                    <Input
+                      id="couponCode"
+                      placeholder={t("enterCouponCode")}
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      className="mb-4"
+                    />
+                  </div>
+                  <Button 
+                    className="w-full" 
+                    onClick={handleSubscribe}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {t("processing")}
+                      </span>
+                    ) : (
+                      t("upgradeToPro")
+                    )}
+                  </Button>
+                </>
+              )}
             </Card>
           </div>
         </div>

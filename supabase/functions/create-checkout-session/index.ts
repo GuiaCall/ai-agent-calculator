@@ -129,7 +129,6 @@ serve(async (req) => {
           const subscriptions = await stripe.subscriptions.list({
             customer: customers.data[0].id,
             status: 'active',
-            price: 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe',
             limit: 1
           });
 
@@ -175,11 +174,15 @@ serve(async (req) => {
       const origin = req.headers.get('origin') || 'http://localhost:5173';
       console.log("Using origin:", origin);
       
+      // The price ID should match the one from your Stripe dashboard
+      // Using the 2025-02-24.acacia version mentioned by the user
+      const priceId = 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe';
+      
       const sessionParams = {
         customer: customer_id,
         line_items: [
           {
-            price: 'price_1QZBgMJxQ3vRyrS2UvIcF8Oe',
+            price: priceId,
             quantity: 1,
           },
         ],
