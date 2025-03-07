@@ -26,30 +26,50 @@ export function CalculatorContent() {
   const [invoiceCount, setInvoiceCount] = useState(0);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
+  const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
 
   useEffect(() => {
     const checkSubscriptionAndInvoices = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      setIsCheckingSubscription(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setIsCheckingSubscription(false);
+          return;
+        }
 
-      // Get subscription details
-      const { data: subscription } = await supabase
-        .from('subscriptions')
-        .select('plan_type, status')
-        .eq('user_id', user.id)
-        .maybeSingle();
+        // Get subscription details
+        const { data: subscription, error: subError } = await supabase
+          .from('subscriptions')
+          .select('plan_type, status')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      setIsSubscribed(subscription?.plan_type === 'pro');
-      setIsSubscriptionActive(subscription?.status === 'active');
+        if (subError) {
+          console.error("Error fetching subscription:", subError);
+        } else {
+          console.log("Current subscription:", subscription);
+          setIsSubscribed(subscription?.plan_type === 'pro');
+          setIsSubscriptionActive(subscription?.status === 'active');
+        }
 
-      // Get invoice count
-      const { count } = await supabase
-        .from('invoices')
-        .select('*', { count: 'exact' })
-        .eq('user_id', user.id)
-        .eq('is_deleted', false);
+        // Get invoice count
+        const { count, error: countError } = await supabase
+          .from('invoices')
+          .select('*', { count: 'exact' })
+          .eq('user_id', user.id)
+          .eq('is_deleted', false);
 
-      setInvoiceCount(count || 0);
+        if (countError) {
+          console.error("Error fetching invoice count:", countError);
+        } else {
+          setInvoiceCount(count || 0);
+        }
+      } catch (err) {
+        console.error("Failed to check subscription status:", err);
+      } finally {
+        setIsCheckingSubscription(false);
+      }
     };
 
     checkSubscriptionAndInvoices();
@@ -116,7 +136,7 @@ export function CalculatorContent() {
     logic.calculateCost();
   };
 
-  if (state.isLoading) {
+  if (state.isLoading || isCheckingSubscription) {
     return (
       <>
         <Navbar />

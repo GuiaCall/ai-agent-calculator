@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 export default function Dashboard() {
@@ -18,6 +17,7 @@ export default function Dashboard() {
   const [userEmail, setUserEmail] = useState("");
   const [subscription, setSubscription] = useState({ plan_type: "free", status: "active" });
   const [newPassword, setNewPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -26,9 +26,11 @@ export default function Dashboard() {
 
   const fetchDashboardData = async () => {
     try {
+      setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         console.log('No user found');
+        setIsLoading(false);
         return;
       }
 
@@ -69,10 +71,12 @@ export default function Dashboard() {
     } catch (error: any) {
       console.error('Error fetching dashboard data:', error);
       toast({
-        title: t("errorUpdatingPassword"),
+        title: t("errorFetchingData"),
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -153,6 +157,21 @@ export default function Dashboard() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <CalculatorStateProvider>
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 mt-16 mb-16 flex justify-center items-center" style={{ minHeight: "60vh" }}>
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+            <p className="text-lg text-muted-foreground">{t("loadingYourDashboard")}</p>
+          </div>
+        </div>
+        <Footer />
+      </CalculatorStateProvider>
+    );
+  }
+
   return (
     <CalculatorStateProvider>
       <Navbar />
@@ -168,6 +187,11 @@ export default function Dashboard() {
             {subscription.plan_type === 'free' && totalInvoices !== null && (
               <p className="text-sm text-gray-500 mt-2">
                 {t("freeInvoicesUsed", { used: totalInvoices, total: 5 })}
+              </p>
+            )}
+            {subscription.plan_type === 'pro' && (
+              <p className="text-sm text-green-500 mt-2">
+                {t("unlimitedInvoices")}
               </p>
             )}
           </Card>

@@ -6,7 +6,11 @@ import { Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 
-export function FreePlanCard() {
+interface FreePlanCardProps {
+  isCurrentPlan?: boolean;
+}
+
+export function FreePlanCard({ isCurrentPlan = false }: FreePlanCardProps) {
   const [invoiceCount, setInvoiceCount] = useState(0);
   const { t } = useTranslation();
 
@@ -36,7 +40,7 @@ export function FreePlanCard() {
   }, []);
 
   return (
-    <Card className="p-8 border-2 hover:border-primary transition-all">
+    <Card className={`p-8 border-2 hover:border-primary transition-all ${isCurrentPlan ? 'border-primary' : ''}`}>
       <div className="mb-10">
         <h3 className="text-2xl font-bold mb-3">{t("freePlan")}</h3>
         <p className="text-gray-600 mb-6">{t("freePlanDescription")}</p>
@@ -60,8 +64,8 @@ export function FreePlanCard() {
         </div>
       </div>
 
-      <Button className="w-full" variant="outline" disabled>
-        {t("currentPlan")}
+      <Button className="w-full" variant="outline" disabled={isCurrentPlan}>
+        {isCurrentPlan ? t("currentPlan") : t("freePlan")}
       </Button>
     </Card>
   );

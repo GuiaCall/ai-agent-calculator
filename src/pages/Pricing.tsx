@@ -5,9 +5,36 @@ import { FreePlanCard } from "@/components/pricing/FreePlanCard";
 import { ProPlanCard } from "@/components/pricing/ProPlanCard";
 import { PricingHeader } from "@/components/pricing/PricingHeader";
 import { useSubscription } from "@/components/pricing/useSubscription";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 export default function Pricing() {
-  const { loading, couponCode, setCouponCode, handleSubscribe } = useSubscription();
+  const { loading, couponCode, setCouponCode, handleSubscribe, currentSubscription } = useSubscription();
+  const navigate = useNavigate();
+
+  // Redirect to dashboard if we already have an active pro subscription
+  useEffect(() => {
+    if (currentSubscription && currentSubscription.plan_type === 'pro' && currentSubscription.status === 'active') {
+      // Optional: Show dialog or toast that they already have pro subscription
+      navigate('/dashboard');
+    }
+  }, [currentSubscription, navigate]);
+
+  if (currentSubscription === null) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const isFreePlan = !currentSubscription || currentSubscription.plan_type === 'free';
+  const isProPlan = currentSubscription && currentSubscription.plan_type === 'pro';
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -18,7 +45,7 @@ export default function Pricing() {
 
           <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
             {/* Free Plan */}
-            <FreePlanCard />
+            <FreePlanCard isCurrentPlan={isFreePlan} />
 
             {/* Pro Plan */}
             <ProPlanCard 
@@ -26,6 +53,7 @@ export default function Pricing() {
               couponCode={couponCode}
               setCouponCode={setCouponCode}
               handleSubscribe={handleSubscribe}
+              isCurrentPlan={isProPlan}
             />
           </div>
         </div>

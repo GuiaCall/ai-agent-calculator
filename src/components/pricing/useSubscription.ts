@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
@@ -7,8 +7,33 @@ import { useTranslation } from "react-i18next";
 export function useSubscription() {
   const [loading, setLoading] = useState(false);
   const [couponCode, setCouponCode] = useState("");
+  const [currentSubscription, setCurrentSubscription] = useState(null);
   const { toast } = useToast();
   const { t } = useTranslation();
+
+  // Fetch current subscription status
+  useEffect(() => {
+    const fetchSubscription = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data, error } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+        setCurrentSubscription(data);
+
+      } catch (error) {
+        console.error("Error fetching subscription:", error);
+      }
+    };
+
+    fetchSubscription();
+  }, []);
 
   const handleSubscribe = async () => {
     try {
@@ -66,6 +91,7 @@ export function useSubscription() {
     loading,
     couponCode,
     setCouponCode,
-    handleSubscribe
+    handleSubscribe,
+    currentSubscription
   };
 }
