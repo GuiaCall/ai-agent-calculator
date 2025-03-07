@@ -26,6 +26,10 @@ export default function Dashboard() {
     user_id: "",
     created_at: "",
     updated_at: "",
+    current_period_end: null,
+    invoice_count: 0,
+    stripe_customer_id: null,
+    stripe_subscription_id: null
   });
   const [newPassword, setNewPassword] = useState("");
   const [refreshingStatus, setRefreshingStatus] = useState(false);
