@@ -1,9 +1,13 @@
 
 import { supabase, logSupabaseResponse } from "@/integrations/supabase/client";
 
+// Define valid plan types to match database constraint
+export type PlanType = 'free' | 'pro';
+export type SubscriptionStatus = 'active' | 'inactive' | 'canceled';
+
 interface SubscriptionData {
-  plan_type: string;
-  status: string;
+  plan_type: PlanType;
+  status: SubscriptionStatus;
   updated_at: string;
   current_period_end?: string;
 }
@@ -62,7 +66,7 @@ export async function createCheckoutSession(couponCode?: string) {
   }
 }
 
-export async function activateTestSubscription(planType: string, status: string, days?: number) {
+export async function activateTestSubscription(planType: PlanType, status: SubscriptionStatus, days?: number) {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
