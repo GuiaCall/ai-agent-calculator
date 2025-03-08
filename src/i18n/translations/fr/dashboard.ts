@@ -13,5 +13,14 @@ export const dashboard = {
   "updatePassword": "Mettre à Jour le Mot de Passe",
   "passwordUpdated": "Mot de passe mis à jour",
   "passwordUpdateSuccess": "Votre mot de passe a été mis à jour avec succès.",
-  "errorUpdatingPassword": "Erreur lors de la mise à jour du mot de passe"
+  "errorUpdatingPassword": "Erreur lors de la mise à jour du mot de passe",
+  "errorFetchingData": "Erreur lors de la récupération des données",
+  "refresh": "Actualiser",
+  "refreshing": "Actualisation...",
+  "subscriptionActive": "Abonnement actif",
+  "subscriptionInactive": "Abonnement inactif",
+  "subscriptionVerified": "Abonnement vérifié",
+  "proFeaturesActive": "Les fonctionnalités Pro sont maintenant actives",
+  "checkoutSuccessful": "Achat Réussi",
+  "subscriptionProcessing": "Votre abonnement est en cours de traitement"
 };

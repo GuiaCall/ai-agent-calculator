@@ -13,5 +13,14 @@ export const dashboard = {
   "updatePassword": "Update Password",
   "passwordUpdated": "Password updated",
   "passwordUpdateSuccess": "Your password has been successfully updated.",
-  "errorUpdatingPassword": "Error updating password"
+  "errorUpdatingPassword": "Error updating password",
+  "errorFetchingData": "Error fetching data",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "subscriptionActive": "Subscription active",
+  "subscriptionInactive": "Subscription inactive",
+  "subscriptionVerified": "Subscription verified",
+  "proFeaturesActive": "Pro features are now active",
+  "checkoutSuccessful": "Checkout Successful",
+  "subscriptionProcessing": "Your subscription is being processed"
 };
