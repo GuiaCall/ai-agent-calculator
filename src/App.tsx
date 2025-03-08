@@ -23,29 +23,27 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initial loading timer
     const loadingTimer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 1000);
 
-    // Keep-alive functionality
     const keepAlive = setInterval(() => {
-      const currentUrl = window.location.origin; // Use origin instead of href
+      const currentUrl = window.location.origin;
       if (currentUrl) {
         fetch(currentUrl)
           .catch(() => {
-            // Silent catch - just to prevent console errors
             console.debug('Keep-alive ping failed, but this is not critical');
           });
       }
-    }, 240000); // 4 minutes
+    }, 240000);
 
-    // Cleanup both timers
     return () => {
       clearTimeout(loadingTimer);
       clearInterval(keepAlive);
     };
   }, []);
+
+  console.log("App loading state:", isLoading);
 
   if (isLoading) {
     return <PageLoader />;
