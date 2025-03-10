@@ -9,6 +9,10 @@ import { useTranslation } from "react-i18next";
 export interface SubscriptionData {
   plan_type: string;
   status: string;
+  current_period_end?: string;
+  stripe_subscription_id?: string;
+  stripe_customer_id?: string;
+  id?: string;
 }
 
 export function useDashboardData(checkoutSuccess: boolean) {
