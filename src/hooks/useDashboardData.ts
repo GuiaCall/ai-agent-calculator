@@ -166,7 +166,7 @@ export function useDashboardData(checkoutSuccess: boolean) {
           schema: 'public',
           table: 'subscriptions'
         },
-        (payload) => {
+        (payload: any) => {
           console.log('Subscription change detected in dashboard:', payload);
           fetchDashboardData(true);
           
