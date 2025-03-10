@@ -170,8 +170,11 @@ export function useDashboardData(checkoutSuccess: boolean) {
           console.log('Subscription change detected in dashboard:', payload);
           fetchDashboardData(true);
           
+          // Fix TypeScript error by properly typing and checking the payload
+          const newData = payload.new as SubscriptionData | null;
+          
           // Force page reload when subscription changes to ensure UI reflects new status
-          if (payload.new && payload.new.plan_type === 'pro' && payload.new.status === 'active') {
+          if (newData && newData.plan_type === 'pro' && newData.status === 'active') {
             console.log("Pro subscription update detected, reloading page");
             window.location.reload();
           }
