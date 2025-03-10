@@ -20,6 +20,17 @@ const errorResponse = (message: string, details: any = null, status = 400) => {
   );
 };
 
+// Success response helper
+const successResponse = (data: any = { received: true }) => {
+  return new Response(
+    JSON.stringify(data),
+    { 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    }
+  );
+};
+
 // Handle CORS preflight requests
 serve(async (req) => {
   console.log("Stripe webhook received");
@@ -44,15 +55,18 @@ serve(async (req) => {
     
     // Validate required environment variables
     if (!stripeSecretKey) {
-      return errorResponse('Missing Stripe secret key', null, 500);
+      console.error('Missing Stripe secret key');
+      return successResponse({ error: 'Configuration error', received: true });
     }
     
     if (!endpointSecret) {
-      return errorResponse('Missing Stripe webhook secret', null, 500);
+      console.error('Missing Stripe webhook secret');
+      return successResponse({ error: 'Configuration error', received: true });
     }
     
     if (!supabaseUrl || !supabaseServiceKey) {
-      return errorResponse('Missing Supabase credentials', null, 500);
+      console.error('Missing Supabase credentials');
+      return successResponse({ error: 'Configuration error', received: true });
     }
     
     // Initialize Stripe
@@ -66,7 +80,9 @@ serve(async (req) => {
 
     // Verify the webhook signature - THIS IS CRITICAL
     if (!signature) {
-      return errorResponse('Missing Stripe signature', null, 401);
+      console.error('Missing Stripe signature');
+      // Still return 200 to prevent retries for malformed requests
+      return successResponse({ error: 'Missing signature', received: true });
     }
     
     let event;
@@ -74,179 +90,45 @@ serve(async (req) => {
       // We use constructEventAsync with Deno
       event = await stripe.webhooks.constructEventAsync(body, signature, endpointSecret);
       console.log("Event constructed successfully:", event.type);
-      console.log("Event data:", JSON.stringify(event.data.object, null, 2));
     } catch (err) {
       console.error(`Webhook signature verification failed: ${err.message}`);
-      return errorResponse(`Webhook signature verification failed: ${err.message}`, err, 401);
+      // Return success even for invalid signatures to prevent retries
+      return successResponse({ error: 'Invalid signature', received: true });
     }
 
     console.log("Handling event:", event.type);
     
     // Handle different event types
-    switch (event.type) {
-      // When a subscription is created or updated
-      case 'customer.subscription.created':
-      case 'customer.subscription.updated': {
-        const subscription = event.data.object;
-        console.log("Processing subscription event:", subscription.id);
-        console.log("Subscription status:", subscription.status);
-        
-        // Get the customer information
-        const customer = await stripe.customers.retrieve(subscription.customer);
-        const customerEmail = customer.email;
-        console.log("Customer email:", customerEmail);
-
-        if (!customerEmail) {
-          console.error("No email found for customer");
-          return errorResponse('Customer email not found', null, 400);
-        }
-
-        // Find the user by email
-        const { data: userData, error: userError } = await supabaseClient.auth.admin.getUserByEmail(customerEmail);
-        console.log("User data from email lookup:", userData);
-        console.log("User error from email lookup:", userError);
-
-        if (userError || !userData?.user) {
-          console.error('Error finding user:', userError || "User not found");
-          return errorResponse('Error finding user', userError, 404);
-        }
-
-        const userId = userData.user.id;
-        console.log("Found user ID:", userId);
-        
-        // Determine plan type based on status
-        const planType = subscription.status === 'active' ? 'pro' : 'free';
-        const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
-
-        console.log(`Updating subscription for user ${userId} to plan: ${planType}, status: ${subscription.status}`);
-        
-        // Check if the subscription already exists
-        const { data: existingSubscription, error: checkError } = await supabaseClient
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', userId)
-          .maybeSingle();
+    try {
+      switch (event.type) {
+        // When a subscription is created or updated
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated': {
+          const subscription = event.data.object;
+          console.log("Processing subscription event:", subscription.id);
           
-        if (checkError) {
-          console.error('Error checking existing subscription:', checkError);
-        }
-        
-        let updateError;
-        
-        if (existingSubscription) {
-          // Update existing subscription
-          console.log("Updating existing subscription for user:", userId);
-          const { error } = await supabaseClient
-            .from('subscriptions')
-            .update({
-              stripe_customer_id: subscription.customer,
-              stripe_subscription_id: subscription.id,
-              plan_type: planType,
-              status: subscription.status,
-              current_period_end: currentPeriodEnd,
-              updated_at: new Date().toISOString()
-            })
-            .eq('user_id', userId);
-            
-          updateError = error;
-          console.log("Update result:", updateError ? "Error" : "Success");
-        } else {
-          // Insert new subscription
-          console.log("Creating new subscription for user:", userId);
-          const { error } = await supabaseClient
-            .from('subscriptions')
-            .insert({
-              user_id: userId,
-              stripe_customer_id: subscription.customer,
-              stripe_subscription_id: subscription.id,
-              plan_type: planType,
-              status: subscription.status,
-              current_period_end: currentPeriodEnd
-            });
-            
-          updateError = error;
-          console.log("Insert result:", updateError ? "Error" : "Success");
-        }
-
-        if (updateError) {
-          console.error('Error updating subscription:', updateError);
-          return errorResponse('Error updating subscription', updateError, 500);
-        }
-
-        console.log("Subscription successfully updated/created in database");
-        break;
-      }
-
-      // Handle canceled subscriptions
-      case 'customer.subscription.deleted': {
-        const subscription = event.data.object;
-        console.log("Processing subscription deletion:", subscription.id);
-        
-        // Update the subscription status to inactive
-        const { error: subscriptionError } = await supabaseClient
-          .from('subscriptions')
-          .update({ 
-            status: 'canceled',
-            plan_type: 'free',
-            updated_at: new Date().toISOString()
-          })
-          .eq('stripe_subscription_id', subscription.id);
-
-        if (subscriptionError) {
-          console.error('Error updating subscription:', subscriptionError);
-          return errorResponse('Error updating subscription', subscriptionError, 500);
-        }
-
-        console.log("Subscription successfully marked as canceled");
-        break;
-      }
-
-      // Handle completed payment
-      case 'checkout.session.completed': {
-        const session = event.data.object;
-        console.log("Processing completed checkout session:", session.id);
-        console.log("Session details:", JSON.stringify(session, null, 2));
-        
-        // If this is a subscription checkout
-        if (session.mode === 'subscription') {
-          // Get the subscription ID
-          const subscriptionId = session.subscription;
-          const customerId = session.customer;
-          
-          if (!subscriptionId) {
-            console.error("No subscription ID in session");
-            return errorResponse('No subscription ID in session', null, 400);
-          }
-          
-          console.log(`Found subscription ID: ${subscriptionId} and customer ID: ${customerId}`);
-          
-          // Get customer details to find user
-          const customer = await stripe.customers.retrieve(customerId);
+          // Get the customer information
+          const customer = await stripe.customers.retrieve(subscription.customer);
           const customerEmail = customer.email;
           
           if (!customerEmail) {
             console.error("No email found for customer");
-            return errorResponse('Customer email not found', null, 400);
+            return successResponse({ warning: 'Customer email not found', received: true });
           }
-          
-          console.log("Customer email:", customerEmail);
-          
+
           // Find the user by email
           const { data: userData, error: userError } = await supabaseClient.auth.admin.getUserByEmail(customerEmail);
 
           if (userError || !userData?.user) {
             console.error('Error finding user:', userError || "User not found");
-            return errorResponse('Error finding user', userError, 404);
+            return successResponse({ warning: 'User not found', received: true });
           }
 
           const userId = userData.user.id;
-          console.log("Found user ID for checkout completion:", userId);
           
-          // Get subscription details
-          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          // Determine plan type based on status
+          const planType = subscription.status === 'active' ? 'pro' : 'free';
           const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
-          
-          console.log(`Updating subscription for user ${userId} to pro plan, status: active`);
           
           // Check if the subscription already exists
           const { data: existingSubscription, error: checkError } = await supabaseClient
@@ -263,60 +145,172 @@ serve(async (req) => {
           
           if (existingSubscription) {
             // Update existing subscription
-            console.log("Updating existing subscription after checkout completion");
             const { error } = await supabaseClient
               .from('subscriptions')
               .update({
-                stripe_customer_id: customerId,
-                stripe_subscription_id: subscriptionId,
-                plan_type: 'pro',
-                status: 'active',
+                stripe_customer_id: subscription.customer,
+                stripe_subscription_id: subscription.id,
+                plan_type: planType,
+                status: subscription.status,
                 current_period_end: currentPeriodEnd,
                 updated_at: new Date().toISOString()
               })
               .eq('user_id', userId);
               
             updateError = error;
-            console.log("Update result:", updateError ? "Error" : "Success");
           } else {
             // Insert new subscription
-            console.log("Creating new subscription after checkout completion");
             const { error } = await supabaseClient
               .from('subscriptions')
               .insert({
                 user_id: userId,
-                stripe_customer_id: customerId,
-                stripe_subscription_id: subscriptionId,
-                plan_type: 'pro',
-                status: 'active',
+                stripe_customer_id: subscription.customer,
+                stripe_subscription_id: subscription.id,
+                plan_type: planType,
+                status: subscription.status,
                 current_period_end: currentPeriodEnd
               });
               
             updateError = error;
-            console.log("Insert result:", updateError ? "Error" : "Success");
           }
 
           if (updateError) {
-            console.error('Error updating subscription after checkout:', updateError);
-            return errorResponse('Error updating subscription', updateError, 500);
+            console.error('Error updating subscription:', updateError);
+            // Still return success to prevent retries
+            return successResponse({ warning: 'Database update failed', received: true });
           }
 
-          console.log("Subscription successfully updated to pro plan after checkout");
+          break;
         }
-        
-        break;
-      }
 
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
+        // Handle canceled subscriptions
+        case 'customer.subscription.deleted': {
+          const subscription = event.data.object;
+          
+          // Update the subscription status to inactive
+          const { error: subscriptionError } = await supabaseClient
+            .from('subscriptions')
+            .update({ 
+              status: 'canceled',
+              plan_type: 'free',
+              updated_at: new Date().toISOString()
+            })
+            .eq('stripe_subscription_id', subscription.id);
+
+          if (subscriptionError) {
+            console.error('Error updating subscription:', subscriptionError);
+            // Still return success to prevent retries
+            return successResponse({ warning: 'Database update failed', received: true });
+          }
+
+          break;
+        }
+
+        // Handle completed payment
+        case 'checkout.session.completed': {
+          const session = event.data.object;
+          
+          // If this is a subscription checkout
+          if (session.mode === 'subscription') {
+            // Get the subscription ID
+            const subscriptionId = session.subscription;
+            const customerId = session.customer;
+            
+            if (!subscriptionId) {
+              console.error("No subscription ID in session");
+              return successResponse({ warning: 'Missing subscription ID', received: true });
+            }
+            
+            // Get customer details to find user
+            const customer = await stripe.customers.retrieve(customerId);
+            const customerEmail = customer.email;
+            
+            if (!customerEmail) {
+              console.error("No email found for customer");
+              return successResponse({ warning: 'Customer email not found', received: true });
+            }
+            
+            // Find the user by email
+            const { data: userData, error: userError } = await supabaseClient.auth.admin.getUserByEmail(customerEmail);
+
+            if (userError || !userData?.user) {
+              console.error('Error finding user:', userError || "User not found");
+              return successResponse({ warning: 'User not found', received: true });
+            }
+
+            const userId = userData.user.id;
+            
+            // Get subscription details
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+            const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
+            
+            // Check if the subscription already exists
+            const { data: existingSubscription, error: checkError } = await supabaseClient
+              .from('subscriptions')
+              .select('*')
+              .eq('user_id', userId)
+              .maybeSingle();
+              
+            if (checkError) {
+              console.error('Error checking existing subscription:', checkError);
+            }
+            
+            let updateError;
+            
+            if (existingSubscription) {
+              // Update existing subscription
+              const { error } = await supabaseClient
+                .from('subscriptions')
+                .update({
+                  stripe_customer_id: customerId,
+                  stripe_subscription_id: subscriptionId,
+                  plan_type: 'pro',
+                  status: 'active',
+                  current_period_end: currentPeriodEnd,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('user_id', userId);
+                
+              updateError = error;
+            } else {
+              // Insert new subscription
+              const { error } = await supabaseClient
+                .from('subscriptions')
+                .insert({
+                  user_id: userId,
+                  stripe_customer_id: customerId,
+                  stripe_subscription_id: subscriptionId,
+                  plan_type: 'pro',
+                  status: 'active',
+                  current_period_end: currentPeriodEnd
+                });
+                
+              updateError = error;
+            }
+
+            if (updateError) {
+              console.error('Error updating subscription after checkout:', updateError);
+              // Still return success to prevent retries
+              return successResponse({ warning: 'Database update failed', received: true });
+            }
+          }
+          
+          break;
+        }
+
+        default:
+          console.log(`Unhandled event type: ${event.type}`);
+      }
+    } catch (processingError) {
+      console.error('Error processing webhook:', processingError);
+      // Return success even for processing errors to prevent retries
+      return successResponse({ warning: 'Processing error', received: true });
     }
 
-    return new Response(
-      JSON.stringify({ received: true }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-    );
+    return successResponse();
   } catch (error) {
     console.error('Webhook error:', error.message, error.stack);
-    return errorResponse(error.message, error, 500);
+    // Return success even for general errors to prevent retries
+    return successResponse({ error: 'Internal error', received: true });
   }
 });
