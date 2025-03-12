@@ -1,4 +1,3 @@
-
 export const auth = {
   "login": "Anmelden",
   "loginWithGoogle": "Mit Google anmelden",
@@ -19,5 +18,17 @@ export const auth = {
   "loggedOutSuccessfully": "Erfolgreich abgemeldet",
   "loggedOutMessage": "Sie wurden von Ihrem Konto abgemeldet",
   "errorLoggingOut": "Fehler beim Abmelden",
-  "errorLoggingOutMessage": "Beim Abmelden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+  "errorLoggingOutMessage": "Beim Abmelden ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+  "emailConfirmed": "E-Mail bestätigt",
+  "welcomeToApp": "Willkommen in unserer Anwendung!",
+  "enterEmail": "Geben Sie Ihre E-Mail-Adresse ein",
+  "enterPassword": "Geben Sie Ihr Passwort ein",
+  "signingIn": "Anmeldung läuft...",
+  "signingUp": "Registrierung läuft...",
+  "signInWith": "Anmelden mit",
+  "signUpWith": "Registrieren mit",
+  "checkEmailForLink": "Bitte überprüfen Sie Ihre E-Mails, um Ihre Registrierung zu bestätigen",
+  "errorInvalidCredentials": "Ungültige Anmeldedaten",
+  "errorEmailNotConfirmed": "Bitte bestätigen Sie Ihre E-Mail-Adresse",
+  "errorTooManyAttempts": "Zu viele Versuche, bitte versuchen Sie es später erneut",
 };

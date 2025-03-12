@@ -1,4 +1,3 @@
-
 export const auth = {
   "login": "Connexion",
   "loginWithGoogle": "Se connecter avec Google",
@@ -14,5 +13,17 @@ export const auth = {
   "accountCreated": "Compte créé",
   "pleaseCheckYourEmail": "Veuillez vérifier votre e-mail pour le lien de confirmation",
   "resetLinkSent": "Lien de réinitialisation envoyé",
-  "pleaseCheckYourEmailForResetLink": "Veuillez vérifier votre e-mail pour le lien de réinitialisation du mot de passe"
+  "pleaseCheckYourEmailForResetLink": "Veuillez vérifier votre e-mail pour le lien de réinitialisation du mot de passe",
+  "emailConfirmed": "Email confirmé",
+  "welcomeToApp": "Bienvenue sur notre application !",
+  "enterEmail": "Entrez votre adresse e-mail",
+  "enterPassword": "Entrez votre mot de passe",
+  "signingIn": "Connexion en cours...",
+  "signingUp": "Inscription en cours...",
+  "signInWith": "Se connecter avec",
+  "signUpWith": "S'inscrire avec",
+  "checkEmailForLink": "Veuillez vérifier votre boîte mail pour confirmer votre inscription",
+  "errorInvalidCredentials": "Identifiants invalides",
+  "errorEmailNotConfirmed": "Veuillez confirmer votre adresse e-mail",
+  "errorTooManyAttempts": "Trop de tentatives, veuillez réessayer plus tard",
 };

@@ -1,4 +1,3 @@
-
 export const auth = {
   "login": "Login",
   "loginWithGoogle": "Login with Google",
@@ -17,5 +16,17 @@ export const auth = {
   "loggedOutSuccessfully": "Logged out successfully",
   "loggedOutMessage": "You have been logged out of your account",
   "errorLoggingOut": "Error logging out",
-  "errorLoggingOutMessage": "There was an error logging out. Please try again."
+  "errorLoggingOutMessage": "There was an error logging out. Please try again.",
+  "emailConfirmed": "Email confirmed",
+  "welcomeToApp": "Welcome to our application!",
+  "enterEmail": "Enter your email address",
+  "enterPassword": "Enter your password",
+  "signingIn": "Signing in...",
+  "signingUp": "Signing up...",
+  "signInWith": "Sign in with",
+  "signUpWith": "Sign up with",
+  "checkEmailForLink": "Please check your email to confirm your registration",
+  "errorInvalidCredentials": "Invalid credentials",
+  "errorEmailNotConfirmed": "Please confirm your email address",
+  "errorTooManyAttempts": "Too many attempts, please try again later",
 };
