@@ -1,3 +1,4 @@
+
 export const general = {
   "title": "KI-Sprachagent Rechner",
   "subtitle": "Berechnen Sie die Kosten Ihrer KI-Sprachagenten-Implementierung",
@@ -10,7 +11,7 @@ export const general = {
   "logout": "Logout",
   "monthly": "Monatlich",
   "yearly": "Jährlich",
-  "or": "or",
+  "or": "oder",
   "month": "Monat",
   "year": "Jahr",
   "per": "pro",
