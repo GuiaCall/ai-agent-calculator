@@ -1,4 +1,3 @@
-
 export const ui = {
   "footer": "© 2024 KI-Sprachagent Rechner. Alle Rechte vorbehalten.",
   "aiAgentCalculator": "KI-Agent Rechner",
@@ -109,5 +108,40 @@ export const ui = {
   "refresh": "Aktualisieren",
   "upgradeToProFirst": "Wechseln Sie zuerst vom Pro-Plan",
   "reactivateSubscription": "Abonnement reaktivieren",
-  "subscriptionVerified": "Abonnement Verifiziert"
+  "subscriptionVerified": "Abonnement Verifiziert",
+  "gdpr": {
+    "consentTitle": "Ihre Privatsphäre ist wichtig",
+    "consentDescription": "Wir verwenden Cookies und verarbeiten Ihre Daten, um ein besseres Erlebnis zu bieten.",
+    "whatWeCollect": "Was wir sammeln",
+    "collectItem1": "Kontoinformationen zur Bereitstellung unserer Dienste",
+    "collectItem2": "Nutzungsdaten zur Verbesserung unserer Rechner",
+    "collectItem3": "Rechnungsdaten für Erstellung und Speicherung",
+    "readMore": "Bitte lesen Sie unsere",
+    "privacyPolicy": "Datenschutzrichtlinie",
+    "termsOfService": "Nutzungsbedingungen",
+    "and": "und",
+    "cookiePolicy": "Cookie-Richtlinie",
+    "decline": "Ablehnen",
+    "accept": "Akzeptieren"
+  },
+  "cookie": {
+    "title": "Cookie-Zustimmung",
+    "description": "Wir verwenden Cookies, um Ihr Erlebnis zu verbessern. Indem Sie diese Website weiterhin besuchen, stimmen Sie unserer Verwendung von Cookies zu.",
+    "learnMore": "Mehr erfahren",
+    "decline": "Ablehnen",
+    "accept": "Akzeptieren"
+  },
+  "legalDisclaimer": {
+    "title": "Rechtlicher Hinweis",
+    "shortDescription": "Der KI-Agent-Rechner dient nur zu Schätzungszwecken. Die Ergebnisse können je nach tatsächlichem Nutzungsverhalten und Preisgestaltung des Dienstanbieters variieren.",
+    "readMore": "Vollständigen Hinweis lesen",
+    "fullTitle": "Rechtlicher Hinweis - Wichtige Mitteilung",
+    "paragraph1": "Der KI-Agent-Rechner und Rechnungsgenerator bietet nur Schätzungen und sollte nicht als Finanz-, Rechts- oder Fachberatung betrachtet werden. Alle Berechnungen basieren auf den bereitgestellten Informationen und aktuellen Servicetarifen, die sich jederzeit ändern können.",
+    "paragraph2": "Die von diesem Tool generierten Rechnungen sind nur Vorlagen und erfüllen möglicherweise nicht alle rechtlichen Anforderungen in Ihrer Rechtsordnung. Benutzer sind dafür verantwortlich, die Einhaltung aller geltenden Gesetze und Vorschriften bezüglich Rechnungsstellung, Besteuerung und Geschäftsdokumentation sicherzustellen.",
+    "paragraph3": "Wir geben keinerlei Zusicherungen oder Garantien, weder ausdrücklich noch stillschweigend, hinsichtlich der Vollständigkeit, Genauigkeit, Zuverlässigkeit, Eignung oder Verfügbarkeit des Rechners oder der Informationen, Produkte, Dienstleistungen oder zugehörigen Grafiken, die im Tool enthalten sind, für irgendeinen Zweck.",
+    "paragraph4": "In keinem Fall haften wir für Verluste oder Schäden, einschließlich, aber nicht beschränkt auf indirekte oder Folgeschäden oder Verluste oder Schäden, die aus dem Verlust von Daten oder Gewinnen entstehen, die aus der Nutzung dieses Rechners oder in Verbindung damit entstehen.",
+    "paragraph5": "Durch die Nutzung dieses Rechners bestätigen Sie, dass Sie diese Haftungsausschlüsse gelesen, verstanden und akzeptiert haben.",
+    "acknowledge": "Ich verstehe",
+    "close": "Schließen"
+  }
 }

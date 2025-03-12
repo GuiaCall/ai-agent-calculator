@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Calculator } from "@/components/Calculator";
 import { AuthLayout } from "@/components/auth/AuthLayout";
@@ -9,6 +10,11 @@ import { Documentation } from "@/pages/Documentation";
 import { useState, useEffect } from "react";
 import { PageLoader } from "@/components/layout/PageLoader";
 import Pricing from "@/pages/Pricing";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
+import CookiePolicy from "@/pages/CookiePolicy";
+import { GDPRConsentPopup } from "@/components/gdpr/GDPRConsentPopup";
+import { CookieConsentBanner } from "@/components/gdpr/CookieConsentBanner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -87,9 +93,14 @@ function App() {
               </AuthGuard>
             }
           />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="*" element={<Navigate to="/calculator" replace />} />
         </Routes>
         <Toaster />
+        <GDPRConsentPopup />
+        <CookieConsentBanner />
       </Router>
     </QueryClientProvider>
   );

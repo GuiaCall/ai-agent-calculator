@@ -1,4 +1,3 @@
-
 export const ui = {
   "success": "Succès",
   "error": "Erreur",
@@ -101,5 +100,40 @@ export const ui = {
   "refresh": "Actualiser",
   "upgradeToProFirst": "Changez d'abord du plan Pro",
   "reactivateSubscription": "Réactiver l'abonnement",
-  "subscriptionVerified": "Abonnement Vérifié"
+  "subscriptionVerified": "Abonnement Vérifié",
+  "gdpr": {
+    "consentTitle": "Votre vie privée est importante",
+    "consentDescription": "Nous utilisons des cookies et traitons vos données pour vous offrir une meilleure expérience.",
+    "whatWeCollect": "Ce que nous collectons",
+    "collectItem1": "Informations de compte pour fournir nos services",
+    "collectItem2": "Données d'utilisation pour améliorer nos calculateurs",
+    "collectItem3": "Données de facture pour la génération et le stockage",
+    "readMore": "Veuillez lire notre",
+    "privacyPolicy": "Politique de Confidentialité",
+    "termsOfService": "Conditions d'Utilisation",
+    "and": "et",
+    "cookiePolicy": "Politique de Cookies",
+    "decline": "Refuser",
+    "accept": "Accepter"
+  },
+  "cookie": {
+    "title": "Consentement aux Cookies",
+    "description": "Nous utilisons des cookies pour améliorer votre expérience. En continuant à visiter ce site, vous acceptez notre utilisation des cookies.",
+    "learnMore": "En savoir plus",
+    "decline": "Refuser",
+    "accept": "Accepter"
+  },
+  "legalDisclaimer": {
+    "title": "Avis Juridique",
+    "shortDescription": "Le Calculateur d'Agent IA est uniquement destiné à des fins d'estimation. Les résultats peuvent varier en fonction des modèles d'utilisation réels et des tarifs des fournisseurs de services.",
+    "readMore": "Lire l'Avis Complet",
+    "fullTitle": "Avis Juridique - Note Importante",
+    "paragraph1": "Le Calculateur d'Agent IA et Générateur de Factures fournit uniquement des estimations et ne doit pas être considéré comme un conseil financier, juridique ou professionnel. Tous les calculs sont basés sur les informations fournies et les tarifs actuels des services, qui peuvent changer à tout moment.",
+    "paragraph2": "Les factures générées par cet outil sont uniquement des modèles et peuvent ne pas répondre à toutes les exigences légales dans votre juridiction. Les utilisateurs sont responsables de s'assurer de la conformité avec toutes les lois et réglementations applicables concernant la facturation, la fiscalité et la documentation commerciale.",
+    "paragraph3": "Nous ne faisons aucune représentation ou garantie d'aucune sorte, expresse ou implicite, concernant l'exhaustivité, l'exactitude, la fiabilité, l'adéquation ou la disponibilité du calculateur ou des informations, produits, services ou graphiques connexes contenus dans l'outil à quelque fin que ce soit.",
+    "paragraph4": "En aucun cas, nous ne serons responsables de toute perte ou dommage, y compris, sans limitation, les pertes ou dommages indirects ou consécutifs, ou toute perte ou dommage découlant de la perte de données ou de profits résultant de, ou en relation avec, l'utilisation de ce calculateur.",
+    "paragraph5": "En utilisant ce calculateur, vous reconnaissez avoir lu, compris et accepté ces avis de non-responsabilité.",
+    "acknowledge": "Je Comprends",
+    "close": "Fermer"
+  }
 }

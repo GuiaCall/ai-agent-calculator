@@ -9,6 +9,8 @@ import { AuthHeader } from "./AuthHeader";
 import { AuthForm } from "./AuthForm";
 import { AuthFeatures } from "./AuthFeatures";
 import { Footer } from "@/components/layout/Footer";
+import { GDPRConsentPopup } from "@/components/gdpr/GDPRConsentPopup";
+import { CookieConsentBanner } from "@/components/gdpr/CookieConsentBanner";
 
 export function AuthLayout() {
   const navigate = useNavigate();
@@ -73,6 +75,8 @@ export function AuthLayout() {
       </div>
 
       <Footer />
+      <GDPRConsentPopup />
+      <CookieConsentBanner />
     </div>
   );
 }

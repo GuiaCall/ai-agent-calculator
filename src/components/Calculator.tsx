@@ -1,28 +1,27 @@
 
-import { useState, useEffect } from "react";
-import { CalculatorStateProvider } from "./calculator/CalculatorStateContext";
-import { CalculatorContent } from "./calculator/CalculatorContent";
-import { PageLoader } from "./layout/PageLoader";
+import { Suspense } from "react";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { CalculatorContent } from "@/components/calculator/CalculatorContent";
+import { CalculatorHeader } from "@/components/calculator/CalculatorHeader";
+import { Disclaimer } from "@/components/Disclaimer";
+import { LegalDisclaimer } from "@/components/gdpr/LegalDisclaimer";
 
 export function Calculator() {
-  const [isReady, setIsReady] = useState(false);
-  
-  useEffect(() => {
-    // Add a small delay to ensure context is fully initialized
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 800); // Loading timeout
-    
-    return () => clearTimeout(timer);
-  }, []);
-  
-  if (!isReady) {
-    return <PageLoader />;
-  }
-  
   return (
-    <CalculatorStateProvider>
-      <CalculatorContent />
-    </CalculatorStateProvider>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Navbar />
+      
+      <main className="flex-grow container mx-auto px-4 py-6">
+        <CalculatorHeader />
+        <Disclaimer />
+        <LegalDisclaimer />
+        <Suspense fallback={<div>Loading...</div>}>
+          <CalculatorContent />
+        </Suspense>
+      </main>
+      
+      <Footer />
+    </div>
   );
 }
