@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { CheckCircle2, AlertCircle, RefreshCw, Loader2 } from "lucide-react";
 
 interface SubscriptionCardProps {
   subscription: {
@@ -37,7 +37,7 @@ export function SubscriptionCard({
           {refreshingStatus ? (
             <div className="flex items-center gap-1">
               <span className="text-xs">{t("refreshing")}</span>
-              <RefreshCw className="h-3 w-3 animate-spin" />
+              <Loader2 className="h-3 w-3 animate-spin" />
             </div>
           ) : (
             <div className="flex items-center gap-1">
@@ -60,6 +60,11 @@ export function SubscriptionCard({
             <div className="flex items-center text-amber-500 mt-1">
               <AlertCircle className="h-4 w-4 mr-1" />
               <span className="text-sm">{t("subscriptionInactive")}</span>
+            </div>
+          )}
+          {subscription.plan_type === 'free' && (
+            <div className="flex items-center text-blue-500 mt-1">
+              <span className="text-sm">{t("accessToAllSavedInvoices")}</span>
             </div>
           )}
         </div>

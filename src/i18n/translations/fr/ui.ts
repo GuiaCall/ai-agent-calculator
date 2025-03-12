@@ -86,5 +86,20 @@ export const ui = {
   "billingType": "facturation annuelle",
   "teamMembersCostInfo": "Les membres d'équipe coûtent {{cost}}/mois chacun",
   "couponCode": "Code Promo",
-  "enterCouponCode": "Entrez un code promo (optionnel)"
-};
+  "enterCouponCode": "Entrez un code promo (optionnel)",
+  "checkoutSuccessful": "Paiement Réussi",
+  "subscriptionProcessing": "Votre abonnement est en cours de traitement. Veuillez patienter un moment.",
+  "subscriptionActivated": "Votre abonnement a été activé avec succès. Vous avez maintenant accès à toutes les fonctionnalités Pro!",
+  "subscriptionActive": "Actif",
+  "subscriptionInactive": "Inactif",
+  "subscriptionReactivate": "Veuillez réactiver votre abonnement pour continuer à utiliser les fonctionnalités Pro.",
+  "checkoutSuccess": "Paiement Réussi",
+  "proFeaturesActive": "Toutes les fonctionnalités Pro sont maintenant actives sur votre compte!",
+  "refreshSubscriptionStatus": "Actualiser l'état de l'abonnement",
+  "errorFetchingData": "Erreur lors de la récupération des données",
+  "refreshing": "Actualisation...",
+  "refresh": "Actualiser",
+  "upgradeToProFirst": "Changez d'abord du plan Pro",
+  "reactivateSubscription": "Réactiver l'abonnement",
+  "subscriptionVerified": "Abonnement Vérifié"
+}

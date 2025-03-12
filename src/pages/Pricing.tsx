@@ -11,9 +11,11 @@ import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocation, useNavigate } from "react-router-dom";
+import { PageLoader } from "@/components/layout/PageLoader";
 
 export default function Pricing() {
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [refreshingStatus, setRefreshingStatus] = useState(false);
   const [invoiceCount, setInvoiceCount] = useState(0);
   const [couponCode, setCouponCode] = useState("");
@@ -23,6 +25,9 @@ export default function Pricing() {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Add debounce to prevent multiple subscription requests
+  const [lastAttempt, setLastAttempt] = useState(0);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -99,6 +104,9 @@ export default function Pricing() {
               title: t("subscriptionVerified"),
               description: t("proFeaturesActive"),
             });
+            
+            // Force reload the page to ensure all components reflect the new subscription status
+            window.location.reload();
           }
         } else {
           console.log("No subscription found for user");
@@ -127,6 +135,7 @@ export default function Pricing() {
     } catch (err) {
       console.error("Failed to fetch user data:", err);
     } finally {
+      setPageLoading(false);
       if (forceRefresh) {
         setRefreshingStatus(false);
       }
@@ -148,6 +157,12 @@ export default function Pricing() {
         (payload) => {
           console.log('Subscription change detected:', payload);
           fetchUserData(true);
+          
+          // If subscription becomes active, reload the page
+          const newData = payload.new;
+          if (newData && newData.plan_type === 'pro' && newData.status === 'active') {
+            window.location.reload();
+          }
         }
       )
       .subscribe();
@@ -158,6 +173,14 @@ export default function Pricing() {
   }, []);
 
   const handleSubscribe = async () => {
+    // Prevent multiple rapid clicks
+    const now = Date.now();
+    if (now - lastAttempt < 3000) {
+      console.log("Preventing duplicate request");
+      return;
+    }
+    setLastAttempt(now);
+    
     try {
       setLoading(true);
       console.log("Starting subscription process");
@@ -179,6 +202,9 @@ export default function Pricing() {
       if (!token) {
         throw new Error("No access token available. Please log in again.");
       }
+      
+      // Add additional logging
+      console.log("Making call to create-checkout-session function...");
       
       // Make sure we explicitly set the Authorization header
       const { data: checkoutData, error: functionError } = await supabase.functions.invoke(
@@ -212,7 +238,7 @@ export default function Pricing() {
         description: error.message || t("operationFailed"),
         variant: "destructive",
       });
-    } finally {
+      // Reset loading state so user can try again
       setLoading(false);
     }
   };
@@ -220,6 +246,10 @@ export default function Pricing() {
   const handleRefreshStatus = () => {
     fetchUserData(true);
   };
+
+  if (pageLoading) {
+    return <PageLoader />;
+  }
 
   return (
     <div className="flex min-h-screen flex-col">

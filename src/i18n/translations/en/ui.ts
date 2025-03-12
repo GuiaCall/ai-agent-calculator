@@ -92,8 +92,18 @@ export const ui = {
   "couponCode": "Coupon Code",
   "enterCouponCode": "Enter coupon code (optional)",
   "checkoutSuccessful": "Checkout Successful",
+  "subscriptionProcessing": "Your subscription is being processed. Please wait a moment.",
   "subscriptionActivated": "Your subscription has been successfully activated. You now have access to all Pro features!",
   "subscriptionActive": "Active",
   "subscriptionInactive": "Inactive",
-  "subscriptionReactivate": "Please reactivate your subscription to continue using Pro features."
-};
+  "subscriptionReactivate": "Please reactivate your subscription to continue using Pro features.",
+  "checkoutSuccess": "Payment Successful",
+  "proFeaturesActive": "All Pro features are now active on your account!",
+  "refreshSubscriptionStatus": "Refresh Subscription Status",
+  "errorFetchingData": "Error Fetching Data",
+  "refreshing": "Refreshing...",
+  "refresh": "Refresh",
+  "upgradeToProFirst": "Switch from Pro plan first",
+  "reactivateSubscription": "Reactivate Subscription",
+  "subscriptionVerified": "Subscription Verified"
+}

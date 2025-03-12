@@ -11,7 +11,7 @@ export function Calculator() {
     // Add a small delay to ensure context is fully initialized
     const timer = setTimeout(() => {
       setIsReady(true);
-    }, 500);
+    }, 800); // Increased timeout to ensure components load properly
     
     return () => clearTimeout(timer);
   }, []);

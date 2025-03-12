@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { PageLoader } from "@/components/layout/PageLoader";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
@@ -183,11 +184,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [navigate, toast, location]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return <>{children}</>;

@@ -15,6 +15,13 @@ export interface SubscriptionData {
   id?: string;
 }
 
+// Define the Supabase realtime payload type
+interface RealtimePayload {
+  new: SubscriptionData;
+  old: SubscriptionData;
+  eventType: string;
+}
+
 export function useDashboardData(checkoutSuccess: boolean) {
   const [totalInvoices, setTotalInvoices] = useState<number | null>(null);
   const [userEmail, setUserEmail] = useState("");
@@ -166,15 +173,12 @@ export function useDashboardData(checkoutSuccess: boolean) {
           schema: 'public',
           table: 'subscriptions'
         },
-        (payload: any) => {
+        (payload: RealtimePayload) => {
           console.log('Subscription change detected in dashboard:', payload);
           fetchDashboardData(true);
           
-          // Fix TypeScript error by properly typing and checking the payload
-          const newData = payload.new as SubscriptionData | null;
-          
-          // Force page reload when subscription changes to ensure UI reflects new status
-          if (newData && newData.plan_type === 'pro' && newData.status === 'active') {
+          // If subscription changes to pro and active, force page reload
+          if (payload.new && payload.new.plan_type === 'pro' && payload.new.status === 'active') {
             console.log("Pro subscription update detected, reloading page");
             window.location.reload();
           }
