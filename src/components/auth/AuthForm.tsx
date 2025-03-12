@@ -6,14 +6,13 @@ import { Calculator } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import { AuthChangeEvent } from "@supabase/supabase-js";
 
 export function AuthForm() {
   const { t } = useTranslation();
   const { toast } = useToast();
   
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_UP') {
         toast({
           title: t("auth.accountCreated"),
@@ -66,24 +65,24 @@ export function AuthForm() {
         localization={{
           variables: {
             sign_in: {
-              email_label: t("auth.emailAddress"),
-              password_label: t("auth.password"),
-              email_input_placeholder: t("auth.enterEmail"),
-              password_input_placeholder: t("auth.enterPassword"),
-              button_label: t("auth.login"),
-              loading_button_label: t("auth.signingIn"),
-              social_provider_text: t("auth.signInWith"),
-              link_text: t("auth.forgotPassword"),
+              email_label: t("emailAddress"),
+              password_label: t("password"),
+              email_input_placeholder: t("enterEmail"),
+              password_input_placeholder: t("enterPassword"),
+              button_label: t("login"),
+              loading_button_label: t("signingIn"),
+              social_provider_text: t("signInWith"),
+              link_text: t("forgotPassword"),
             },
             sign_up: {
-              email_label: t("auth.emailAddress"),
-              password_label: t("auth.password"),
-              email_input_placeholder: t("auth.enterEmail"),
-              password_input_placeholder: t("auth.enterPassword"),
-              button_label: t("auth.signUp"),
-              loading_button_label: t("auth.signingUp"),
-              social_provider_text: t("auth.signUpWith"),
-              confirmation_text: t("auth.checkEmailForLink"),
+              email_label: t("emailAddress"),
+              password_label: t("password"),
+              email_input_placeholder: t("enterEmail"),
+              password_input_placeholder: t("enterPassword"),
+              button_label: t("signUp"),
+              loading_button_label: t("signingUp"),
+              social_provider_text: t("signUpWith"),
+              confirmation_text: t("checkEmailForLink"),
             },
           },
         }}
