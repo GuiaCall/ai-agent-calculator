@@ -10,10 +10,18 @@ interface SubscriptionCheckProps {
   editingInvoice?: any;
 }
 
-export function SubscriptionCheck({ onProceed }: SubscriptionCheckProps) {
+export function SubscriptionCheck({ 
+  onProceed, 
+  isSubscribed, 
+  isSubscriptionActive, 
+  isCheckingSubscription, 
+  invoiceCount, 
+  editingInvoice 
+}: SubscriptionCheckProps) {
   const { t } = useTranslation();
   
   const handleCalculate = async () => {
+    // Simplified logic that always allows proceeding
     onProceed();
   };
   

@@ -27,12 +27,12 @@ export function CalculatorContent() {
 
   // Handle calculator actions based on subscription status
   const { handleCalculate } = SubscriptionCheck({
-    isCheckingSubscription,
+    onProceed: logic.calculateCost,
     isSubscribed,
     isSubscriptionActive,
+    isCheckingSubscription,
     invoiceCount,
-    editingInvoice: state.editingInvoice,
-    onProceed: logic.calculateCost
+    editingInvoice: state.editingInvoice
   });
 
   // Show loading state while checking subscription
