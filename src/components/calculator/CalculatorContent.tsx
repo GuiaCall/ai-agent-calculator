@@ -5,7 +5,6 @@ import { useCalculatorStateContext } from "./CalculatorStateContext";
 import { CalculatorHeader } from "./CalculatorHeader";
 import { CalculatorActions } from "./CalculatorActions";
 import { Navbar } from "../layout/Navbar";
-import { Footer } from "../layout/Footer";
 import { Disclaimer } from "../Disclaimer";
 import { CalculatorSettingsSection } from "./sections/CalculatorSettingsSection";
 import { TechnologySection } from "./sections/TechnologySection";
@@ -29,7 +28,6 @@ export function CalculatorContent() {
 
   return (
     <>
-      <Navbar />
       <div className="w-full max-w-4xl mx-auto p-6 space-y-8 animate-fadeIn mt-20 mb-20">
         <Disclaimer />
         
@@ -60,7 +58,6 @@ export function CalculatorContent() {
 
         <PreviewSection />
       </div>
-      <Footer />
     </>
   );
 }
