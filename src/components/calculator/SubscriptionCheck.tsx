@@ -1,27 +1,35 @@
 
 import { useTranslation } from "react-i18next";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface SubscriptionCheckProps {
+  isCheckingSubscription: boolean;
+  isSubscribed: boolean;
+  isSubscriptionActive: boolean;
+  invoiceCount: number;
+  editingInvoice: any;
   onProceed: () => void;
-  isSubscribed?: boolean;
-  isSubscriptionActive?: boolean;
-  isCheckingSubscription?: boolean;
-  invoiceCount?: number;
-  editingInvoice?: any;
 }
 
-export function SubscriptionCheck({ 
-  onProceed, 
-  isSubscribed, 
-  isSubscriptionActive, 
-  isCheckingSubscription, 
-  invoiceCount, 
-  editingInvoice 
+export function SubscriptionCheck({
+  isCheckingSubscription,
+  onProceed
 }: SubscriptionCheckProps) {
   const { t } = useTranslation();
+  const { toast } = useToast();
   
   const handleCalculate = async () => {
-    // Simplified logic that always allows proceeding
+    // If still checking subscription status, show loading toast
+    if (isCheckingSubscription) {
+      toast({
+        title: t("checkingSubscription"),
+        description: t("pleaseWait"),
+      });
+      return;
+    }
+
+    // Proceed with calculation since we've removed all restrictions
     onProceed();
   };
   
