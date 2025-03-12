@@ -14,13 +14,13 @@ export function AuthForm() {
   
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
-      if (event === AuthChangeEvent.SIGNED_UP) {
+      if (event === 'SIGNED_UP') {
         toast({
           title: t("auth.accountCreated"),
           description: t("auth.pleaseCheckYourEmail"),
           className: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white",
         });
-      } else if (event === AuthChangeEvent.USER_UPDATED) {
+      } else if (event === 'USER_UPDATED') {
         toast({
           title: t("auth.emailConfirmed"),
           description: t("auth.welcomeToApp"),
