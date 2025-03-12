@@ -1,8 +1,8 @@
-
 import { toast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { InvoiceHistory } from "@/types/invoice";
+import { InvoiceHistory, ClientInfo, AgencyInfo } from "@/types/invoice";
+import { safelyParseJSON } from "@/utils/jsonUtils";
 
 interface UseCalculationProps {
   technologies: any[];
@@ -156,7 +156,14 @@ export function useCalculation({
               variant: "destructive",
             });
           } else if (data) {
-            setInvoices([...invoices, data[0]]);
+            // Parse the JSON data from Supabase before adding to invoices array
+            const newInvoiceData = {
+              ...data[0],
+              agency_info: safelyParseJSON(data[0].agency_info, {}),
+              client_info: safelyParseJSON(data[0].client_info, {})
+            } as InvoiceHistory;
+            
+            setInvoices([...invoices, newInvoiceData]);
             
             toast({
               title: t("success"),
