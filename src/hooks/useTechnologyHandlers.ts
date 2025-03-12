@@ -1,12 +1,13 @@
 
 import { CalcomPlan } from "@/types/calcom";
+import { Technology } from "@/components/calculator/calculatorInitialState";
 
-export function useTechnologyHandlers(setTechnologies: (technologies: any[]) => void) {
+export function useTechnologyHandlers(setTechnologies: (technologies: Technology[] | ((prevTechs: Technology[]) => Technology[])) => void) {
   const handleCalcomPlanSelect = (plan: CalcomPlan, users: number) => {
     const monthlyTotal = plan.basePrice + (plan.allowsTeam ? (users - 1) * plan.pricePerUser : 0);
     const costPerMinute = monthlyTotal;
     
-    setTechnologies(techs => 
+    setTechnologies((techs: Technology[]) => 
       techs.map(tech => 
         tech.id === "calcom" ? { ...tech, costPerMinute } : tech
       )
@@ -17,7 +18,7 @@ export function useTechnologyHandlers(setTechnologies: (technologies: any[]) => 
     if (selection) {
       const costPerMinute = Math.ceil((selection.inboundVoicePrice + (selection.inboundSmsPrice || 0)) * 1000) / 1000;
       
-      setTechnologies(techs => 
+      setTechnologies((techs: Technology[]) => 
         techs.map(tech => 
           tech.id === "twilio" ? { ...tech, costPerMinute } : tech
         )
