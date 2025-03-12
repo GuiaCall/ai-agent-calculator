@@ -7,6 +7,7 @@ import { CalculatorHeader } from "@/components/calculator/CalculatorHeader";
 import { Disclaimer } from "@/components/Disclaimer";
 import { LegalDisclaimer } from "@/components/gdpr/LegalDisclaimer";
 import { initialAgencyInfo, initialClientInfo } from "./calculator/calculatorInitialState";
+import { CalculatorStateProvider } from "./calculator/CalculatorStateContext";
 
 export function Calculator() {
   const [agencyInfo, setAgencyInfo] = useState(initialAgencyInfo);
@@ -26,7 +27,9 @@ export function Calculator() {
         <Disclaimer />
         <LegalDisclaimer />
         <Suspense fallback={<div>Loading...</div>}>
-          <CalculatorContent />
+          <CalculatorStateProvider>
+            <CalculatorContent />
+          </CalculatorStateProvider>
         </Suspense>
       </main>
       

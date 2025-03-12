@@ -37,24 +37,28 @@ export function LegalDisclaimer() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           // If authenticated, check database acknowledgment
-          const { data, error } = await supabase
-            .from('user_consent')
-            .select('legal_disclaimer_acknowledged')
-            .eq('user_id', session.user.id)
-            .single();
+          try {
+            const { data, error } = await supabase
+              .from('user_consent')
+              .select('legal_disclaimer_acknowledged')
+              .eq('user_id', session.user.id)
+              .single();
 
-          if (error) {
-            console.error("Error checking legal disclaimer acknowledgment:", error);
-            setShowAlert(true);
-            return;
-          }
+            if (error) {
+              console.error("Error checking legal disclaimer acknowledgment:", error);
+              setShowAlert(true);
+              return;
+            }
 
-          if (data?.legal_disclaimer_acknowledged) {
-            // User has already acknowledged in database
-            setIsAcknowledged(true);
-            setShowAlert(false);
-            localStorage.setItem('legalDisclaimerAcknowledged', 'true');
-            return;
+            if (data?.legal_disclaimer_acknowledged) {
+              // User has already acknowledged in database
+              setIsAcknowledged(true);
+              setShowAlert(false);
+              localStorage.setItem('legalDisclaimerAcknowledged', 'true');
+              return;
+            }
+          } catch (dbError) {
+            console.error("Database error in legal disclaimer check:", dbError);
           }
         }
 

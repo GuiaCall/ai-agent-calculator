@@ -24,23 +24,27 @@ export function CookieConsentBanner() {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           // If authenticated, check database consent
-          const { data, error } = await supabase
-            .from('user_consent')
-            .select('cookie_consent')
-            .eq('user_id', session.user.id)
-            .single();
+          try {
+            const { data, error } = await supabase
+              .from('user_consent')
+              .select('cookie_consent')
+              .eq('user_id', session.user.id)
+              .single();
 
-          if (error) {
-            console.error("Error checking cookie consent:", error);
-            setShowBanner(true);
-            return;
-          }
+            if (error) {
+              console.error("Error checking cookie consent:", error);
+              setShowBanner(true);
+              return;
+            }
 
-          if (data?.cookie_consent) {
-            // User has already consented in database
-            setShowBanner(false);
-            localStorage.setItem('cookieConsent', 'accepted');
-            return;
+            if (data?.cookie_consent) {
+              // User has already consented in database
+              setShowBanner(false);
+              localStorage.setItem('cookieConsent', 'accepted');
+              return;
+            }
+          } catch (dbError) {
+            console.error("Database error in cookie consent check:", dbError);
           }
         }
 
