@@ -5,6 +5,7 @@ import { InvoiceHistoryTable } from "../InvoiceHistoryTable";
 import { useCalculatorLogic } from "../CalculatorLogic";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export function PreviewSection() {
   const state = useCalculatorStateContext();
@@ -12,16 +13,35 @@ export function PreviewSection() {
   const { t } = useTranslation();
   const { toast } = useToast();
 
-  const handleDeleteInvoice = (id: string) => {
-    // Implement deletion logic here
-    if (state.invoices) {
-      const updatedInvoices = state.invoices.filter(invoice => invoice.id !== id);
-      state.setInvoices(updatedInvoices);
+  const handleDeleteInvoice = async (id: string) => {
+    try {
+      // Update the database - set is_deleted to true
+      const { error } = await supabase
+        .from('invoices')
+        .update({ is_deleted: true })
+        .eq('id', id);
+      
+      if (error) {
+        throw error;
+      }
+      
+      // Update local state
+      if (state.invoices) {
+        const updatedInvoices = state.invoices.filter(invoice => invoice.id !== id);
+        state.setInvoices(updatedInvoices);
+      }
       
       // Show toast notification
       toast({
         title: t("invoiceDeleted"),
         description: t("invoiceDeletedDescription"),
+      });
+    } catch (error) {
+      console.error("Error deleting invoice:", error);
+      toast({
+        title: t("error"),
+        description: t("errorDeletingInvoice"),
+        variant: "destructive",
       });
     }
   };
