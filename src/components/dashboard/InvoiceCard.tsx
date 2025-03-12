@@ -4,10 +4,9 @@ import { useTranslation } from "react-i18next";
 
 interface InvoiceCardProps {
   totalInvoices: number | null;
-  isPlanFree: boolean;
 }
 
-export function InvoiceCard({ totalInvoices, isPlanFree }: InvoiceCardProps) {
+export function InvoiceCard({ totalInvoices }: InvoiceCardProps) {
   const { t } = useTranslation();
 
   return (
@@ -16,11 +15,6 @@ export function InvoiceCard({ totalInvoices, isPlanFree }: InvoiceCardProps) {
       <p className="text-3xl font-bold">
         {totalInvoices === null ? t("loading") : totalInvoices}
       </p>
-      {isPlanFree && totalInvoices !== null && (
-        <p className="text-sm text-gray-500 mt-2">
-          {t("freeInvoicesUsed", { used: totalInvoices, total: 5 })}
-        </p>
-      )}
     </Card>
   );
 }
