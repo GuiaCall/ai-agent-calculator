@@ -1,3 +1,4 @@
+
 import { toast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
@@ -156,11 +157,30 @@ export function useCalculation({
               variant: "destructive",
             });
           } else if (data) {
+            // Create default values for ClientInfo and AgencyInfo
+            const defaultClientInfo: ClientInfo = {
+              name: "",
+              address: "",
+              tvaNumber: "",
+              contactPerson: {
+                name: "",
+                phone: ""
+              }
+            };
+            
+            const defaultAgencyInfo: AgencyInfo = {
+              name: "",
+              phone: "",
+              address: "",
+              email: "",
+              website: ""
+            };
+            
             // Parse the JSON data from Supabase before adding to invoices array
             const newInvoiceData = {
               ...data[0],
-              agency_info: safelyParseJSON(data[0].agency_info, {}),
-              client_info: safelyParseJSON(data[0].client_info, {})
+              agency_info: safelyParseJSON<AgencyInfo>(data[0].agency_info, defaultAgencyInfo),
+              client_info: safelyParseJSON<ClientInfo>(data[0].client_info, defaultClientInfo)
             } as InvoiceHistory;
             
             setInvoices([...invoices, newInvoiceData]);
