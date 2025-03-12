@@ -12,31 +12,18 @@ import { TechnologySection } from "./sections/TechnologySection";
 import { PreviewSection } from "./sections/PreviewSection";
 import { CurrencyToggle } from "./CurrencyToggle";
 import { LoadingState } from "./LoadingState";
-import { useSubscriptionStatus } from "@/hooks/useSubscriptionStatus";
 import { SubscriptionCheck } from "./SubscriptionCheck";
 
 export function CalculatorContent() {
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state });
-  const {
-    invoiceCount,
-    isSubscribed,
-    isSubscriptionActive,
-    isCheckingSubscription
-  } = useSubscriptionStatus();
 
-  // Handle calculator actions based on subscription status
+  // Handle calculator actions
   const { handleCalculate } = SubscriptionCheck({
-    isCheckingSubscription,
-    isSubscribed,
-    isSubscriptionActive,
-    invoiceCount,
-    editingInvoice: state.editingInvoice,
     onProceed: logic.calculateCost
   });
 
-  // Show loading state while checking subscription
-  if (state.isLoading || isCheckingSubscription) {
+  if (state.isLoading) {
     return <LoadingState />;
   }
 
