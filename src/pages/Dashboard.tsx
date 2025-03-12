@@ -11,7 +11,7 @@ export default function Dashboard() {
   const {
     totalInvoices,
     userEmail,
-  } = useDashboardData(false);
+  } = useDashboardData();
 
   return (
     <CalculatorStateProvider>
