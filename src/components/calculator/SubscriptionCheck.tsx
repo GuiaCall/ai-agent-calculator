@@ -3,12 +3,16 @@ import { useTranslation } from "react-i18next";
 
 interface SubscriptionCheckProps {
   onProceed: () => void;
+  isSubscribed?: boolean;
+  isSubscriptionActive?: boolean;
+  isCheckingSubscription?: boolean;
+  invoiceCount?: number;
+  editingInvoice?: any;
 }
 
 export function SubscriptionCheck({ onProceed }: SubscriptionCheckProps) {
   const { t } = useTranslation();
   
-  // Simple check that always allows proceeding
   const handleCalculate = async () => {
     onProceed();
   };
