@@ -1,3 +1,4 @@
+
 export const general = {
   "footer": "© 2024 AI-Agent Calculator. All rights reserved.",
   "aiAgentCalculator": "AI-Agent Calculator",
@@ -120,7 +121,7 @@ export const general = {
   "activity": "Activity",
   "date": "Date",
   "description": "Description",
-   "edit": "Edit",
+  "edit": "Edit",
   "delete": "Delete",
   "confirmDelete": "Confirm Delete",
   "deleteInvoiceConfirmation": "This action cannot be undone. This will permanently delete the invoice and all associated data.",
@@ -186,7 +187,6 @@ export const general = {
   "minutesPerMonth": "minutes per month",
   "operationsHelp": "Enter the number of operations consumed by your Make.com scenarios",
   "twilioCalculator": "Twilio Configuration",
-  "country": "Country",
   "selectCountry": "Select a country",
   "serviceType": "Service Type",
   "selectServiceType": "Select Service Type",
@@ -218,6 +218,21 @@ export const general = {
   "upgradeToProFirst": "Switch from Pro plan first",
   "reactivateSubscription": "Reactivate Subscription",
   "subscriptionVerified": "Subscription Verified",
+  "agencyInformation": "Agency Information",
+  "agencyName": "Agency Name",
+  "agencyNamePlaceholder": "Enter your agency name",
+  "addressPlaceholder": "Enter address",
+  "websitePlaceholder": "Enter website",
+  "clientInformation": "Client Information",
+  "clientAddressPlaceholder": "Enter client address",
+  "tvaNumber": "TVA Number",
+  "tvaPlaceholder": "Enter TVA number",
+  "contactPersonName": "Contact Person Name",
+  "contactPersonNamePlaceholder": "Enter contact person name",
+  "contactPersonPhone": "Contact Person Phone",
+  "contactPersonPhonePlaceholder": "Enter contact person phone",
+  "website": "Website",
+  "or": "or",
 
   // Privacy Policy
   "privacyPolicy": {
