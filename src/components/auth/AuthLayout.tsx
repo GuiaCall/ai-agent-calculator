@@ -1,17 +1,19 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Check, Zap, Shield, FileText } from "lucide-react";
+import { Loader2, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { LanguageSelector } from "@/components/layout/LanguageSelector";
+import { useTranslation } from "react-i18next";
 
 export function AuthLayout() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [logoError, setLogoError] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   useEffect(() => {
     const checkSession = async () => {
@@ -92,28 +94,32 @@ export function AuthLayout() {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50">
-      <div className="container mx-auto px-4 py-8 lg:py-12">
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-indigo-100 shadow-sm">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center">
+            <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-2 rounded-lg mr-2">
+              <Calculator className="h-5 w-5" />
+            </div>
+            <div className="font-bold text-xl bg-gradient-to-r from-indigo-700 to-purple-700 bg-clip-text text-transparent">
+              {t("aiAgentCalculator")}
+            </div>
+          </div>
+          <LanguageSelector />
+        </div>
+      </nav>
+
+      <div className="container mx-auto px-4 py-8 lg:py-12 mt-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Login Form */}
           <div className="order-2 lg:order-1">
             <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md mx-auto">
               <div className="text-center mb-8">
-                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 inline-flex rounded-full mb-6">
-                  {logoError ? (
-                    <div className="w-12 h-12 flex items-center justify-center text-white font-bold text-xl">
-                      AI
-                    </div>
-                  ) : (
-                    <img 
-                      src="/placeholder.svg" 
-                      alt="Logo" 
-                      className="w-12 h-12" 
-                      onError={() => setLogoError(true)} 
-                    />
-                  )}
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 inline-flex rounded-full mb-6">
+                  <Calculator className="h-12 w-12 text-white" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-                <p className="mt-2 text-gray-600">Sign in to create AI Agent Invoices</p>
+                <h2 className="text-3xl font-bold text-gray-800">{t("welcomeBack")}</h2>
+                <p className="mt-2 text-gray-600">{t("signInPrompt")}</p>
               </div>
               
               <Auth 
@@ -141,8 +147,8 @@ export function AuthLayout() {
                 localization={{
                   variables: {
                     sign_in: {
-                      email_label: 'Email',
-                      password_label: 'Password'
+                      email_label: t("email"),
+                      password_label: t("password")
                     }
                   }
                 }}
@@ -154,62 +160,14 @@ export function AuthLayout() {
           <div className="order-1 lg:order-2">
             <div className="text-center lg:text-left">
               <h1 className="text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 mb-6">
-                AI-Powered Invoice Generator
+                {t("aiAgentInvoiceGenerator")}
               </h1>
               <p className="text-lg text-gray-700 mb-10">
-                Generate professional invoices for your AI agent services in seconds. Customizable, beautiful, and ready to share.
+                {t("landingDescription")} {" "}
+                <span className="font-semibold text-indigo-700">
+                  {t("keyFeatures")}: {t("fastGeneration")}, {t("customizable")}, {t("pdfExport")}, {t("secure")}
+                </span>
               </p>
-            </div>
-            
-            {/* Features */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-              <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-                <div className="flex items-start">
-                  <div className="bg-indigo-100 p-3 rounded-lg mr-4">
-                    <Zap className="h-6 w-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Fast Generation</h3>
-                    <p className="text-gray-600">Create professional invoices in seconds with our intuitive interface</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-                <div className="flex items-start">
-                  <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                    <Check className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Customizable</h3>
-                    <p className="text-gray-600">Tailor every invoice to match your brand and client requirements</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-                <div className="flex items-start">
-                  <div className="bg-indigo-100 p-3 rounded-lg mr-4">
-                    <FileText className="h-6 w-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800 mb-2">PDF Export</h3>
-                    <p className="text-gray-600">Download and share your invoices as professional PDF documents</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow">
-                <div className="flex items-start">
-                  <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                    <Shield className="h-6 w-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-800 mb-2">Secure</h3>
-                    <p className="text-gray-600">Your data is always protected with our secure storage system</p>
-                  </div>
-                </div>
-              </div>
             </div>
             
             {/* Invoice Preview Image */}
@@ -220,13 +178,25 @@ export function AuthLayout() {
                 className="w-full h-auto"
               />
               <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4">
-                <h3 className="font-bold text-lg">Professional AI Invoices</h3>
-                <p>Impress your clients with detailed, professional invoices</p>
+                <h3 className="font-bold text-lg">{t("professionalInvoices")}</h3>
+                <p>{t("impressClients")}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="fixed bottom-0 w-full z-50 bg-white/80 backdrop-blur-md border-t border-indigo-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-center">
+          <p className="text-sm text-gray-600 flex items-center">
+            <span className="bg-gradient-to-r from-indigo-500 to-purple-500 h-4 w-4 rounded-full mr-2"></span>
+            © {new Date().getFullYear()} {" "}
+            <span className="mx-1 font-semibold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{t("aiAgentCalculator")}</span>
+            {t("allRightsReserved")}
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

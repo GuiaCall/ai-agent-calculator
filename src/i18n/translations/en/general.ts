@@ -1,4 +1,3 @@
-
 export const general = {
   "title": "AI Voice Agent Calculator",
   "subtitle": "Calculate the costs of your AI voice agent implementation",
@@ -18,5 +17,18 @@ export const general = {
   "serviceType": "Service Type",
   "selectServiceType": "Select a service type",
   "perMinute": "/minute",
-  "perMonth": "/month"
+  "perMonth": "/month",
+  "welcomeBack": "Welcome Back",
+  "signInPrompt": "Sign in to create AI Agent Invoices",
+  "aiAgentInvoiceGenerator": "AI-Agent Calculator - Invoice Generator",
+  "landingDescription": "Generate professional invoices for your AI agent services in seconds. Customizable, beautiful, and ready to share.",
+  "keyFeatures": "Key Features",
+  "fastGeneration": "Fast Generation",
+  "customizable": "Customizable",
+  "pdfExport": "PDF Export",
+  "secure": "Secure",
+  "professionalInvoices": "Professional AI Invoices",
+  "impressClients": "Impress your clients with detailed, professional invoices",
+  "email": "Email",
+  "password": "Password"
 };
