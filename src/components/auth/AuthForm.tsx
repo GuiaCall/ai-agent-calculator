@@ -1,3 +1,4 @@
+
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,14 +12,14 @@ export function AuthForm() {
   const { toast } = useToast();
   
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_UP") {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_UP') {
         toast({
           title: t("auth.accountCreated"),
           description: t("auth.pleaseCheckYourEmail"),
           className: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white",
         });
-      } else if (event === "USER_UPDATED") {
+      } else if (event === 'USER_UPDATED') {
         toast({
           title: t("auth.emailConfirmed"),
           description: t("auth.welcomeToApp"),
