@@ -4,26 +4,101 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function CookieConsentBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
-    const cookieConsent = localStorage.getItem('cookieConsent');
-    if (!cookieConsent) {
-      setShowBanner(true);
-    }
+    const checkConsent = async () => {
+      try {
+        // First check local storage for immediate UI feedback
+        const localConsent = localStorage.getItem('cookieConsent');
+        if (localConsent) {
+          setShowBanner(false);
+          return;
+        }
+
+        // Check user authentication status
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // If authenticated, check database consent
+          const { data, error } = await supabase
+            .from('user_consent')
+            .select('cookie_consent')
+            .eq('user_id', session.user.id)
+            .single();
+
+          if (error) {
+            console.error("Error checking cookie consent:", error);
+            setShowBanner(true);
+            return;
+          }
+
+          if (data?.cookie_consent) {
+            // User has already consented in database
+            setShowBanner(false);
+            localStorage.setItem('cookieConsent', 'accepted');
+            return;
+          }
+        }
+
+        // If no consent found in either local storage or database, show banner
+        setShowBanner(true);
+      } catch (error) {
+        console.error("Error in consent check:", error);
+        setShowBanner(true);
+      }
+    };
+
+    checkConsent();
   }, []);
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     localStorage.setItem('cookieConsent', 'accepted');
     setShowBanner(false);
+
+    try {
+      // Update the database if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase
+          .from('user_consent')
+          .upsert({
+            user_id: session.user.id,
+            cookie_consent: true,
+            consent_date: new Date().toISOString(),
+            last_updated: new Date().toISOString()
+          })
+          .select();
+      }
+    } catch (error) {
+      console.error("Error saving cookie consent:", error);
+    }
   };
 
-  const handleDecline = () => {
+  const handleDecline = async () => {
     localStorage.setItem('cookieConsent', 'declined');
     setShowBanner(false);
+
+    try {
+      // Update the database if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase
+          .from('user_consent')
+          .upsert({
+            user_id: session.user.id,
+            cookie_consent: false,
+            consent_date: new Date().toISOString(),
+            last_updated: new Date().toISOString()
+          })
+          .select();
+      }
+    } catch (error) {
+      console.error("Error saving cookie consent decline:", error);
+    }
   };
 
   if (!showBanner) return null;

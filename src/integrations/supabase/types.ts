@@ -132,6 +132,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_consent: {
+        Row: {
+          consent_date: string | null
+          cookie_consent: boolean | null
+          gdpr_consent: boolean | null
+          id: string
+          last_updated: string | null
+          legal_disclaimer_acknowledged: boolean | null
+          user_id: string
+        }
+        Insert: {
+          consent_date?: string | null
+          cookie_consent?: boolean | null
+          gdpr_consent?: boolean | null
+          id?: string
+          last_updated?: string | null
+          legal_disclaimer_acknowledged?: boolean | null
+          user_id: string
+        }
+        Update: {
+          consent_date?: string | null
+          cookie_consent?: boolean | null
+          gdpr_consent?: boolean | null
+          id?: string
+          last_updated?: string | null
+          legal_disclaimer_acknowledged?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           client_info_color: string | null

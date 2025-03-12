@@ -15,6 +15,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel
 } from "@/components/ui/alert-dialog";
+import { supabase } from "@/integrations/supabase/client";
 
 export function LegalDisclaimer() {
   const [isAcknowledged, setIsAcknowledged] = useState(false);
@@ -22,18 +23,73 @@ export function LegalDisclaimer() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    const acknowledged = localStorage.getItem('legalDisclaimerAcknowledged');
-    if (acknowledged) {
-      setIsAcknowledged(true);
-    } else {
-      setShowAlert(true);
-    }
+    const checkAcknowledgment = async () => {
+      try {
+        // First check local storage for immediate UI feedback
+        const localAcknowledged = localStorage.getItem('legalDisclaimerAcknowledged');
+        if (localAcknowledged) {
+          setIsAcknowledged(true);
+          setShowAlert(false);
+          return;
+        }
+
+        // Check user authentication status
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // If authenticated, check database acknowledgment
+          const { data, error } = await supabase
+            .from('user_consent')
+            .select('legal_disclaimer_acknowledged')
+            .eq('user_id', session.user.id)
+            .single();
+
+          if (error) {
+            console.error("Error checking legal disclaimer acknowledgment:", error);
+            setShowAlert(true);
+            return;
+          }
+
+          if (data?.legal_disclaimer_acknowledged) {
+            // User has already acknowledged in database
+            setIsAcknowledged(true);
+            setShowAlert(false);
+            localStorage.setItem('legalDisclaimerAcknowledged', 'true');
+            return;
+          }
+        }
+
+        // If not acknowledged in either local storage or database, show alert
+        setShowAlert(true);
+      } catch (error) {
+        console.error("Error in legal disclaimer check:", error);
+        setShowAlert(true);
+      }
+    };
+
+    checkAcknowledgment();
   }, []);
 
-  const handleAcknowledge = () => {
+  const handleAcknowledge = async () => {
     localStorage.setItem('legalDisclaimerAcknowledged', 'true');
     setIsAcknowledged(true);
     setShowAlert(false);
+
+    try {
+      // Update the database if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase
+          .from('user_consent')
+          .upsert({
+            user_id: session.user.id,
+            legal_disclaimer_acknowledged: true,
+            last_updated: new Date().toISOString()
+          })
+          .select();
+      }
+    } catch (error) {
+      console.error("Error saving legal disclaimer acknowledgment:", error);
+    }
   };
 
   if (isAcknowledged || !showAlert) return null;

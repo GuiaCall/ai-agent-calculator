@@ -12,26 +12,101 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export function GDPRConsentPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
 
   useEffect(() => {
-    const consent = localStorage.getItem('gdprConsent');
-    if (!consent) {
-      setIsOpen(true);
-    }
+    const checkConsent = async () => {
+      try {
+        // First check local storage for immediate UI feedback
+        const localConsent = localStorage.getItem('gdprConsent');
+        if (localConsent) {
+          setIsOpen(false);
+          return;
+        }
+
+        // Check user authentication status
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          // If authenticated, check database consent
+          const { data, error } = await supabase
+            .from('user_consent')
+            .select('gdpr_consent')
+            .eq('user_id', session.user.id)
+            .single();
+
+          if (error) {
+            console.error("Error checking GDPR consent:", error);
+            setIsOpen(true);
+            return;
+          }
+
+          if (data?.gdpr_consent) {
+            // User has already consented in database
+            setIsOpen(false);
+            localStorage.setItem('gdprConsent', 'accepted');
+            return;
+          }
+        }
+
+        // If no consent found in either local storage or database, show popup
+        setIsOpen(true);
+      } catch (error) {
+        console.error("Error in GDPR consent check:", error);
+        setIsOpen(true);
+      }
+    };
+
+    checkConsent();
   }, []);
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     localStorage.setItem('gdprConsent', 'accepted');
     setIsOpen(false);
+
+    try {
+      // Update the database if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase
+          .from('user_consent')
+          .upsert({
+            user_id: session.user.id,
+            gdpr_consent: true,
+            consent_date: new Date().toISOString(),
+            last_updated: new Date().toISOString()
+          })
+          .select();
+      }
+    } catch (error) {
+      console.error("Error saving GDPR consent:", error);
+    }
   };
 
-  const handleDecline = () => {
+  const handleDecline = async () => {
     localStorage.setItem('gdprConsent', 'declined');
     setIsOpen(false);
+
+    try {
+      // Update the database if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await supabase
+          .from('user_consent')
+          .upsert({
+            user_id: session.user.id,
+            gdpr_consent: false,
+            consent_date: new Date().toISOString(),
+            last_updated: new Date().toISOString()
+          })
+          .select();
+      }
+    } catch (error) {
+      console.error("Error saving GDPR consent decline:", error);
+    }
   };
 
   return (

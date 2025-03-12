@@ -1,3 +1,4 @@
+
 export const ui = {
   "footer": "© 2024 KI-Sprachagent Rechner. Alle Rechte vorbehalten.",
   "aiAgentCalculator": "KI-Agent Rechner",
