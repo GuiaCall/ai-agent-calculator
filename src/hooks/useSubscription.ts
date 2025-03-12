@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { SubscriptionData } from "./useDashboardData";
 
 export function useSubscription() {
   const [loading, setLoading] = useState(false);
@@ -189,7 +190,7 @@ export function useSubscription() {
           fetchUserData(true);
           
           // If subscription becomes active, reload the page
-          const newData = payload.new;
+          const newData = payload.new as SubscriptionData | null;
           if (newData && newData.plan_type === 'pro' && newData.status === 'active') {
             window.location.reload();
           }
