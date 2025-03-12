@@ -1,3 +1,4 @@
+
 export const auth = {
   "login": "Login",
   "loginWithGoogle": "Login with Google",
@@ -7,6 +8,7 @@ export const auth = {
   "forgotPassword": "Forgot Password?",
   "dontHaveAccount": "Don't have an account?",
   "signUp": "Sign Up",
+  "or": "or",
   "invalidCredentials": "Invalid credentials",
   "pleaseCheckYourCredentials": "Please check your credentials and try again",
   "accountCreated": "Account created",

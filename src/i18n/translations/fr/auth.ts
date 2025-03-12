@@ -1,3 +1,4 @@
+
 export const auth = {
   "login": "Connexion",
   "loginWithGoogle": "Se connecter avec Google",
