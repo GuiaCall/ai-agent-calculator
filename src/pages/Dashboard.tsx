@@ -3,10 +3,25 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CalculatorStateProvider } from "@/components/calculator/CalculatorStateContext";
 import { AccountInfoCard } from "@/components/dashboard/AccountInfoCard";
+import { InvoiceCard } from "@/components/dashboard/InvoiceCard";
 import { useInvoiceCount } from "@/hooks/useInvoiceCount";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 export default function Dashboard() {
   const { totalInvoices } = useInvoiceCount();
+  const [userEmail, setUserEmail] = useState<string>("");
+
+  useEffect(() => {
+    const getUserEmail = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email) {
+        setUserEmail(session.user.email);
+      }
+    };
+    
+    getUserEmail();
+  }, []);
 
   return (
     <CalculatorStateProvider>
