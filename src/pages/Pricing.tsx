@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocation, useNavigate } from "react-router-dom";
 import { PageLoader } from "@/components/layout/PageLoader";
+import { SubscriptionData } from "@/hooks/useDashboardData";
 
 export default function Pricing() {
   const [loading, setLoading] = useState(false);
@@ -154,12 +155,12 @@ export default function Pricing() {
           schema: 'public',
           table: 'subscriptions'
         },
-        (payload) => {
+        (payload: any) => {
           console.log('Subscription change detected:', payload);
           fetchUserData(true);
           
           // If subscription becomes active, reload the page
-          const newData = payload.new;
+          const newData = payload.new as SubscriptionData | null;
           if (newData && newData.plan_type === 'pro' && newData.status === 'active') {
             window.location.reload();
           }
@@ -231,7 +232,7 @@ export default function Pricing() {
       
       console.log("Redirecting to Stripe checkout:", checkoutData.url);
       window.location.href = checkoutData.url;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Subscription error:", error);
       toast({
         title: t("error"),
