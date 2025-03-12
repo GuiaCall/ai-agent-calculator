@@ -15,12 +15,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Check for checkout success parameter
-    const checkForCheckoutSuccess = () => {
-      const queryParams = new URLSearchParams(location.search);
-      return queryParams.get('checkout_success') === 'true';
-    };
-
     const checkAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -55,97 +49,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             });
           }
           return;
-        }
-
-        // If we have a successful checkout, handle subscription checking
-        if (checkForCheckoutSuccess()) {
-          try {
-            console.log("Detected checkout success, checking subscription status");
-            
-            // Poll for subscription status updates with increased attempts and timeout
-            let attempts = 0;
-            const maxAttempts = 30; // Increased from 20
-            const checkSubscriptionStatus = async (): Promise<boolean> => {
-              try {
-                // Force refresh the session to ensure we have the latest token
-                const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-                if (refreshError) {
-                  console.error("Session refresh error:", refreshError);
-                }
-                
-                // Get the latest subscription data with delay between attempts
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                const { data: subscription, error: subError } = await supabase
-                  .from('subscriptions')
-                  .select('plan_type, status')
-                  .eq('user_id', user.id)
-                  .maybeSingle();
-                
-                if (subError) {
-                  console.error("Error fetching subscription:", subError);
-                  return false;
-                }
-                
-                console.log(`Subscription status check (attempt ${attempts + 1}/${maxAttempts}):`, subscription);
-                return subscription?.plan_type === 'pro' && subscription?.status === 'active';
-              } catch (err) {
-                console.error("Error in subscription check:", err);
-                return false;
-              }
-            };
-            
-            const pollSubscription = async () => {
-              let isSubscribed = await checkSubscriptionStatus();
-              
-              if (isSubscribed) {
-                console.log("Pro subscription confirmed active!");
-                if (mounted) {
-                  toast({
-                    title: "Subscription activated",
-                    description: "You now have access to all pro features!",
-                    duration: 5000,
-                  });
-                  
-                  // Remove checkout_success from URL
-                  const newUrl = location.pathname;
-                  window.history.replaceState({}, document.title, newUrl);
-                  
-                  // Force reload the page to ensure all components update with new subscription status
-                  console.log("Reloading page to apply subscription changes");
-                  window.location.reload();
-                }
-                return true;
-              }
-              
-              if (attempts < maxAttempts - 1) {
-                attempts++;
-                console.log(`Subscription not active yet, waiting... (${attempts}/${maxAttempts})`);
-                // Wait 6 seconds between checks (increased from 5)
-                await new Promise(resolve => setTimeout(resolve, 6000));
-                return pollSubscription();
-              }
-              
-              console.log("Max attempts reached, subscription may not be active yet");
-              if (mounted) {
-                toast({
-                  title: "Subscription processing",
-                  description: "Your subscription is still being processed. Please reload the page in a minute to check again.",
-                  duration: 8000,
-                });
-                
-                // Remove checkout_success from URL
-                const newUrl = location.pathname;
-                window.history.replaceState({}, document.title, newUrl);
-              }
-              return false;
-            };
-            
-            // Start polling
-            pollSubscription();
-          } catch (subError) {
-            console.error("Error checking subscription:", subError);
-          }
         }
 
         if (mounted) {

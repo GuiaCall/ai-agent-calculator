@@ -4,29 +4,13 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { PageLoader } from "@/components/layout/PageLoader";
 import { PricingHeader } from "@/components/pricing/PricingHeader";
-import { RefreshStatusButton } from "@/components/pricing/RefreshStatusButton";
 import { FreePlanCard } from "@/components/pricing/FreePlanCard";
 import { ProPlanCard } from "@/components/pricing/ProPlanCard";
-import { useSubscription } from "@/hooks/useSubscription";
-import { useCheckoutSuccess } from "@/hooks/useCheckoutSuccess";
+import { useInvoiceCount } from "@/hooks/useInvoiceCount";
 
 export default function Pricing() {
   const [pageLoading, setPageLoading] = useState(true);
-  
-  const {
-    loading,
-    refreshingStatus,
-    invoiceCount,
-    couponCode,
-    isSubscribed,
-    subscriptionStatus,
-    setCouponCode,
-    handleSubscribe,
-    handleRefreshStatus
-  } = useSubscription();
-  
-  // Handle checkout success redirect
-  useCheckoutSuccess(handleRefreshStatus);
+  const { totalInvoices } = useInvoiceCount();
   
   // Simulate initial page loading for 500ms
   useState(() => {
@@ -47,26 +31,19 @@ export default function Pricing() {
         <div className="container mx-auto px-4 py-16">
           <PricingHeader />
           
-          {isSubscribed && (
-            <RefreshStatusButton 
-              refreshingStatus={refreshingStatus} 
-              handleRefreshStatus={handleRefreshStatus} 
-            />
-          )}
-
           <div className="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
             <FreePlanCard 
-              invoiceCount={invoiceCount} 
-              isSubscribed={isSubscribed} 
+              invoiceCount={totalInvoices} 
+              isSubscribed={false} 
             />
 
             <ProPlanCard 
-              isSubscribed={isSubscribed}
-              subscriptionStatus={subscriptionStatus}
-              couponCode={couponCode}
-              setCouponCode={setCouponCode}
-              loading={loading}
-              handleSubscribe={handleSubscribe}
+              isSubscribed={false}
+              subscriptionStatus="inactive"
+              couponCode=""
+              setCouponCode={() => {}}
+              loading={false}
+              handleSubscribe={() => {}}
             />
           </div>
         </div>
