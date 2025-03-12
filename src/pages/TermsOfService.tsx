@@ -2,9 +2,11 @@
 import { useTranslation } from "react-i18next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { format } from "date-fns";
 
 export function TermsOfService() {
   const { t } = useTranslation();
+  const currentDate = format(new Date(), "yyyy-MM-dd");
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -14,7 +16,7 @@ export function TermsOfService() {
           <h1 className="text-3xl font-bold mb-6 text-gray-900">{t("termsOfService.title")}</h1>
           
           <div className="prose max-w-none">
-            <p className="text-gray-600 mb-6">{t("termsOfService.lastUpdated", { date: "2024-05-22" })}</p>
+            <p className="text-gray-600 mb-6">{t("termsOfService.lastUpdated", { date: currentDate })}</p>
             
             <h2 className="text-xl font-semibold mt-8 mb-4 text-gray-800">{t("termsOfService.agreement.title")}</h2>
             <p>{t("termsOfService.agreement.content")}</p>

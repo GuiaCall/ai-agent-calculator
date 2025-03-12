@@ -2,9 +2,11 @@
 import { useTranslation } from "react-i18next";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { format } from "date-fns";
 
 export function PrivacyPolicy() {
   const { t } = useTranslation();
+  const currentDate = format(new Date(), "yyyy-MM-dd");
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -14,7 +16,7 @@ export function PrivacyPolicy() {
           <h1 className="text-3xl font-bold mb-6 text-gray-900">{t("privacyPolicy.title")}</h1>
           
           <div className="prose max-w-none">
-            <p className="text-gray-600 mb-6">{t("privacyPolicy.lastUpdated", { date: "2024-05-22" })}</p>
+            <p className="text-gray-600 mb-6">{t("privacyPolicy.lastUpdated", { date: currentDate })}</p>
             
             <h2 className="text-xl font-semibold mt-8 mb-4 text-gray-800">{t("privacyPolicy.introduction.title")}</h2>
             <p>{t("privacyPolicy.introduction.content")}</p>
