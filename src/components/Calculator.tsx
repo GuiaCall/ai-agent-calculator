@@ -4,8 +4,6 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { CalculatorContent } from "@/components/calculator/CalculatorContent";
 import { CalculatorHeader } from "@/components/calculator/CalculatorHeader";
-import { Disclaimer } from "@/components/Disclaimer";
-import { LegalDisclaimer } from "@/components/gdpr/LegalDisclaimer";
 import { initialAgencyInfo, initialClientInfo } from "./calculator/calculatorInitialState";
 import { CalculatorStateProvider } from "./calculator/CalculatorStateContext";
 
@@ -24,8 +22,6 @@ export function Calculator() {
           onAgencyInfoChange={setAgencyInfo}
           onClientInfoChange={setClientInfo}
         />
-        <Disclaimer />
-        <LegalDisclaimer />
         <Suspense fallback={<div>Loading...</div>}>
           <CalculatorStateProvider>
             <CalculatorContent />

@@ -8,6 +8,7 @@ import { invoice } from './invoice';
 import { auth } from './auth';
 import { ui } from './ui';
 import { dashboard } from './dashboard';
+import { legal } from './legal';
 
 export const en = {
   translation: {
@@ -19,6 +20,7 @@ export const en = {
     ...invoice,
     ...auth,
     ...ui,
-    ...dashboard
+    ...dashboard,
+    ...legal
   }
 };
