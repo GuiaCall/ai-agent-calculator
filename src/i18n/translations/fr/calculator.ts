@@ -15,5 +15,23 @@ export const calculator = {
   "clickToChangeCurrency": "Cliquez pour changer de devise",
   "recalculateCost": "Recalculer le Coût",
   "togglePreview": "Afficher/Masquer l'Aperçu",
-  "billingType": "Type de facturation"
-};
+  "billingType": "Type de facturation",
+  "makeCalculator": "Calculateur d'Opérations Make.com",
+  "viewMakePricing": "Voir les tarifs de Make.com",
+  "operationsPerScenario": "Opérations par Scénario",
+  "operationsHelp": "Entrez le nombre d'opérations consommées par vos scénarios Make.com",
+  "billingCycle": "Cycle de facturation",
+  "calculateOperations": "Calculer les Opérations Requises",
+  "makeOperationsCalculation": "Calcul des Opérations Make.com",
+  "totalCallsFormula": "Appels Totaux = Minutes Totales ÷ Durée Moyenne d'Appel",
+  "requiredOperationsFormula": "Opérations Requises = Appels Totaux × Opérations par Scénario × 1,2",
+  "totalCalls": "Appels Totaux",
+  "requiredOperations": "Opérations Requises",
+  "synthflowCalculator": "Calculateur de Plan Synthflow",
+  "viewSynthflowPricing": "Voir les tarifs Synthflow",
+  "selectPlan": "Sélectionner un plan",
+  "recommendedPlan": "Plan Recommandé",
+  "basedOnUsage": "Basé sur votre utilisation estimée de",
+  "minutesPerMonth": "minutes par mois",
+  "baseCostPerMinute": "Coût de base par minute"
+}

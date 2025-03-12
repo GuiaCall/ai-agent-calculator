@@ -15,14 +15,14 @@ export function AuthForm() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_UP') {
         toast({
-          title: t("auth.accountCreated"),
-          description: t("auth.pleaseCheckYourEmail"),
+          title: t("accountCreated"),
+          description: t("pleaseCheckYourEmail"),
           className: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white",
         });
       } else if (event === 'USER_UPDATED') {
         toast({
-          title: t("auth.emailConfirmed"),
-          description: t("auth.welcomeToApp"),
+          title: t("emailConfirmed"),
+          description: t("welcomeToApp"),
           className: "bg-gradient-to-r from-green-500 to-emerald-500 text-white",
         });
       }
