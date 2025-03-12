@@ -4,15 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { SubscriptionData } from "./useDashboardData";
+import { useSubscriptionStatus } from "./useSubscriptionStatus";
+import { useInvoiceCount } from "./useInvoiceCount";
+import { useCheckoutSuccess } from "./useCheckoutSuccess";
 
 export function useSubscription() {
   const [loading, setLoading] = useState(false);
-  const [refreshingStatus, setRefreshingStatus] = useState(false);
-  const [invoiceCount, setInvoiceCount] = useState(0);
   const [couponCode, setCouponCode] = useState("");
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [subscriptionStatus, setSubscriptionStatus] = useState("");
+  const { invoiceCount, fetchInvoiceCount } = useInvoiceCount();
+  const { isSubscribed, subscriptionStatus, refreshingStatus, fetchSubscriptionStatus } = useSubscriptionStatus();
   const { toast } = useToast();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -22,10 +22,6 @@ export function useSubscription() {
 
   const fetchUserData = async (forceRefresh = false) => {
     try {
-      if (forceRefresh) {
-        setRefreshingStatus(true);
-      }
-      
       // Always get a fresh session to ensure token is valid
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !sessionData?.session?.user) {
@@ -37,68 +33,24 @@ export function useSubscription() {
       const user = sessionData.session.user;
       console.log("Current user:", user.id);
 
-      try {
-        const { data: subscription, error: subError } = await supabase
-          .from('subscriptions')
-          .select('plan_type, status')
-          .eq('user_id', user.id)
-          .maybeSingle();
+      // Fetch subscription status
+      const subscription = await fetchSubscriptionStatus(user.id, forceRefresh);
+      
+      // Fetch invoice count
+      await fetchInvoiceCount(user.id);
+      
+      // Handle subscription verification toast
+      if (forceRefresh && subscription && subscription.plan_type === 'pro' && subscription.status === 'active') {
+        toast({
+          title: t("subscriptionVerified"),
+          description: t("proFeaturesActive"),
+        });
         
-        if (subError) {
-          console.error("Error fetching subscription:", subError);
-          toast({
-            title: t("error"),
-            description: "Failed to fetch subscription status",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        if (subscription) {
-          setIsSubscribed(subscription.plan_type === 'pro');
-          setSubscriptionStatus(subscription.status);
-          console.log("Current subscription:", subscription);
-          
-          if (forceRefresh && subscription.plan_type === 'pro' && subscription.status === 'active') {
-            toast({
-              title: t("subscriptionVerified"),
-              description: t("proFeaturesActive"),
-            });
-            
-            // Force reload the page to ensure all components reflect the new subscription status
-            window.location.reload();
-          }
-        } else {
-          console.log("No subscription found for user");
-        }
-      } catch (err) {
-        console.error("Subscription fetch error:", err);
-      }
-
-      try {
-        const { count, error } = await supabase
-          .from('invoices')
-          .select('*', { count: 'exact' })
-          .eq('user_id', user.id)
-          .eq('is_deleted', false);
-        
-        if (error) {
-          console.error("Error fetching invoice count:", error);
-          return;
-        }
-
-        setInvoiceCount(count || 0);
-        console.log("Invoice count:", count);
-      } catch (err) {
-        console.error("Invoice count fetch error:", err);
+        // Force reload the page to ensure all components reflect the new subscription status
+        window.location.reload();
       }
     } catch (err) {
       console.error("Failed to fetch user data:", err);
-    } finally {
-      setRefreshingStatus(false);
-      if (forceRefresh) {
-        setRefreshingStatus(false);
-      }
     }
   };
 
@@ -173,6 +125,9 @@ export function useSubscription() {
     }
   };
 
+  // Use the checkout success hook
+  useCheckoutSuccess(fetchUserData);
+
   useEffect(() => {
     fetchUserData();
 
@@ -190,7 +145,7 @@ export function useSubscription() {
           fetchUserData(true);
           
           // If subscription becomes active, reload the page
-          const newData = payload.new as SubscriptionData | null;
+          const newData = payload.new;
           if (newData && newData.plan_type === 'pro' && newData.status === 'active') {
             window.location.reload();
           }
