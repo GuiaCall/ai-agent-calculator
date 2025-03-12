@@ -6,20 +6,21 @@ import { Calculator } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { AuthChangeEvent } from "@supabase/supabase-js";
 
 export function AuthForm() {
   const { t } = useTranslation();
   const { toast } = useToast();
   
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_UP') {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
+      if (event === AuthChangeEvent.SIGNED_UP) {
         toast({
           title: t("auth.accountCreated"),
           description: t("auth.pleaseCheckYourEmail"),
           className: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white",
         });
-      } else if (event === 'USER_UPDATED') {
+      } else if (event === AuthChangeEvent.USER_UPDATED) {
         toast({
           title: t("auth.emailConfirmed"),
           description: t("auth.welcomeToApp"),
