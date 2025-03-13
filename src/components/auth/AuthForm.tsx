@@ -13,13 +13,13 @@ export function AuthForm() {
   
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_UP') {
+      if (event === "SIGNED_UP") {
         toast({
           title: t("accountCreated"),
           description: t("pleaseCheckYourEmail"),
           className: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white",
         });
-      } else if (event === 'USER_UPDATED') {
+      } else if (event === "USER_UPDATED") {
         toast({
           title: t("emailConfirmed"),
           description: t("welcomeToApp"),
@@ -39,7 +39,7 @@ export function AuthForm() {
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 inline-flex rounded-full mb-6">
           <Calculator className="h-12 w-12 text-white" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-800">{t("welcomeBack")}</h2>
+        <h2 className="text-3xl font-bold text-gray-800">{t("login")}</h2>
         <p className="mt-2 text-gray-600">{t("signInPrompt")}</p>
       </div>
       
