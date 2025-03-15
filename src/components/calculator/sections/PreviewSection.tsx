@@ -64,7 +64,7 @@ export function PreviewSection() {
         className="print:block" // Always show when printing
       >
         <CalculatorPreview
-          showPreview={true}
+          showPreview={true} // Always pass true here to ensure rendering
           agencyInfo={state.agencyInfo}
           clientInfo={state.clientInfo}
           totalMinutes={state.totalMinutes}
@@ -73,6 +73,7 @@ export function PreviewSection() {
           taxRate={state.taxRate}
           themeColor={state.themeColor}
           currency={state.currency}
+          invoiceNumber={state.editingInvoice?.invoice_number}
         />
       </div>
       

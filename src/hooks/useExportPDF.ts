@@ -25,10 +25,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
 
     console.log("Starting PDF export process...");
     
-    // Make sure the element is rendered before accessing it
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // Ensure the preview element exists and is visible
+    // Make sure the preview element is rendered and visible during export
     const element = document.getElementById('invoice-preview');
     if (!element) {
       console.error('Invoice preview element not found in DOM');
@@ -43,32 +40,31 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
     try {
       console.log("Found element, preparing to create PDF...");
       
-      // Force show the preview element during PDF generation
-      const wasHidden = element.style.display === 'none';
+      // Store the original display state
       const originalDisplay = element.style.display;
+      const wasHidden = originalDisplay === 'none';
       
+      // Force element to be visible and wait for DOM to update
       if (wasHidden) {
         console.log("Preview was hidden, making it visible for export");
         element.style.display = 'block';
       }
       
-      // Allow the DOM to update before capturing
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Give DOM time to update
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       console.log("Capturing canvas...");
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
-        logging: true, // Enable logging for debugging
-        windowWidth: 1200,
-        windowHeight: element.scrollHeight,
+        logging: false,
         allowTaint: true,
         backgroundColor: '#ffffff'
       });
       
       console.log("Canvas captured, dimensions:", canvas.width, "x", canvas.height);
       
-      // Restore the element's original display state
+      // Restore the original display state
       if (wasHidden) {
         element.style.display = originalDisplay;
       }
@@ -90,7 +86,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       console.log("Pages needed:", pagesNeeded);
       
       if (pagesNeeded <= 1) {
-        // Single page - simpler case
+        // Single page
         const imgData = canvas.toDataURL('image/png');
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       } else {
@@ -140,7 +136,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       
       console.log("Saving PDF with name:", `${invoiceNumber}.pdf`);
       
-      // Use a consistent method to trigger download
+      // Force download
       pdf.save(`${invoiceNumber}.pdf`);
 
       // Update export timestamp in the database

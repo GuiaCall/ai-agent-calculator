@@ -30,6 +30,19 @@ export function CalculatorActions({
   const currencySymbol = currency === 'EUR' ? '€' : '$';
   const { t } = useTranslation();
 
+  // Fonction d'exportation avec vérification supplémentaire
+  const handleExportPDF = () => {
+    // Si aucun calcul n'a été effectué, d'abord montrer la prévisualisation
+    if (totalCost === null || setupCost === null) {
+      onCalculate();
+      setTimeout(() => {
+        onExportPDF();
+      }, 500);
+    } else {
+      onExportPDF();
+    }
+  };
+
   return (
     <div className="space-y-6 fade-in">
       <div className="flex flex-wrap gap-3 justify-center md:justify-start">
@@ -55,7 +68,7 @@ export function CalculatorActions({
         </Button>
         
         <Button 
-          onClick={onExportPDF} 
+          onClick={handleExportPDF} 
           variant="outline"
           className="w-full sm:w-auto border-indigo-200 text-indigo-700 hover:bg-gradient-to-r hover:from-indigo-600 hover:to-purple-600 hover:text-white hover:border-transparent font-medium px-6 py-2 rounded-lg shadow-sm transform transition-all hover:-translate-y-1"
         >

@@ -28,7 +28,8 @@ export function CalculatorPreview({
   currency,
   invoiceNumber,
 }: CalculatorPreviewProps) {
-  if (!showPreview || !totalCost) return null;
+  // Always render the component, but control visibility with CSS
+  if (!totalCost) return null;
 
   return (
     <div className="invoice-preview-container">

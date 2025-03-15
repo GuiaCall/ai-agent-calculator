@@ -19,7 +19,11 @@ export function CalculatorContent() {
 
   // Handle calculator actions
   const { handleCalculate } = SubscriptionCheck({
-    onProceed: logic.calculateCost
+    onProceed: () => {
+      logic.calculateCost();
+      // Assurez-vous que la prévisualisation est visible après le calcul
+      state.setShowPreview(true);
+    }
   });
 
   if (state.isLoading) {
