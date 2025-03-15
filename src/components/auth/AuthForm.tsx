@@ -6,22 +6,23 @@ import { Calculator } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-// Import the AuthChangeEvent type from Supabase
-import { AuthChangeEvent } from "@supabase/supabase-js";
+// Import the AuthChangeEvent type from Supabase correctly
+import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 export function AuthForm() {
   const { t } = useTranslation();
   const { toast } = useToast();
   
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
-      if (event === "SIGNED_UP") {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+      // Use the correct format for the AuthChangeEvent type comparison
+      if (event === "SIGNED_UP" as AuthChangeEvent) {
         toast({
           title: t("accountCreated"),
           description: t("pleaseCheckYourEmail"),
           className: "bg-gradient-to-r from-indigo-600 to-purple-600 text-white",
         });
-      } else if (event === "USER_UPDATED") {
+      } else if (event === "USER_UPDATED" as AuthChangeEvent) {
         toast({
           title: t("emailConfirmed"),
           description: t("welcomeToApp"),
