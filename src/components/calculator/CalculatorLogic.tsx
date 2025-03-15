@@ -27,7 +27,8 @@ export function useCalculatorLogic({
   callDuration,
   setEditingInvoice,
   isEditingInvoice,
-  editingInvoiceId
+  editingInvoiceId,
+  editingInvoice
 }: any) {
   const { calculateCost } = useCalculation({
     technologies,
@@ -56,14 +57,16 @@ export function useCalculatorLogic({
     setEditingInvoice(invoice);
   };
 
-  // Fonction sécurisée pour l'exportation PDF
-  const handleExportPDF = async () => {
-    // Assurez-vous que la prévisualisation est visible pour l'exportation
+  // Secured PDF export function with proper preparation
+  const handleExportPDF = async (invoiceId?: string) => {
+    // Ensure the preview is visible for export
     setShowPreview(true);
-    // Donnez du temps au DOM pour se mettre à jour
-    await new Promise(resolve => setTimeout(resolve, 300));
-    // Exécutez l'exportation
-    exportPDF();
+    
+    // Wait for DOM to update
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Execute export
+    exportPDF(invoiceId);
   };
 
   return {

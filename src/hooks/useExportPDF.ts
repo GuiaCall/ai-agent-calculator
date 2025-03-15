@@ -11,6 +11,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
 
   const exportPDF = async (invoiceId?: string) => {
     let targetInvoice: InvoiceHistory | undefined;
+    
     if (invoiceId) {
       targetInvoice = invoices.find((inv: InvoiceHistory) => inv.id === invoiceId);
       if (!targetInvoice) {
@@ -23,7 +24,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       }
     }
 
-    console.log("Starting PDF export process...");
+    console.log("Starting PDF export process...", invoiceId ? `for invoice: ${invoiceId}` : "for current invoice");
     
     // Make sure the preview element is rendered and visible during export
     const element = document.getElementById('invoice-preview');
@@ -51,7 +52,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       }
       
       // Give DOM time to update
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       console.log("Capturing canvas...");
       const canvas = await html2canvas(element, {
@@ -66,7 +67,9 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       
       // Restore the original display state
       if (wasHidden) {
-        element.style.display = originalDisplay;
+        setTimeout(() => {
+          element.style.display = originalDisplay;
+        }, 100);
       }
       
       const imgWidth = 210; // A4 width in mm
