@@ -23,6 +23,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       }
     }
 
+    // Ensure the preview element exists and is visible
     const element = document.getElementById('invoice-preview');
     if (!element) {
       toast({
@@ -30,15 +31,21 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
         description: t("previewNotFound"),
         variant: "destructive",
       });
+      console.error('Invoice preview element not found');
       return;
     }
 
     try {
       // Force show the preview element during PDF generation
       const wasHidden = element.style.display === 'none';
+      const originalDisplay = element.style.display;
+      
       if (wasHidden) {
         element.style.display = 'block';
       }
+
+      // Allow the DOM to update before capturing
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -52,7 +59,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       
       // Restore the element's original display state
       if (wasHidden) {
-        element.style.display = 'none';
+        element.style.display = originalDisplay;
       }
       
       const imgWidth = 210; // A4 width in mm

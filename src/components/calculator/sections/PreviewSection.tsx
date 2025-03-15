@@ -61,6 +61,7 @@ export function PreviewSection() {
         id="invoice-preview" 
         ref={previewRef}
         style={{ display: state.showPreview ? 'block' : 'none' }}
+        className="print:block" // Always show when printing
       >
         <CalculatorPreview
           showPreview={true}

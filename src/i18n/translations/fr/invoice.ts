@@ -33,5 +33,18 @@ export const invoice = {
   "subtotal": "Sous-total",
   "tax": "TVA",
   "total": "Total",
-  "thankYou": "Merci pour votre confiance !"
-};
+  "thankYou": "Merci pour votre confiance !",
+  "invoiceNotFound": "Facture introuvable",
+  "previewNotFound": "Aperçu introuvable. Veuillez d'abord calculer le coût.",
+  "pdfExportedSuccessfully": "PDF exporté avec succès",
+  "failedToExportPDF": "Échec de l'exportation du PDF. Veuillez réessayer.",
+  "invoiceExported": "Facture exportée",
+  "invoiceCreated": "Facture créée",
+  "edit": "Modifier",
+  "delete": "Supprimer",
+  "confirmDelete": "Confirmer la suppression",
+  "deleteInvoiceConfirmation": "Cette action ne peut pas être annulée. La facture et toutes les données associées seront définitivement supprimées.",
+  "cancel": "Annuler",
+  "invoiceDeleted": "Facture supprimée",
+  "invoiceDeletedDescription": "La facture a été supprimée avec succès."
+}
