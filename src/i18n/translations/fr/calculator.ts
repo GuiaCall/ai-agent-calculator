@@ -33,5 +33,11 @@ export const calculator = {
   "recommendedPlan": "Plan Recommandé",
   "basedOnUsage": "Basé sur votre utilisation estimée de",
   "minutesPerMonth": "minutes par mois",
-  "baseCostPerMinute": "Coût de base par minute"
+  "baseCostPerMinute": "Coût de base par minute",
+  "success": "Succès",
+  "error": "Erreur",
+  "pdfExportedSuccessfully": "PDF exporté avec succès",
+  "failedToExportPDF": "Échec de l'exportation du PDF. Veuillez réessayer.",
+  "previewNotFound": "Aperçu introuvable. Veuillez d'abord calculer le coût.",
+  "invoiceNotFound": "Facture introuvable"
 }

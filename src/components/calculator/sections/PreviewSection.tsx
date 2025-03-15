@@ -6,12 +6,21 @@ import { useCalculatorLogic } from "../CalculatorLogic";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useRef } from "react";
 
 export function PreviewSection() {
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state });
   const { t } = useTranslation();
   const { toast } = useToast();
+  const previewRef = useRef<HTMLDivElement>(null);
+
+  // Ensure the preview is visible when needed for export
+  useEffect(() => {
+    if (previewRef.current && state.showPreview) {
+      previewRef.current.style.display = 'block';
+    }
+  }, [state.showPreview]);
 
   const handleDeleteInvoice = async (id: string) => {
     try {
@@ -48,21 +57,23 @@ export function PreviewSection() {
 
   return (
     <div className="space-y-10">
-      {state.showPreview && (
-        <div id="invoice-preview">
-          <CalculatorPreview
-            showPreview={state.showPreview}
-            agencyInfo={state.agencyInfo}
-            clientInfo={state.clientInfo}
-            totalMinutes={state.totalMinutes}
-            totalCost={state.totalCost}
-            setupCost={state.setupCost}
-            taxRate={state.taxRate}
-            themeColor={state.themeColor}
-            currency={state.currency}
-          />
-        </div>
-      )}
+      <div 
+        id="invoice-preview" 
+        ref={previewRef}
+        style={{ display: state.showPreview ? 'block' : 'none' }}
+      >
+        <CalculatorPreview
+          showPreview={true}
+          agencyInfo={state.agencyInfo}
+          clientInfo={state.clientInfo}
+          totalMinutes={state.totalMinutes}
+          totalCost={state.totalCost}
+          setupCost={state.setupCost}
+          taxRate={state.taxRate}
+          themeColor={state.themeColor}
+          currency={state.currency}
+        />
+      </div>
       
       {state.invoices && state.invoices.length > 0 && (
         <div className="mt-12">

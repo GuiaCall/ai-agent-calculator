@@ -34,16 +34,29 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
     }
 
     try {
+      // Force show the preview element during PDF generation
+      const wasHidden = element.style.display === 'none';
+      if (wasHidden) {
+        element.style.display = 'block';
+      }
+
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
-        logging: true,
+        logging: false,
         windowWidth: 1200,
-        windowHeight: element.scrollHeight
+        windowHeight: element.scrollHeight,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
       });
       
-      const imgWidth = 210;
-      const pageHeight = 297;
+      // Restore the element's original display state
+      if (wasHidden) {
+        element.style.display = 'none';
+      }
+      
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       const pdf = new jsPDF({
@@ -52,61 +65,77 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
         format: 'a4'
       });
 
+      // Check if we need multiple pages
       const pagesNeeded = Math.ceil(imgHeight / pageHeight);
       
-      for (let page = 0; page < pagesNeeded; page++) {
-        if (page > 0) {
-          pdf.addPage();
-        }
-        
-        const sourceY = page * canvas.height / pagesNeeded;
-        const sourceHeight = canvas.height / pagesNeeded;
-        
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = sourceHeight;
-        
-        const ctx = tempCanvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(
-            canvas,
+      if (pagesNeeded <= 1) {
+        // Single page - simpler case
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      } else {
+        // Multiple pages
+        for (let page = 0; page < pagesNeeded; page++) {
+          if (page > 0) {
+            pdf.addPage();
+          }
+          
+          const sourceY = page * canvas.height / pagesNeeded;
+          const sourceHeight = canvas.height / pagesNeeded;
+          
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = canvas.width;
+          tempCanvas.height = sourceHeight;
+          
+          const ctx = tempCanvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(
+              canvas,
+              0,
+              sourceY,
+              canvas.width,
+              sourceHeight,
+              0,
+              0,
+              tempCanvas.width,
+              tempCanvas.height
+            );
+          }
+          
+          const imgData = tempCanvas.toDataURL('image/png');
+          pdf.addImage(
+            imgData,
+            'PNG',
             0,
-            sourceY,
-            canvas.width,
-            sourceHeight,
             0,
-            0,
-            tempCanvas.width,
-            tempCanvas.height
+            imgWidth,
+            (sourceHeight * imgWidth) / canvas.width
           );
         }
-        
-        const imgData = tempCanvas.toDataURL('image/png');
-        pdf.addImage(
-          imgData,
-          'PNG',
-          0,
-          0,
-          imgWidth,
-          (sourceHeight * imgWidth) / canvas.width
-        );
       }
 
+      // Generate a unique filename
       const currentInvoice = targetInvoice || (invoices.length > 0 ? invoices[invoices.length - 1] : null);
       const invoiceNumber = currentInvoice?.invoice_number || `invoice-${new Date().toISOString()}`;
+      
+      // Use a consistent method to trigger download
       pdf.save(`${invoiceNumber}.pdf`);
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && currentInvoice) {
-        const { error } = await supabase
-          .from('invoices')
-          .update({ last_exported_at: new Date().toISOString() })
-          .eq('user_id', user.id)
-          .eq('id', currentInvoice.id);
+      // Update export timestamp in the database
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && currentInvoice) {
+          const { error } = await supabase
+            .from('invoices')
+            .update({ last_exported_at: new Date().toISOString() })
+            .eq('id', currentInvoice.id);
 
-        if (error) {
-          console.error('Error updating export timestamp:', error);
+          if (error) {
+            console.error('Error updating export timestamp:', error);
+          }
         }
+      } catch (dbError) {
+        console.error('Database update error:', dbError);
+        // Don't fail the export if database update fails
       }
 
       toast({
