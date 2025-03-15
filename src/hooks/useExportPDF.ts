@@ -23,39 +23,50 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       }
     }
 
+    console.log("Starting PDF export process...");
+    
+    // Make sure the element is rendered before accessing it
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
     // Ensure the preview element exists and is visible
     const element = document.getElementById('invoice-preview');
     if (!element) {
+      console.error('Invoice preview element not found in DOM');
       toast({
         title: t("error"),
         description: t("previewNotFound"),
         variant: "destructive",
       });
-      console.error('Invoice preview element not found');
       return;
     }
 
     try {
+      console.log("Found element, preparing to create PDF...");
+      
       // Force show the preview element during PDF generation
       const wasHidden = element.style.display === 'none';
       const originalDisplay = element.style.display;
       
       if (wasHidden) {
+        console.log("Preview was hidden, making it visible for export");
         element.style.display = 'block';
       }
-
+      
       // Allow the DOM to update before capturing
-      await new Promise(resolve => setTimeout(resolve, 100));
-
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      console.log("Capturing canvas...");
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
-        logging: false,
+        logging: true, // Enable logging for debugging
         windowWidth: 1200,
         windowHeight: element.scrollHeight,
         allowTaint: true,
         backgroundColor: '#ffffff'
       });
+      
+      console.log("Canvas captured, dimensions:", canvas.width, "x", canvas.height);
       
       // Restore the element's original display state
       if (wasHidden) {
@@ -66,6 +77,8 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       const pageHeight = 297; // A4 height in mm
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
+      console.log("Calculated dimensions for PDF:", imgWidth, "x", imgHeight);
+      
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -74,6 +87,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
 
       // Check if we need multiple pages
       const pagesNeeded = Math.ceil(imgHeight / pageHeight);
+      console.log("Pages needed:", pagesNeeded);
       
       if (pagesNeeded <= 1) {
         // Single page - simpler case
@@ -124,6 +138,8 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       const currentInvoice = targetInvoice || (invoices.length > 0 ? invoices[invoices.length - 1] : null);
       const invoiceNumber = currentInvoice?.invoice_number || `invoice-${new Date().toISOString()}`;
       
+      console.log("Saving PDF with name:", `${invoiceNumber}.pdf`);
+      
       // Use a consistent method to trigger download
       pdf.save(`${invoiceNumber}.pdf`);
 
@@ -145,6 +161,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
         // Don't fail the export if database update fails
       }
 
+      console.log("PDF export completed successfully");
       toast({
         title: t("success"),
         description: t("pdfExportedSuccessfully"),

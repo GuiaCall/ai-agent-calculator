@@ -31,7 +31,7 @@ export function CalculatorPreview({
   if (!showPreview || !totalCost) return null;
 
   return (
-    <div id="invoice-preview">
+    <div className="invoice-preview-container">
       <InvoicePreview
         agencyInfo={agencyInfo}
         clientInfo={clientInfo}

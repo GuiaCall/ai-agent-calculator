@@ -45,7 +45,7 @@ export function useCalculatorLogic({
     editingInvoiceId
   });
 
-  const { exportPDF } = useExportPDF(invoices);
+  const { exportPDF } = useExportPDF(invoices || []);
   const { handleCalcomPlanSelect, handleTwilioRateSelect } = useTechnologyHandlers(setTechnologies);
 
   const cancelEdit = () => {
