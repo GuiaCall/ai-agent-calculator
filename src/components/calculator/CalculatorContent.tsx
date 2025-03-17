@@ -39,7 +39,7 @@ export function CalculatorContent() {
       <div className="w-full max-w-4xl mx-auto p-6 space-y-8 animate-fadeIn mt-20 mb-20">
         <Disclaimer />
         
-        <div id="calculator-header">
+        <div id="calculator-header" className="animate-fade-in">
           <CalculatorHeader
             agencyInfo={state.agencyInfo}
             clientInfo={state.clientInfo}
@@ -48,13 +48,13 @@ export function CalculatorContent() {
           />
         </div>
 
-        <CurrencyToggle />
+        <CurrencyToggle className="animate-fade-in" />
         
-        <div id="calculator-settings">
+        <div id="calculator-settings" className="animate-fade-in">
           <CalculatorSettingsSection />
         </div>
         
-        <div id="technology-section">
+        <div id="technology-section" className="animate-fade-in">
           <TechnologySection />
         </div>
 
@@ -68,9 +68,10 @@ export function CalculatorContent() {
           currency={state.currency}
           totalMinutes={state.totalMinutes}
           isEditingInvoice={!!state.editingInvoice}
+          className="animate-fade-in"
         />
 
-        <div id="invoice-preview">
+        <div id="invoice-preview" className="animate-fade-in">
           <PreviewSection />
         </div>
       </div>

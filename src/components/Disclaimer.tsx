@@ -1,10 +1,13 @@
+
 import { useState, useEffect } from "react";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 import { Card } from "./ui/card";
+import { useTranslation } from "react-i18next";
 
 export function Disclaimer() {
   const [isAccepted, setIsAccepted] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const accepted = localStorage.getItem('disclaimerAccepted');
@@ -23,10 +26,10 @@ export function Disclaimer() {
   if (isAccepted) return null;
 
   return (
-    <Card className="p-4 mb-6 bg-white/80 backdrop-blur-sm">
+    <Card className="p-4 mb-6 bg-white/80 backdrop-blur-sm animate-fade-in">
       <div className="space-y-4">
         <p className="text-sm text-gray-600">
-          Please note that all calculations provided are approximations. Actual costs may vary based on specific usage patterns, provider pricing changes, and other factors.
+          {t("disclaimerText")}
         </p>
         <div className="flex items-center space-x-2">
           <Checkbox
@@ -35,7 +38,7 @@ export function Disclaimer() {
             onCheckedChange={handleAccept}
           />
           <Label htmlFor="disclaimer">
-            I understand that these are approximate calculations
+            {t("disclaimerAccept")}
           </Label>
         </div>
       </div>

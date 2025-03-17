@@ -7,11 +7,20 @@ import {
   FileText, 
   ChevronLeft, 
   ChevronRight,
-  Menu
+  Menu,
+  ChevronDown,
+  Layers
 } from 'lucide-react';
 import { useTranslation } from "react-i18next";
 import { cn } from '@/lib/utils';
 import { Button } from "@/components/ui/button";
+import { useCalculatorStateContext } from './CalculatorStateContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem
+} from "@/components/ui/dropdown-menu";
 
 interface NavItem {
   id: string;
@@ -28,7 +37,12 @@ export function NavigationSidebar({ className }: NavigationSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const { technologies } = useCalculatorStateContext();
 
+  // Get active technologies
+  const activeTechnologies = technologies.filter(tech => tech.enabled);
+
+  // Main navigation items
   const navItems: NavItem[] = [
     {
       id: 'calculator-header',
@@ -92,6 +106,18 @@ export function NavigationSidebar({ className }: NavigationSidebarProps) {
     }
   };
 
+  // Scroll to a specific technology section
+  const scrollToTechnology = (techId: string) => {
+    const element = document.getElementById(`technology-${techId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Close mobile menu after navigation
+      if (window.innerWidth < 768) {
+        setIsMobileOpen(false);
+      }
+    }
+  };
+
   return (
     <>
       {/* Mobile menu trigger */}
@@ -99,7 +125,7 @@ export function NavigationSidebar({ className }: NavigationSidebarProps) {
         <Button 
           variant="default" 
           size="icon" 
-          className="h-12 w-12 rounded-full shadow-lg bg-indigo-600 hover:bg-indigo-700"
+          className="h-12 w-12 rounded-full shadow-lg bg-indigo-600 hover:bg-indigo-700 animate-pulse"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
         >
           <Menu className="h-6 w-6 text-white" />
@@ -126,19 +152,36 @@ export function NavigationSidebar({ className }: NavigationSidebarProps) {
           </div>
           <div className="space-y-2">
             {navItems.map((item) => (
-              <button
-                key={item.id}
-                className={cn(
-                  "flex items-center space-x-3 w-full px-4 py-3 rounded-lg transition-colors",
-                  activeSection === item.id
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-100"
+              <React.Fragment key={item.id}>
+                <button
+                  className={cn(
+                    "flex items-center space-x-3 w-full px-4 py-3 rounded-lg transition-colors",
+                    activeSection === item.id
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  )}
+                  onClick={() => scrollToSection(item.id)}
+                >
+                  {item.icon}
+                  <span className="font-medium">{item.title}</span>
+                </button>
+                
+                {/* Technology dropdown for mobile */}
+                {item.id === 'technology-section' && activeTechnologies.length > 0 && (
+                  <div className="ml-10 space-y-1 animate-fade-in">
+                    {activeTechnologies.map(tech => (
+                      <button
+                        key={tech.id}
+                        className="flex items-center w-full px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100"
+                        onClick={() => scrollToTechnology(tech.id)}
+                      >
+                        <Layers className="h-4 w-4 mr-2 text-indigo-500" />
+                        <span>{tech.name}</span>
+                      </button>
+                    ))}
+                  </div>
                 )}
-                onClick={() => scrollToSection(item.id)}
-              >
-                {item.icon}
-                <span className="font-medium">{item.title}</span>
-              </button>
+              </React.Fragment>
             ))}
           </div>
         </div>
@@ -163,20 +206,45 @@ export function NavigationSidebar({ className }: NavigationSidebarProps) {
           </div>
           <nav className="mt-2 space-y-1">
             {navItems.map((item) => (
-              <button
-                key={item.id}
-                className={cn(
-                  "flex items-center space-x-3 w-full px-3 py-2.5 rounded-lg transition-colors",
-                  activeSection === item.id
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-100"
+              <React.Fragment key={item.id}>
+                <button
+                  className={cn(
+                    "flex items-center space-x-3 w-full px-3 py-2.5 rounded-lg transition-colors animate-fade-in",
+                    activeSection === item.id
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "text-gray-600 hover:bg-gray-100"
+                  )}
+                  onClick={() => scrollToSection(item.id)}
+                  title={isCollapsed ? item.title : undefined}
+                >
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  {!isCollapsed && <span className="truncate">{item.title}</span>}
+                </button>
+
+                {/* Technology dropdown for desktop */}
+                {!isCollapsed && item.id === 'technology-section' && activeTechnologies.length > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="ml-8 flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 text-sm hover:bg-gray-100 w-full transition-colors animate-fade-in">
+                        <Layers className="h-4 w-4 text-indigo-500" />
+                        <span className="truncate">{t("technologies")}</span>
+                        <ChevronDown className="h-4 w-4 ml-auto" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-white">
+                      {activeTechnologies.map(tech => (
+                        <DropdownMenuItem 
+                          key={tech.id}
+                          className="cursor-pointer"
+                          onClick={() => scrollToTechnology(tech.id)}
+                        >
+                          {tech.name}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
-                onClick={() => scrollToSection(item.id)}
-                title={isCollapsed ? item.title : undefined}
-              >
-                <span className="flex-shrink-0">{item.icon}</span>
-                {!isCollapsed && <span className="truncate">{item.title}</span>}
-              </button>
+              </React.Fragment>
             ))}
           </nav>
         </div>

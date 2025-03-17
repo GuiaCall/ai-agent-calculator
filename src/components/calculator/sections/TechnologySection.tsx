@@ -8,7 +8,7 @@ export function TechnologySection() {
   const { technologies, setTechnologies } = useCalculatorStateContext();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <Card className="p-6 bg-background text-foreground">
         <TechnologyParameters
           technologies={technologies}
