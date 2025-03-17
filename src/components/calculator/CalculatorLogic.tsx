@@ -30,6 +30,7 @@ export function useCalculatorLogic({
   editingInvoiceId,
   editingInvoice
 }: any) {
+  // Using the refactored useCalculation hook
   const { calculateCost } = useCalculation({
     technologies,
     totalMinutes,

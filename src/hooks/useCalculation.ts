@@ -1,9 +1,9 @@
 
-import { toast } from "@/hooks/use-toast";
-import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { InvoiceHistory, ClientInfo, AgencyInfo } from "@/types/invoice";
-import { safelyParseJSON } from "@/utils/jsonUtils";
+import { InvoiceHistory } from "@/types/invoice";
+import { calculateTotalCostPerMinute } from "@/utils/calculationHelpers";
+import { createInvoice, updateInvoice, formatInvoiceData } from "@/utils/invoiceOperations";
+import { useCalculationToasts } from "./useCalculationToasts";
 
 interface UseCalculationProps {
   technologies: any[];
@@ -36,19 +36,21 @@ export function useCalculation({
   setInvoices,
   editingInvoiceId
 }: UseCalculationProps) {
-  const { t } = useTranslation();
+  const { 
+    showSuccessToast, 
+    showErrorToast, 
+    showTechnologySelectionError 
+  } = useCalculationToasts();
 
   const calculateCost = async () => {
+    // Validate technology selection
     const selectedTechs = technologies.filter((tech) => tech.isSelected);
     if (selectedTechs.length === 0) {
-      toast({
-        title: t("error"),
-        description: t("pleaseSelectAtLeastOneTechnology"),
-        variant: "destructive",
-      });
+      showTechnologySelectionError();
       return;
     }
 
+    // Calculate costs
     const { monthlyCost } = calculateTotalCostPerMinute(
       technologies,
       totalMinutes,
@@ -57,38 +59,35 @@ export function useCalculation({
 
     const setupCostValue = monthlyCost;
     
+    // Update state with calculated costs
     setTotalCost(monthlyCost);
     setSetupCost(setupCostValue);
     setShowPreview(true);
 
     try {
+      // Check if user is authenticated
       const { data: { user } } = await supabase.auth.getUser();
+      
       if (user) {
         if (editingInvoiceId) {
-          const { error } = await supabase
-            .from('invoices')
-            .update({
-              agency_info: agencyInfo,
-              client_info: clientInfo,
-              setup_cost: setupCostValue,
-              total_amount: monthlyCost,
-              tax_rate: taxRate,
-              margin: margin,
-              total_minutes: totalMinutes,
-              call_duration: callDuration,
-              monthly_service_cost: monthlyCost,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', editingInvoiceId);
+          // Update existing invoice
+          const { error } = await updateInvoice(
+            editingInvoiceId,
+            agencyInfo,
+            clientInfo,
+            setupCostValue,
+            monthlyCost,
+            taxRate,
+            margin,
+            totalMinutes,
+            callDuration
+          );
             
           if (error) {
             console.error('Error updating invoice:', error);
-            toast({
-              title: t("error"),
-              description: t("failedToUpdateInvoice"),
-              variant: "destructive",
-            });
+            showErrorToast(error.message, true);
           } else {
+            // Update invoices in state
             const updatedInvoices = invoices.map((inv: InvoiceHistory) => 
               inv.id === editingInvoiceId ? {
                 ...inv,
@@ -106,124 +105,39 @@ export function useCalculation({
             );
             
             setInvoices(updatedInvoices);
-            
-            toast({
-              title: t("success"),
-              description: t("invoiceUpdatedSuccessfully"),
-            });
+            showSuccessToast(true, true);
           }
         } else {
-          const currentYear = 2025;
-          let nextSequence = 1;
-          
-          const yearInvoices = invoices.filter((inv: InvoiceHistory) => 
-            inv.invoice_number.includes(`INV-${currentYear}`)
+          // Create new invoice
+          const { data, error } = await createInvoice(
+            user.id,
+            agencyInfo,
+            clientInfo,
+            setupCostValue,
+            monthlyCost,
+            taxRate,
+            margin,
+            totalMinutes,
+            callDuration
           );
-          
-          if (yearInvoices.length > 0) {
-            const sequences = yearInvoices.map((inv: InvoiceHistory) => {
-              const seqStr = inv.invoice_number.split('-')[2];
-              return parseInt(seqStr, 10);
-            });
-            nextSequence = Math.max(...sequences) + 1;
-          }
-          
-          const invoiceNumber = `INV-${currentYear}-${nextSequence.toString().padStart(6, '0')}`;
-          
-          const newInvoice = {
-            user_id: user.id,
-            agency_info: agencyInfo,
-            client_info: clientInfo,
-            setup_cost: setupCostValue,
-            total_amount: monthlyCost,
-            tax_rate: taxRate,
-            margin: margin,
-            total_minutes: totalMinutes,
-            call_duration: callDuration,
-            invoice_number: invoiceNumber,
-            monthly_service_cost: monthlyCost
-          };
-          
-          const { data, error } = await supabase
-            .from('invoices')
-            .insert(newInvoice)
-            .select();
             
           if (error) {
             console.error('Error saving invoice:', error);
-            toast({
-              title: t("error"),
-              description: t("failedToSaveCalculation"),
-              variant: "destructive",
-            });
+            showErrorToast("failedToSaveCalculation");
           } else if (data) {
-            // Create default values for ClientInfo and AgencyInfo
-            const defaultClientInfo: ClientInfo = {
-              name: "",
-              address: "",
-              tvaNumber: "",
-              contactPerson: {
-                name: "",
-                phone: ""
-              }
-            };
-            
-            const defaultAgencyInfo: AgencyInfo = {
-              name: "",
-              phone: "",
-              address: "",
-              email: "",
-              website: ""
-            };
-            
-            // Parse the JSON data from Supabase before adding to invoices array
-            const newInvoiceData = {
-              ...data[0],
-              agency_info: safelyParseJSON<AgencyInfo>(data[0].agency_info, defaultAgencyInfo),
-              client_info: safelyParseJSON<ClientInfo>(data[0].client_info, defaultClientInfo)
-            } as InvoiceHistory;
-            
+            const newInvoiceData = formatInvoiceData(data[0]);
             setInvoices([...invoices, newInvoiceData]);
-            
-            toast({
-              title: t("success"),
-              description: t("costCalculationCompletedAndSaved"),
-            });
+            showSuccessToast(true, false);
           }
         }
       } else {
-        toast({
-          title: t("success"),
-          description: t("costCalculationCompleted"),
-        });
+        showSuccessToast(false, false);
       }
     } catch (error) {
       console.error('Error in calculation save:', error);
-      toast({
-        title: t("success"),
-        description: t("costCalculationCompleted"),
-      });
+      showSuccessToast(false, false);
     }
   };
 
   return { calculateCost };
-}
-
-function calculateTotalCostPerMinute(
-  technologies: any[],
-  totalMinutes: number,
-  margin: number
-) {
-  const monthlyBaseCost = technologies
-    .filter(tech => tech.isSelected)
-    .reduce((acc, tech) => acc + tech.costPerMinute, 0);
-  
-  const totalMonthlyCost = monthlyBaseCost * (1 + margin / 100);
-  
-  const costPerMinute = totalMinutes > 0 ? totalMonthlyCost / totalMinutes : 0;
-  
-  return {
-    monthlyCost: Math.ceil(totalMonthlyCost * 100) / 100,
-    costPerMinute: Math.ceil(costPerMinute * 100000) / 100000
-  };
 }
