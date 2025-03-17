@@ -1,36 +1,20 @@
-import { CalculatorPreview } from "../CalculatorPreview";
+
+import { useState, useEffect } from "react";
 import { useCalculatorStateContext } from "../CalculatorStateContext";
 import { useCalculatorLogic } from "../CalculatorLogic";
-import { useTranslation } from "react-i18next";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useRef, useState } from "react";
-import { InvoiceHistory } from "@/types/invoice";
 import { InvoiceHistoryTable } from "../invoice-history/InvoiceHistoryTable";
+import { InvoiceHistory } from "@/types/invoice";
+import { InvoicePreviewDisplay } from "../invoice-history/InvoicePreviewDisplay";
+import { InvoiceExporter } from "../invoice-history/InvoiceExporter";
+import { useInvoiceDeletion } from "@/hooks/useInvoiceDeletion";
+import { useTranslation } from "react-i18next";
 
 export function PreviewSection() {
+  const { t } = useTranslation();
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ ...state });
-  const { t } = useTranslation();
-  const { toast } = useToast();
-  const previewRef = useRef<HTMLDivElement>(null);
-  const exportPreviewRef = useRef<HTMLDivElement>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceHistory | null>(null);
-
-  // Ensure the preview is visible when needed for export
-  useEffect(() => {
-    if (previewRef.current) {
-      // Always render the preview, just control visibility with CSS
-      previewRef.current.style.display = state.showPreview ? 'block' : 'none';
-    }
-  }, [state.showPreview, selectedInvoice]);
-  
-  // Ensure the export preview is hidden by default
-  useEffect(() => {
-    if (exportPreviewRef.current) {
-      exportPreviewRef.current.style.display = 'none';
-    }
-  }, []);
+  const { handleDeleteInvoice } = useInvoiceDeletion(state.invoices, state.setInvoices);
 
   // Reset the selected invoice when editing is canceled
   useEffect(() => {
@@ -38,39 +22,6 @@ export function PreviewSection() {
       setSelectedInvoice(null);
     }
   }, [state.editingInvoice]);
-
-  const handleDeleteInvoice = async (id: string) => {
-    try {
-      // Update the database - set is_deleted to true
-      const { error } = await supabase
-        .from('invoices')
-        .update({ is_deleted: true })
-        .eq('id', id);
-      
-      if (error) {
-        throw error;
-      }
-      
-      // Update local state
-      if (state.invoices) {
-        const updatedInvoices = state.invoices.filter(invoice => invoice.id !== id);
-        state.setInvoices(updatedInvoices);
-      }
-      
-      // Show toast notification
-      toast({
-        title: t("invoiceDeleted"),
-        description: t("invoiceDeletedDescription"),
-      });
-    } catch (error) {
-      console.error("Error deleting invoice:", error);
-      toast({
-        title: t("error"),
-        description: t("errorDeletingInvoice"),
-        variant: "destructive",
-      });
-    }
-  };
 
   // Handle exporting a specific invoice
   const handleExportInvoice = (invoiceId: string) => {
@@ -92,50 +43,10 @@ export function PreviewSection() {
   return (
     <div className="space-y-10">
       {/* Regular preview that's shown in the UI */}
-      <div 
-        id="invoice-preview" 
-        ref={previewRef}
-        style={{ display: state.showPreview ? 'block' : 'none' }}
-        className="print:block" // Always show when printing
-      >
-        <CalculatorPreview
-          showPreview={true} // Always pass true here to ensure rendering
-          agencyInfo={selectedInvoice?.agency_info || state.agencyInfo}
-          clientInfo={selectedInvoice?.client_info || state.clientInfo}
-          totalMinutes={selectedInvoice?.total_minutes || state.totalMinutes}
-          totalCost={selectedInvoice?.total_amount || state.totalCost}
-          setupCost={selectedInvoice?.setup_cost || state.setupCost}
-          taxRate={selectedInvoice?.tax_rate || state.taxRate}
-          themeColor={state.themeColor}
-          currency={state.currency}
-          invoiceNumber={selectedInvoice?.invoice_number || state.editingInvoice?.invoice_number}
-          callDuration={selectedInvoice?.call_duration || state.callDuration}
-          technologies={state.technologies}
-        />
-      </div>
+      <InvoicePreviewDisplay selectedInvoice={selectedInvoice} />
       
       {/* Hidden preview only used for export to PDF - no invoice history included */}
-      <div 
-        id="export-invoice-preview" 
-        ref={exportPreviewRef}
-        style={{ display: 'none' }}
-        className="print:block max-w-[210mm] mx-auto" // Always show when printing and center
-      >
-        <CalculatorPreview
-          showPreview={true}
-          agencyInfo={selectedInvoice?.agency_info || state.agencyInfo}
-          clientInfo={selectedInvoice?.client_info || state.clientInfo}
-          totalMinutes={selectedInvoice?.total_minutes || state.totalMinutes}
-          totalCost={selectedInvoice?.total_amount || state.totalCost}
-          setupCost={selectedInvoice?.setup_cost || state.setupCost}
-          taxRate={selectedInvoice?.tax_rate || state.taxRate}
-          themeColor={state.themeColor}
-          currency={state.currency}
-          invoiceNumber={selectedInvoice?.invoice_number || state.editingInvoice?.invoice_number}
-          callDuration={selectedInvoice?.call_duration || state.callDuration}
-          technologies={state.technologies}
-        />
-      </div>
+      <InvoiceExporter selectedInvoice={selectedInvoice} />
       
       {state.invoices && state.invoices.length > 0 && (
         <div className="mt-12">
