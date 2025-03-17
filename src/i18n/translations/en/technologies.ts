@@ -1,3 +1,4 @@
+
 export const technologies = {
   "technologyParameters": "Technology Parameters",
   "technologyStack": "Technology Stack",
@@ -72,13 +73,17 @@ export const technologies = {
   "tokens": "tokens",
   "outputType": "Output Type",
   "selectOutputType": "Select Output Type",
+  "outputCharCount": "Output character count",
+  "characters": "characters",
   "aiCostCalculation": "AI Cost Calculation",
   "selectedLanguage": "Selected Language",
   "selectedProvider": "Selected Provider",
   "selectedModel": "Selected Model",
+  "selectedOutputType": "Selected Output Type",
   "conversationDuration": "Conversation Duration",
   "totalMonthlyMinutes": "Total Monthly Minutes",
-  "estimatedTokensPerConversation": "Estimated Tokens per Conversation",
+  "estimatedInputTokens": "Estimated Input Tokens",
+  "estimatedOutputTokens": "Estimated Output Tokens",
   "inputTokensCost": "Input Tokens Cost",
   "outputTokensCost": "Output Tokens Cost",
   "costPerConversation": "Cost per Conversation",
@@ -89,5 +94,11 @@ export const technologies = {
   "German": "German",
   "Email": "Email",
   "Name": "Name",
-  "Summary": "Summary"
+  "Summary": "Summary",
+  "Data Extraction": "Data Extraction",
+  "Content Categorization": "Content Categorization",
+  "Keyword Extraction": "Keyword Extraction",
+  "Interactive Questions / Survey": "Interactive Questions / Survey",
+  "Summary of Transcripts": "Summary of Transcripts",
+  "Email Generation": "Email Generation"
 };

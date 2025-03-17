@@ -1,5 +1,4 @@
-
-import { AIProvider, LanguageCharCount } from "@/types/aiProviders";
+import { AIProvider, LanguageCharCount, OutputType } from "@/types/aiProviders";
 
 export const AI_PROVIDERS: AIProvider[] = [
   {
@@ -74,10 +73,16 @@ export const LANGUAGES: LanguageCharCount[] = [
   }
 ];
 
-export const OUTPUT_TYPES = [
-  { id: "email", name: "Email" },
-  { id: "name", name: "Name" },
-  { id: "summary", name: "Summary" }
+export const OUTPUT_TYPES: OutputType[] = [
+  { id: "email", name: "Email", charCount: 2500 },
+  { id: "name", name: "Name", charCount: 200 },
+  { id: "summary", name: "Summary", charCount: 1500 },
+  { id: "data-extraction", name: "Data Extraction", charCount: 900 },
+  { id: "content-categorization", name: "Content Categorization", charCount: 400 },
+  { id: "keyword-extraction", name: "Keyword Extraction", charCount: 200 },
+  { id: "interactive-questions", name: "Interactive Questions / Survey", charCount: 3000 },
+  { id: "transcript-summary", name: "Summary of Transcripts", charCount: 1500 },
+  { id: "email-generation", name: "Email Generation", charCount: 2500 }
 ];
 
 export const calculateAICost = (
@@ -85,7 +90,8 @@ export const calculateAICost = (
   provider: string,
   model: string,
   durationMinutes: number,
-  totalMinutesPerMonth: number
+  totalMinutesPerMonth: number,
+  outputType: string = "email" // Default to email if not specified
 ): number => {
   // Find the selected language
   const selectedLanguage = LANGUAGES.find(lang => lang.id === language);
@@ -93,7 +99,10 @@ export const calculateAICost = (
   // Find the selected provider
   const selectedProvider = AI_PROVIDERS.find(prov => prov.id === provider);
   
-  if (!selectedLanguage || !selectedProvider || durationMinutes <= 0) {
+  // Find the selected output type
+  const selectedOutputType = OUTPUT_TYPES.find(type => type.id === outputType);
+  
+  if (!selectedLanguage || !selectedProvider || !selectedOutputType || durationMinutes <= 0) {
     return 0;
   }
   
@@ -104,20 +113,24 @@ export const calculateAICost = (
     return 0;
   }
 
-  // Calculate total characters
+  // Calculate total characters from language (input)
   const charsPerMin = selectedLanguage.charsPerMinute;
-  const totalChars = charsPerMin * durationMinutes;
+  const totalInputChars = charsPerMin * durationMinutes;
 
+  // Calculate output characters based on the selected output type
+  const outputCharsPerConversation = selectedOutputType.charCount;
+  
   // Convert characters to tokens (1 token ≈ 4 characters)
-  const totalTokens = totalChars / 4;
+  const inputTokens = totalInputChars / 4;
+  const outputTokens = outputCharsPerConversation / 4;
 
   // Get pricing rates from the selected model
   const inputRate = selectedModel.pricing.input;
   const outputRate = selectedModel.pricing.output;
 
   // Calculate costs per conversation
-  const inputCost = (totalTokens * inputRate) / 1_000_000;
-  const outputCost = (totalTokens * outputRate) / 1_000_000;
+  const inputCost = (inputTokens * inputRate) / 1_000_000;
+  const outputCost = (outputTokens * outputRate) / 1_000_000;
   const costPerConversation = inputCost + outputCost;
 
   // Calculate monthly cost based on total minutes per month

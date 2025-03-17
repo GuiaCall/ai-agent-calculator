@@ -39,7 +39,8 @@ export function AIServiceCalculator() {
       selectedProvider,
       selectedModel,
       callDuration,
-      totalMinutes
+      totalMinutes,
+      selectedOutputType
     );
     
     setAiCost(cost);
@@ -61,20 +62,29 @@ export function AIServiceCalculator() {
     m => m.id === selectedModel
   );
   
+  // Get selected output type details
+  const selectedOutputTypeDetails = OUTPUT_TYPES.find(
+    t => t.id === selectedOutputType
+  );
+  
   // Calculate estimated tokens and costs for display
   const getTokenEstimation = () => {
     const selectedLang = LANGUAGES.find(l => l.id === selectedLanguage);
-    if (!selectedLang || !selectedModelDetails) return null;
+    if (!selectedLang || !selectedModelDetails || !selectedOutputTypeDetails) return null;
     
     const charsPerMin = selectedLang.charsPerMinute;
-    const totalChars = charsPerMin * callDuration;
-    const totalTokens = Math.round(totalChars / 4);
+    const totalInputChars = charsPerMin * callDuration;
+    const totalInputTokens = Math.round(totalInputChars / 4);
     
-    const inputCost = (totalTokens * selectedModelDetails.pricing.input) / 1_000_000;
-    const outputCost = (totalTokens * selectedModelDetails.pricing.output) / 1_000_000;
+    const outputChars = selectedOutputTypeDetails.charCount;
+    const outputTokens = Math.round(outputChars / 4);
+    
+    const inputCost = (totalInputTokens * selectedModelDetails.pricing.input) / 1_000_000;
+    const outputCost = (outputTokens * selectedModelDetails.pricing.output) / 1_000_000;
     
     return {
-      tokens: totalTokens,
+      inputTokens: totalInputTokens,
+      outputTokens: outputTokens,
       inputCost,
       outputCost,
       totalCost: inputCost + outputCost
@@ -172,6 +182,11 @@ export function AIServiceCalculator() {
               ))}
             </SelectContent>
           </Select>
+          {selectedOutputTypeDetails && (
+            <p className="text-xs text-muted-foreground">
+              {t("outputCharCount")}: {selectedOutputTypeDetails.charCount} {t("characters")}
+            </p>
+          )}
         </div>
         
         <div className="mt-4 p-4 bg-muted rounded-md">
@@ -187,6 +202,9 @@ export function AIServiceCalculator() {
               {t("selectedModel")}: {currentProviderModels.find(m => m.id === selectedModel)?.name}
             </p>
             <p>
+              {t("selectedOutputType")}: {OUTPUT_TYPES.find(t => t.id === selectedOutputType)?.name}
+            </p>
+            <p>
               {t("conversationDuration")}: {callDuration} {t("minutes")}
             </p>
             <p>
@@ -196,7 +214,10 @@ export function AIServiceCalculator() {
             {tokenEstimation && (
               <div className="mt-2 pt-2 border-t border-muted-foreground/20">
                 <p>
-                  {t("estimatedTokensPerConversation")}: {tokenEstimation.tokens.toLocaleString()}
+                  {t("estimatedInputTokens")}: {tokenEstimation.inputTokens.toLocaleString()} {t("tokens")}
+                </p>
+                <p>
+                  {t("estimatedOutputTokens")}: {tokenEstimation.outputTokens.toLocaleString()} {t("tokens")}
                 </p>
                 <p>
                   {t("inputTokensCost")}: ${tokenEstimation.inputCost.toFixed(5)}

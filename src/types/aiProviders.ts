@@ -20,6 +20,12 @@ export interface LanguageCharCount {
   charsPerMinute: number;
 }
 
+export interface OutputType {
+  id: string;
+  name: string;
+  charCount: number;
+}
+
 export interface AIServiceSelection {
   language: string;
   provider: string;

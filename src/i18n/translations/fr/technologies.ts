@@ -1,3 +1,4 @@
+
 export const technologies = {
   "technologyParameters": "Paramètres Technologiques",
   "technologyStack": "Stack Technologique",
@@ -72,13 +73,17 @@ export const technologies = {
   "tokens": "tokens",
   "outputType": "Type de Sortie",
   "selectOutputType": "Sélectionner un type de sortie",
+  "outputCharCount": "Nombre de caractères de sortie",
+  "characters": "caractères",
   "aiCostCalculation": "Calcul des Coûts IA",
   "selectedLanguage": "Langue sélectionnée",
   "selectedProvider": "Fournisseur sélectionné",
   "selectedModel": "Modèle sélectionné",
+  "selectedOutputType": "Type de sortie sélectionné",
   "conversationDuration": "Durée de conversation",
   "totalMonthlyMinutes": "Minutes mensuelles totales",
-  "estimatedTokensPerConversation": "Tokens estimés par conversation",
+  "estimatedInputTokens": "Tokens d'entrée estimés",
+  "estimatedOutputTokens": "Tokens de sortie estimés",
   "inputTokensCost": "Coût des tokens d'entrée",
   "outputTokensCost": "Coût des tokens de sortie",
   "costPerConversation": "Coût par conversation",
@@ -89,5 +94,11 @@ export const technologies = {
   "German": "Allemand",
   "Email": "Email",
   "Name": "Nom",
-  "Summary": "Résumé"
+  "Summary": "Résumé",
+  "Data Extraction": "Extraction de Données",
+  "Content Categorization": "Catégorisation de Contenu",
+  "Keyword Extraction": "Extraction de Mots-clés",
+  "Interactive Questions / Survey": "Questions Interactives / Sondage",
+  "Summary of Transcripts": "Résumé de Transcriptions",
+  "Email Generation": "Génération d'Emails"
 };
