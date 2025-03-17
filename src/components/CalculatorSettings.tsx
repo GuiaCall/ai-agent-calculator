@@ -22,8 +22,8 @@ export function CalculatorSettings({
   const { t } = useTranslation();
   
   return (
-    <Card className="p-6 space-y-6">
-      <h3 className="text-xl font-semibold">{t("calculatorSettings")}</h3>
+    <Card className="p-6 space-y-6 bg-background text-foreground">
+      <h3 className="text-lg font-semibold">{t("calculatorSettings")}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="callDuration">{t("averageCallDuration")}</Label>
@@ -33,6 +33,7 @@ export function CalculatorSettings({
             value={callDuration}
             onChange={(e) => onSettingChange('callDuration', Number(e.target.value))}
             min="1"
+            className="bg-background text-foreground"
           />
         </div>
         <div className="space-y-2">
@@ -43,6 +44,7 @@ export function CalculatorSettings({
             value={totalMinutes}
             onChange={(e) => onSettingChange('totalMinutes', Number(e.target.value))}
             min="1"
+            className="bg-background text-foreground"
           />
         </div>
         <div className="space-y-2">
@@ -54,6 +56,7 @@ export function CalculatorSettings({
             onChange={(e) => onSettingChange('margin', Number(e.target.value))}
             min="0"
             max="100"
+            className="bg-background text-foreground"
           />
         </div>
         <div className="space-y-2">
@@ -65,6 +68,7 @@ export function CalculatorSettings({
             onChange={(e) => onSettingChange('taxRate', Number(e.target.value))}
             min="0"
             max="100"
+            className="bg-background text-foreground"
           />
         </div>
       </div>

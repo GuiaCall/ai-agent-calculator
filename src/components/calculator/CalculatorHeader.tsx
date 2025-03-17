@@ -1,6 +1,7 @@
 
 import { AgencyClientInfo } from "../AgencyClientInfo";
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
+import { Card } from "@/components/ui/card";
 
 export function CalculatorHeader({ 
   agencyInfo, 
@@ -14,11 +15,13 @@ export function CalculatorHeader({
   onClientInfoChange: (info: ClientInfo) => void;
 }) {
   return (
-    <AgencyClientInfo
-      agencyInfo={agencyInfo}
-      clientInfo={clientInfo}
-      onAgencyInfoChange={onAgencyInfoChange}
-      onClientInfoChange={onClientInfoChange}
-    />
+    <Card className="p-6 bg-background text-foreground">
+      <AgencyClientInfo
+        agencyInfo={agencyInfo}
+        clientInfo={clientInfo}
+        onAgencyInfoChange={onAgencyInfoChange}
+        onClientInfoChange={onClientInfoChange}
+      />
+    </Card>
   );
 }

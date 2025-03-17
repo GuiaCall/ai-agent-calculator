@@ -32,7 +32,7 @@ export function TechnologyCalculators() {
   };
 
   return (
-    <>
+    <div className="space-y-6">
       {state.technologies.find((t) => t.id === "make")?.isSelected && (
         <MakeCalculator
           totalMinutes={state.totalMinutes}
@@ -73,6 +73,6 @@ export function TechnologyCalculators() {
       {state.technologies.find((t) => t.id === "aiservice")?.isSelected && (
         <AIServiceCalculator />
       )}
-    </>
+    </div>
   );
 }

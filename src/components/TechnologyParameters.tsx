@@ -108,7 +108,7 @@ export function TechnologyParameters({
   };
 
   return (
-    <Card className="p-6 space-y-4 bg-background text-foreground">
+    <div className="space-y-4">
       <h3 className="text-lg font-semibold">{t('technologyStack')}</h3>
       <div className="space-y-4">
         {technologies.map((tech) => (
@@ -153,6 +153,6 @@ export function TechnologyParameters({
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 }
