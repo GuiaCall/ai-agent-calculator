@@ -2,6 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface CalculatorSettingsProps {
@@ -23,7 +24,12 @@ export function CalculatorSettings({
   
   return (
     <Card className="p-6 space-y-6 bg-background text-foreground">
-      <h3 className="text-lg font-semibold">{t("calculatorSettings")}</h3>
+      <h3 className="text-indigo-800 font-bold text-xl flex items-center gap-2">
+        <div className="bg-indigo-100 p-2 rounded-full">
+          <Settings className="h-5 w-5 text-indigo-600" />
+        </div>
+        {t("calculatorSettings")}
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="callDuration">{t("averageCallDuration")}</Label>
