@@ -1,5 +1,5 @@
 
-import { InvoicePreview } from "../InvoicePreview";
+import { InvoicePreview } from "../invoice/preview/InvoicePreview";
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
 import { CurrencyType } from "./CalculatorState";
 
