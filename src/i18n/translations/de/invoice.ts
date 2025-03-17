@@ -46,5 +46,12 @@ export const invoice = {
   "deleteInvoiceConfirmation": "Diese Aktion kann nicht rückgängig gemacht werden. Die Rechnung und alle zugehörigen Daten werden dauerhaft gelöscht.",
   "cancel": "Abbrechen",
   "invoiceDeleted": "Rechnung gelöscht",
-  "invoiceDeletedDescription": "Die Rechnung wurde erfolgreich gelöscht."
+  "invoiceDeletedDescription": "Die Rechnung wurde erfolgreich gelöscht.",
+  "serviceDetails": "Servicedetails",
+  "averageCallDuration": "Durchschnittliche Anrufdauer",
+  "totalMinutesPerMonth": "Gesamtminuten pro Monat",
+  "costPerMinute": "Kosten pro Minute",
+  "invoicePreview": "Rechnungsvorschau",
+  "agencyClientInfo": "Agentur- & Kundeninfo",
+  "calculatorSettings": "Rechnereinstellungen"
 };

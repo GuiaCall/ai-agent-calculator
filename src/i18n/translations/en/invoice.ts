@@ -42,5 +42,13 @@ export const invoice = {
   "deleteInvoiceConfirmation": "This action cannot be undone. This will permanently delete the invoice and all associated data.",
   "cancel": "Cancel",
   "invoiceDeleted": "Invoice Deleted",
-  "invoiceDeletedDescription": "The invoice has been successfully deleted."
+  "invoiceDeletedDescription": "The invoice has been successfully deleted.",
+  "serviceDetails": "Service Details",
+  "averageCallDuration": "Average Call Duration",
+  "totalMinutesPerMonth": "Total Minutes Per Month",
+  "costPerMinute": "Cost Per Minute",
+  "invoicePreview": "Invoice Preview",
+  "agencyClientInfo": "Agency & Client Info",
+  "calculatorSettings": "Calculator Settings",
+  "client": "Client"
 };

@@ -24,6 +24,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface InvoiceHistoryTableProps {
   invoices: InvoiceHistory[];
@@ -47,6 +55,16 @@ export function InvoiceHistoryTable({
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const { t } = useTranslation();
   const [invoiceToDelete, setInvoiceToDelete] = useState<string | null>(null);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(invoices.length / itemsPerPage);
+  
+  // Get current invoices for pagination
+  const indexOfLastInvoice = currentPage * itemsPerPage;
+  const indexOfFirstInvoice = indexOfLastInvoice - itemsPerPage;
+  const currentInvoices = invoices.slice(indexOfFirstInvoice, indexOfLastInvoice);
   
   if (!invoices || invoices.length === 0) {
     return (
@@ -79,6 +97,10 @@ export function InvoiceHistoryTable({
     setInvoiceToDelete(null);
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <>
       <div className="bg-white rounded-lg border overflow-hidden shadow-sm mt-8 animate-fadeIn">
@@ -94,7 +116,7 @@ export function InvoiceHistoryTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {invoices.map((invoice) => (
+              {currentInvoices.map((invoice) => (
                 <React.Fragment key={invoice.id}>
                   <tr 
                     className={`hover:bg-gray-50 ${editingInvoiceId === invoice.id ? 'bg-indigo-50' : ''}`}
@@ -203,6 +225,40 @@ export function InvoiceHistoryTable({
             </tbody>
           </table>
         </div>
+        
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="py-4 flex justify-center border-t border-gray-200">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                    className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      isActive={currentPage === page}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                    className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
       
       <AlertDialog open={invoiceToDelete !== null} onOpenChange={() => setInvoiceToDelete(null)}>

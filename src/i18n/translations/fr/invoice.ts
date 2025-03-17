@@ -46,5 +46,12 @@ export const invoice = {
   "deleteInvoiceConfirmation": "Cette action ne peut pas être annulée. La facture et toutes les données associées seront définitivement supprimées.",
   "cancel": "Annuler",
   "invoiceDeleted": "Facture supprimée",
-  "invoiceDeletedDescription": "La facture a été supprimée avec succès."
+  "invoiceDeletedDescription": "La facture a été supprimée avec succès.",
+  "serviceDetails": "Détails du Service",
+  "averageCallDuration": "Durée Moyenne d'Appel",
+  "totalMinutesPerMonth": "Minutes Totales par Mois",
+  "costPerMinute": "Coût par Minute",
+  "invoicePreview": "Aperçu de la Facture",
+  "agencyClientInfo": "Info Agence & Client",
+  "calculatorSettings": "Paramètres du Calculateur"
 }

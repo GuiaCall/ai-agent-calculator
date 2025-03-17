@@ -14,6 +14,8 @@ interface CalculatorPreviewProps {
   themeColor: string;
   currency: CurrencyType;
   invoiceNumber?: string;
+  callDuration?: number;
+  technologies?: { name: string; isSelected: boolean }[];
 }
 
 export function CalculatorPreview({
@@ -27,6 +29,8 @@ export function CalculatorPreview({
   themeColor,
   currency,
   invoiceNumber,
+  callDuration,
+  technologies,
 }: CalculatorPreviewProps) {
   // Always render the component, but control visibility with CSS
   if (!totalCost) return null;
@@ -43,6 +47,8 @@ export function CalculatorPreview({
         themeColor={themeColor}
         currency={currency}
         invoiceNumber={invoiceNumber}
+        callDuration={callDuration}
+        technologies={technologies}
       />
     </div>
   );

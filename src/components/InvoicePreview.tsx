@@ -14,6 +14,8 @@ interface InvoicePreviewProps {
   themeColor: string;
   currency: CurrencyType;
   invoiceNumber?: string;
+  callDuration?: number;
+  technologies?: { name: string; isSelected: boolean }[];
 }
 
 export function InvoicePreview({
@@ -26,6 +28,8 @@ export function InvoicePreview({
   themeColor,
   currency,
   invoiceNumber,
+  callDuration = 0,
+  technologies = [],
 }: InvoicePreviewProps) {
   const { t } = useTranslation();
   
@@ -48,6 +52,9 @@ export function InvoicePreview({
   
   const currentDate = format(new Date(), 'dd MMM yyyy');
   const dueDate = format(new Date(new Date().setDate(new Date().getDate() + 30)), 'dd MMM yyyy');
+
+  // Get selected technologies
+  const selectedTechs = technologies.filter(tech => tech.isSelected).map(tech => tech.name);
   
   return (
     <div className="max-w-[210mm] mx-auto bg-white text-gray-800 rounded-xl shadow-2xl overflow-hidden print:shadow-none">
@@ -94,6 +101,39 @@ export function InvoicePreview({
             </div>
           </div>
         </div>
+
+        {/* Service details section including call duration and total minutes */}
+        <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+          <h3 className="text-lg font-semibold mb-3 text-gray-700">{t("serviceDetails")}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <p className="text-sm font-medium text-gray-500">{t("averageCallDuration")}</p>
+              <p className="text-gray-800">{callDuration} {t("minutes")}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">{t("totalMinutesPerMonth")}</p>
+              <p className="text-gray-800">{totalMinutes} {t("minutes")}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">{t("costPerMinute")}</p>
+              <p className="text-gray-800">{currencySymbol}{costPerMinute.toFixed(4)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Technology Stack section */}
+        {selectedTechs.length > 0 && (
+          <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+            <h3 className="text-lg font-semibold mb-3 text-gray-700">{t("technologyStack")}</h3>
+            <div className="flex flex-wrap gap-2">
+              {selectedTechs.map((tech, index) => (
+                <span key={index} className="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-10">
           <table className="w-full text-left">

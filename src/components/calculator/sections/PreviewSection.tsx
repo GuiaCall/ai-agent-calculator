@@ -106,6 +106,8 @@ export function PreviewSection() {
           themeColor={state.themeColor}
           currency={state.currency}
           invoiceNumber={selectedInvoice?.invoice_number || state.editingInvoice?.invoice_number}
+          callDuration={selectedInvoice?.call_duration || state.callDuration}
+          technologies={state.technologies}
         />
       </div>
       

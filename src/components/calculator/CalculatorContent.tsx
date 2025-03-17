@@ -12,6 +12,7 @@ import { PreviewSection } from "./sections/PreviewSection";
 import { CurrencyToggle } from "./CurrencyToggle";
 import { LoadingState } from "./LoadingState";
 import { SubscriptionCheck } from "./SubscriptionCheck";
+import { NavigationSidebar } from "./NavigationSidebar";
 
 export function CalculatorContent() {
   const state = useCalculatorStateContext();
@@ -21,7 +22,7 @@ export function CalculatorContent() {
   const { handleCalculate } = SubscriptionCheck({
     onProceed: () => {
       logic.calculateCost();
-      // Assurez-vous que la prévisualisation est visible après le calcul
+      // Ensure preview is visible after calculation
       state.setShowPreview(true);
     }
   });
@@ -32,21 +33,30 @@ export function CalculatorContent() {
 
   return (
     <>
+      {/* Navigation Sidebar */}
+      <NavigationSidebar />
+      
       <div className="w-full max-w-4xl mx-auto p-6 space-y-8 animate-fadeIn mt-20 mb-20">
         <Disclaimer />
         
-        <CalculatorHeader
-          agencyInfo={state.agencyInfo}
-          clientInfo={state.clientInfo}
-          onAgencyInfoChange={state.setAgencyInfo}
-          onClientInfoChange={state.setClientInfo}
-        />
+        <div id="calculator-header">
+          <CalculatorHeader
+            agencyInfo={state.agencyInfo}
+            clientInfo={state.clientInfo}
+            onAgencyInfoChange={state.setAgencyInfo}
+            onClientInfoChange={state.setClientInfo}
+          />
+        </div>
 
         <CurrencyToggle />
         
-        <CalculatorSettingsSection />
+        <div id="calculator-settings">
+          <CalculatorSettingsSection />
+        </div>
         
-        <TechnologySection />
+        <div id="technology-section">
+          <TechnologySection />
+        </div>
 
         <CalculatorActions
           onCalculate={handleCalculate}
@@ -60,7 +70,9 @@ export function CalculatorContent() {
           isEditingInvoice={!!state.editingInvoice}
         />
 
-        <PreviewSection />
+        <div id="invoice-preview">
+          <PreviewSection />
+        </div>
       </div>
     </>
   );
