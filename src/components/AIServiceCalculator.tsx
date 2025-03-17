@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTranslation } from "react-i18next";
 import { AI_PROVIDERS, LANGUAGES, OUTPUT_TYPES, calculateAICost } from "@/constants/aiProviders";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
-import { MessageSquare } from "lucide-react";
+import { Bot } from "lucide-react";
 
 export function AIServiceCalculator() {
   const { t } = useTranslation();
@@ -96,7 +96,7 @@ export function AIServiceCalculator() {
     <Card className="p-6 space-y-6">
       <h3 className="text-indigo-800 font-bold text-xl flex items-center gap-2">
         <div className="bg-indigo-100 p-2 rounded-full">
-          <MessageSquare className="h-5 w-5 text-indigo-600" />
+          <Bot className="h-5 w-5 text-indigo-600" />
         </div>
         {t("aiServiceCalculator")}
       </h3>
