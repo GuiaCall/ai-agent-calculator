@@ -1,6 +1,7 @@
 
 export const technologies = {
   "technologyParameters": "Paramètres Technologiques",
+  "technologyStack": "Stack Technologique",
   "pleaseAddValue": "Veuillez ajouter une valeur",
   "perMinute": "/minute",
   "perMonth": "/mois",
@@ -9,6 +10,7 @@ export const technologies = {
   "cal.com": "Cal.com",
   "twilio": "Twilio",
   "vapi": "Vapi",
+  "aiService": "Service IA",
   "serviceType": "Type de Service",
   "selectServiceType": "Sélectionner un type de service",
   "costPerMinute": "Coût par Minute",
@@ -54,5 +56,28 @@ export const technologies = {
   "fixedRate": "Tarif fixe",
   "totalMinutes": "Minutes Totales",
   "monthlyCost": "Coût Mensuel",
-  "chargesFixedRate": "facture un tarif fixe de 0,09 $ par minute pour les appels vocaux."
+  "chargesFixedRate": "facture un tarif fixe de 0,09 $ par minute pour les appels vocaux.",
+  
+  // AI Service Calculator translations
+  "aiServiceCalculator": "Calculateur de Service IA",
+  "languageSelection": "Sélection de Langue",
+  "selectLanguage": "Sélectionner une langue",
+  "charsPerMinute": "Caractères par minute",
+  "serviceProvider": "Fournisseur de Service",
+  "selectProvider": "Sélectionner un fournisseur",
+  "outputType": "Type de Sortie",
+  "selectOutputType": "Sélectionner un type de sortie",
+  "aiCostCalculation": "Calcul des Coûts IA",
+  "selectedLanguage": "Langue sélectionnée",
+  "selectedProvider": "Fournisseur sélectionné",
+  "conversationDuration": "Durée de conversation",
+  "totalMonthlyMinutes": "Minutes mensuelles totales",
+  "estimatedMonthlyCost": "Coût mensuel estimé",
+  "minutes": "minutes",
+  "English": "Anglais",
+  "French": "Français",
+  "German": "Allemand",
+  "Email": "Email",
+  "Name": "Nom",
+  "Summary": "Résumé"
 };

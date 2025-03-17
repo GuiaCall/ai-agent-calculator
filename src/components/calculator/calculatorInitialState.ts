@@ -21,6 +21,7 @@ export const initialTechnologies: Technology[] = [
   { id: "twilio", name: "Twilio", isSelected: true, costPerMinute: 0.004 },
   { id: "vapi", name: "Vapi", isSelected: true, costPerMinute: 0.005 },
   { id: "blandai", name: "Bland AI", isSelected: true, costPerMinute: 0.009 },
+  { id: "aiservice", name: "AI Service", isSelected: true, costPerMinute: 0 },
 ];
 
 export const initialAgencyInfo: AgencyInfo = {

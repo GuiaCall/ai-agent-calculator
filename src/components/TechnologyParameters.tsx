@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -108,7 +109,7 @@ export function TechnologyParameters({
 
   return (
     <Card className="p-6 space-y-4 bg-background text-foreground">
-      <h3 className="text-lg font-semibold">{t('technologyParameters')}</h3>
+      <h3 className="text-lg font-semibold">{t('technologyStack')}</h3>
       <div className="space-y-4">
         {technologies.map((tech) => (
           <div key={tech.id} className="space-y-2">

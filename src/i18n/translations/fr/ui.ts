@@ -1,4 +1,3 @@
-
 export const ui = {
   "success": "Succès",
   "error": "Erreur",
@@ -136,5 +135,23 @@ export const ui = {
     "paragraph5": "En utilisant ce calculateur, vous reconnaissez avoir lu, compris et accepté ces avis de non-responsabilité.",
     "acknowledge": "Je Comprends",
     "close": "Fermer"
-  }
+  },
+  
+  // Additional translations for the AI Service Calculator
+  "aiServiceCalculator": "Calculateur de Service IA",
+  "languageSelection": "Sélection de Langue",
+  "selectLanguage": "Sélectionner une langue",
+  "charsPerMinute": "Caractères par minute",
+  "serviceProvider": "Fournisseur de Service",
+  "selectProvider": "Sélectionner un fournisseur",
+  "outputType": "Type de Sortie",
+  "selectOutputType": "Sélectionner un type de sortie",
+  "aiCostCalculation": "Calcul des Coûts IA",
+  "selectedLanguage": "Langue sélectionnée",
+  "selectedProvider": "Fournisseur sélectionné",
+  "conversationDuration": "Durée de conversation",
+  "totalMonthlyMinutes": "Minutes mensuelles totales",
+  "estimatedMonthlyCost": "Coût mensuel estimé",
+  "minutes": "minutes",
+  "technologyStack": "Stack Technologique"
 }
