@@ -1,3 +1,4 @@
+
 import { AIProvider, LanguageCharCount, OutputType } from "@/types/aiProviders";
 
 export const AI_PROVIDERS: AIProvider[] = [
@@ -89,7 +90,6 @@ export const calculateAICost = (
   language: string,
   provider: string,
   model: string,
-  durationMinutes: number,
   totalMinutesPerMonth: number,
   outputType: string = "email" // Default to email if not specified
 ): number => {
@@ -102,7 +102,7 @@ export const calculateAICost = (
   // Find the selected output type
   const selectedOutputType = OUTPUT_TYPES.find(type => type.id === outputType);
   
-  if (!selectedLanguage || !selectedProvider || !selectedOutputType || durationMinutes <= 0) {
+  if (!selectedLanguage || !selectedProvider || !selectedOutputType || totalMinutesPerMonth <= 0) {
     return 0;
   }
   
@@ -115,27 +115,25 @@ export const calculateAICost = (
 
   // Calculate total characters from language (input)
   const charsPerMin = selectedLanguage.charsPerMinute;
-  const totalInputChars = charsPerMin * durationMinutes;
+  const totalInputChars = charsPerMin * totalMinutesPerMonth;
 
   // Calculate output characters based on the selected output type
-  const outputCharsPerConversation = selectedOutputType.charCount;
+  // Assuming one output per 5 minutes of conversation on average
+  const estimatedOutputCount = Math.ceil(totalMinutesPerMonth / 5);
+  const outputChars = selectedOutputType.charCount * estimatedOutputCount;
   
   // Convert characters to tokens (1 token ≈ 4 characters)
   const inputTokens = totalInputChars / 4;
-  const outputTokens = outputCharsPerConversation / 4;
+  const outputTokens = outputChars / 4;
 
   // Get pricing rates from the selected model
   const inputRate = selectedModel.pricing.input;
   const outputRate = selectedModel.pricing.output;
 
-  // Calculate costs per conversation
+  // Calculate total costs for the entire month
   const inputCost = (inputTokens * inputRate) / 1_000_000;
   const outputCost = (outputTokens * outputRate) / 1_000_000;
-  const costPerConversation = inputCost + outputCost;
+  const totalMonthlyCost = inputCost + outputCost;
 
-  // Calculate monthly cost based on total minutes per month
-  const conversationsPerMonth = totalMinutesPerMonth / durationMinutes;
-  const monthlyCost = costPerConversation * conversationsPerMonth;
-
-  return monthlyCost;
+  return totalMonthlyCost;
 };

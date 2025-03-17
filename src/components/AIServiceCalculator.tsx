@@ -10,7 +10,6 @@ import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 export function AIServiceCalculator() {
   const { t } = useTranslation();
   const { 
-    callDuration, 
     totalMinutes, 
     setTechnologies 
   } = useCalculatorStateContext();
@@ -31,14 +30,13 @@ export function AIServiceCalculator() {
   
   useEffect(() => {
     calculateAndUpdateCost();
-  }, [selectedLanguage, selectedProvider, selectedModel, selectedOutputType, callDuration, totalMinutes]);
+  }, [selectedLanguage, selectedProvider, selectedModel, selectedOutputType, totalMinutes]);
   
   const calculateAndUpdateCost = () => {
     const cost = calculateAICost(
       selectedLanguage,
       selectedProvider,
       selectedModel,
-      callDuration,
       totalMinutes,
       selectedOutputType
     );
@@ -73,10 +71,10 @@ export function AIServiceCalculator() {
     if (!selectedLang || !selectedModelDetails || !selectedOutputTypeDetails) return null;
     
     const charsPerMin = selectedLang.charsPerMinute;
-    const totalInputChars = charsPerMin * callDuration;
+    const totalInputChars = charsPerMin * totalMinutes;
     const totalInputTokens = Math.round(totalInputChars / 4);
     
-    const outputChars = selectedOutputTypeDetails.charCount;
+    const outputChars = selectedOutputTypeDetails.charCount * (totalMinutes / 5); // Estimate one output per 5 minutes of conversation
     const outputTokens = Math.round(outputChars / 4);
     
     const inputCost = (totalInputTokens * selectedModelDetails.pricing.input) / 1_000_000;
@@ -202,13 +200,10 @@ export function AIServiceCalculator() {
               {t("selectedModel")}: {currentProviderModels.find(m => m.id === selectedModel)?.name}
             </p>
             <p>
-              {t("selectedOutputType")}: {OUTPUT_TYPES.find(t => t.id === selectedOutputType)?.name}
+              {t("selectedOutputType")}: {t(OUTPUT_TYPES.find(t => t.id === selectedOutputType)?.name || "")}
             </p>
             <p>
-              {t("conversationDuration")}: {callDuration} {t("minutes")}
-            </p>
-            <p>
-              {t("totalMonthlyMinutes")}: {totalMinutes} {t("minutes")}
+              {t("totalMonthlyMinutes")}: {totalMinutes.toLocaleString()} {t("minutes")}
             </p>
             
             {tokenEstimation && (
@@ -225,8 +220,8 @@ export function AIServiceCalculator() {
                 <p>
                   {t("outputTokensCost")}: ${tokenEstimation.outputCost.toFixed(5)}
                 </p>
-                <p>
-                  {t("costPerConversation")}: ${tokenEstimation.totalCost.toFixed(5)}
+                <p className="font-semibold">
+                  {t("totalCost")}: ${tokenEstimation.totalCost.toFixed(5)}
                 </p>
               </div>
             )}
