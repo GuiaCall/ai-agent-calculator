@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { SynthflowPlan } from "@/types/synthflow";
 import { SYNTHFLOW_PLANS, SYNTHFLOW_PRICING_URL } from "@/constants/synthflowPlans";
@@ -114,11 +115,11 @@ export function SynthflowCalculator({
   return (
     <Card className="mb-6">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+        <CardTitle className="text-indigo-800 font-bold text-xl flex items-center gap-2">
           <div className="bg-indigo-100 p-2 rounded-full">
             <Activity className="h-5 w-5 text-indigo-600" />
           </div>
-          {t("synthflowCalculator")}
+          Synthflow Calculator
         </CardTitle>
         <div className="flex items-center space-x-2">
           <span className={`text-sm ${billingType === 'monthly' ? 'font-medium' : 'text-muted-foreground'}`}>
