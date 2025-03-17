@@ -15,6 +15,7 @@ export function PreviewSection() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const previewRef = useRef<HTMLDivElement>(null);
+  const exportPreviewRef = useRef<HTMLDivElement>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceHistory | null>(null);
 
   // Ensure the preview is visible when needed for export
@@ -24,6 +25,13 @@ export function PreviewSection() {
       previewRef.current.style.display = state.showPreview ? 'block' : 'none';
     }
   }, [state.showPreview, selectedInvoice]);
+  
+  // Ensure the export preview is hidden by default
+  useEffect(() => {
+    if (exportPreviewRef.current) {
+      exportPreviewRef.current.style.display = 'none';
+    }
+  }, []);
 
   // Reset the selected invoice when editing is canceled
   useEffect(() => {
@@ -74,11 +82,6 @@ export function PreviewSection() {
         // Show the invoice in the preview
         setSelectedInvoice(invoice);
         
-        // Force the preview to be visible
-        if (previewRef.current) {
-          previewRef.current.style.display = 'block';
-        }
-        
         // Trigger export after a short delay to ensure DOM update
         setTimeout(() => {
           logic.exportPDF(invoiceId);
@@ -89,6 +92,7 @@ export function PreviewSection() {
 
   return (
     <div className="space-y-10">
+      {/* Regular preview that's shown in the UI */}
       <div 
         id="invoice-preview" 
         ref={previewRef}
@@ -97,6 +101,29 @@ export function PreviewSection() {
       >
         <CalculatorPreview
           showPreview={true} // Always pass true here to ensure rendering
+          agencyInfo={selectedInvoice?.agency_info || state.agencyInfo}
+          clientInfo={selectedInvoice?.client_info || state.clientInfo}
+          totalMinutes={selectedInvoice?.total_minutes || state.totalMinutes}
+          totalCost={selectedInvoice?.total_amount || state.totalCost}
+          setupCost={selectedInvoice?.setup_cost || state.setupCost}
+          taxRate={selectedInvoice?.tax_rate || state.taxRate}
+          themeColor={state.themeColor}
+          currency={state.currency}
+          invoiceNumber={selectedInvoice?.invoice_number || state.editingInvoice?.invoice_number}
+          callDuration={selectedInvoice?.call_duration || state.callDuration}
+          technologies={state.technologies}
+        />
+      </div>
+      
+      {/* Hidden preview only used for export to PDF - no invoice history included */}
+      <div 
+        id="export-invoice-preview" 
+        ref={exportPreviewRef}
+        style={{ display: 'none' }}
+        className="print:block max-w-[210mm] mx-auto" // Always show when printing and center
+      >
+        <CalculatorPreview
+          showPreview={true}
           agencyInfo={selectedInvoice?.agency_info || state.agencyInfo}
           clientInfo={selectedInvoice?.client_info || state.clientInfo}
           totalMinutes={selectedInvoice?.total_minutes || state.totalMinutes}

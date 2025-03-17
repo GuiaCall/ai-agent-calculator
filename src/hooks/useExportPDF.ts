@@ -26,10 +26,13 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
 
     console.log("Starting PDF export process...", invoiceId ? `for invoice: ${invoiceId}` : "for current invoice");
     
-    // Make sure the preview element is rendered and visible during export
-    const element = document.getElementById('invoice-preview');
-    if (!element) {
-      console.error('Invoice preview element not found in DOM');
+    // Use the dedicated export preview element to avoid capturing the invoice history
+    const exportElement = document.getElementById('export-invoice-preview');
+    const regularElement = document.getElementById('invoice-preview');
+    
+    // Make sure at least one element exists
+    if (!exportElement && !regularElement) {
+      console.error('Invoice preview elements not found in DOM');
       toast({
         title: t("error"),
         description: t("previewNotFound"),
@@ -37,6 +40,9 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       });
       return;
     }
+    
+    // Prefer the export element, fall back to regular if needed
+    const element = exportElement || regularElement;
 
     try {
       console.log("Found element, preparing to create PDF...");
@@ -91,6 +97,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
       if (pagesNeeded <= 1) {
         // Single page
         const imgData = canvas.toDataURL('image/png');
+        // Center the image on the page
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       } else {
         // Multiple pages
@@ -122,6 +129,7 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
           }
           
           const imgData = tempCanvas.toDataURL('image/png');
+          // Center each page
           pdf.addImage(
             imgData,
             'PNG',
