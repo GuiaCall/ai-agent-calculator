@@ -8,6 +8,7 @@ import { InvoicePreviewDisplay } from "../invoice-history/InvoicePreviewDisplay"
 import { InvoiceExporter } from "../invoice-history/InvoiceExporter";
 import { useInvoiceDeletion } from "@/hooks/useInvoiceDeletion";
 import { useTranslation } from "react-i18next";
+import { History } from "lucide-react";
 
 export function PreviewSection() {
   const { t } = useTranslation();
@@ -50,7 +51,12 @@ export function PreviewSection() {
       
       {state.invoices && state.invoices.length > 0 && (
         <div className="mt-12">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">{t("invoiceHistory")}</h3>
+          <h3 className="text-indigo-800 font-bold text-xl flex items-center gap-2 mb-4">
+            <div className="bg-indigo-100 p-2 rounded-full">
+              <History className="h-5 w-5 text-indigo-600" />
+            </div>
+            {t("invoiceHistory")}
+          </h3>
           <InvoiceHistoryTable 
             invoices={state.invoices}
             onExportPDF={handleExportInvoice}
