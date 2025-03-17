@@ -1,13 +1,12 @@
-
 import { CalculatorPreview } from "../CalculatorPreview";
 import { useCalculatorStateContext } from "../CalculatorStateContext";
-import { InvoiceHistoryTable } from "../InvoiceHistoryTable";
 import { useCalculatorLogic } from "../CalculatorLogic";
 import { useTranslation } from "react-i18next";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useRef, useState } from "react";
 import { InvoiceHistory } from "@/types/invoice";
+import { InvoiceHistoryTable } from "../invoice-history/InvoiceHistoryTable";
 
 export function PreviewSection() {
   const state = useCalculatorStateContext();

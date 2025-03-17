@@ -1,6 +1,6 @@
 
 import { Card } from "@/components/ui/card";
-import { InvoiceHistory } from "@/types/invoice";
+import type { InvoiceHistory as InvoiceHistoryType } from "@/types/invoice";
 import { CurrencyType } from "@/components/calculator/CalculatorState";
 import { useInvoiceHistory } from "@/hooks/useInvoiceHistory";
 import { InvoiceHistoryList } from "./invoice/InvoiceHistoryList";
@@ -8,7 +8,7 @@ import { LoadingState } from "./invoice/LoadingState";
 
 interface InvoiceHistoryProps {
   onDelete: (id: string) => void;
-  onPrint: (invoice: InvoiceHistory) => void;
+  onPrint: (invoice: InvoiceHistoryType) => void;
   currency: CurrencyType;
 }
 
