@@ -101,7 +101,7 @@ ${t("totalMonthlyCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(
           <div className="bg-indigo-100 p-2 rounded-full">
             <Calendar className="h-5 w-5 text-indigo-600" />
           </div>
-          {t("calcomCalculator")}
+          Cal.com Calculator
         </h3>
         <Button 
           variant="outline" 
