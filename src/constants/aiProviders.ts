@@ -5,18 +5,54 @@ export const AI_PROVIDERS: AIProvider[] = [
   {
     id: "openai",
     name: "OpenAI",
-    pricing: {
-      input: 0.000075,
-      output: 0.000075
-    }
+    models: [
+      {
+        id: "gpt4o-mini",
+        name: "GPT-4o mini",
+        pricing: {
+          input: 0.15,
+          output: 0.60
+        }
+      },
+      {
+        id: "gpt4o",
+        name: "GPT-4o",
+        pricing: {
+          input: 2.50,
+          output: 10.00
+        }
+      },
+      {
+        id: "gpt45",
+        name: "GPT-4.5",
+        pricing: {
+          input: 75.00,
+          output: 150.00
+        }
+      }
+    ]
   },
   {
     id: "deepseek",
     name: "DeepSeek",
-    pricing: {
-      input: 0.00014,
-      output: 0.00027
-    }
+    models: [
+      {
+        id: "deepseek-standard",
+        name: "DeepSeek Standard (UTC 00:30-16:30)",
+        pricing: {
+          input: 0.27, // Using Cache Miss as default for more accurate estimation
+          output: 1.10
+        }
+      },
+      {
+        id: "deepseek-discount",
+        name: "DeepSeek Discount (UTC 16:30-00:30)",
+        pricing: {
+          input: 0.135, // Using Cache Miss as default
+          output: 0.55
+        }
+      }
+    ]
   }
 ];
 
@@ -47,14 +83,24 @@ export const OUTPUT_TYPES = [
 export const calculateAICost = (
   language: string,
   provider: string,
+  model: string,
   durationMinutes: number,
   totalMinutesPerMonth: number
 ): number => {
-  // Find the selected language and provider
+  // Find the selected language
   const selectedLanguage = LANGUAGES.find(lang => lang.id === language);
+  
+  // Find the selected provider
   const selectedProvider = AI_PROVIDERS.find(prov => prov.id === provider);
-
+  
   if (!selectedLanguage || !selectedProvider || durationMinutes <= 0) {
+    return 0;
+  }
+  
+  // Find the selected model
+  const selectedModel = selectedProvider.models.find(m => m.id === model);
+  
+  if (!selectedModel) {
     return 0;
   }
 
@@ -65,9 +111,9 @@ export const calculateAICost = (
   // Convert characters to tokens (1 token ≈ 4 characters)
   const totalTokens = totalChars / 4;
 
-  // Get pricing rates
-  const inputRate = selectedProvider.pricing.input;
-  const outputRate = selectedProvider.pricing.output;
+  // Get pricing rates from the selected model
+  const inputRate = selectedModel.pricing.input;
+  const outputRate = selectedModel.pricing.output;
 
   // Calculate costs per conversation
   const inputCost = (totalTokens * inputRate) / 1_000_000;

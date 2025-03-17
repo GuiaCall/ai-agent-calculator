@@ -17,19 +17,32 @@ export function AIServiceCalculator() {
   
   const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0].id);
   const [selectedProvider, setSelectedProvider] = useState(AI_PROVIDERS[0].id);
+  const [selectedModel, setSelectedModel] = useState(AI_PROVIDERS[0].models[0].id);
   const [selectedOutputType, setSelectedOutputType] = useState(OUTPUT_TYPES[0].id);
+  const [aiCost, setAiCost] = useState(0);
+  
+  // Update available models when provider changes
+  useEffect(() => {
+    const provider = AI_PROVIDERS.find(p => p.id === selectedProvider);
+    if (provider && provider.models.length > 0) {
+      setSelectedModel(provider.models[0].id);
+    }
+  }, [selectedProvider]);
   
   useEffect(() => {
     calculateAndUpdateCost();
-  }, [selectedLanguage, selectedProvider, selectedOutputType, callDuration, totalMinutes]);
+  }, [selectedLanguage, selectedProvider, selectedModel, selectedOutputType, callDuration, totalMinutes]);
   
   const calculateAndUpdateCost = () => {
     const cost = calculateAICost(
       selectedLanguage,
       selectedProvider,
+      selectedModel,
       callDuration,
       totalMinutes
     );
+    
+    setAiCost(cost);
     
     setTechnologies(techs => 
       techs.map(tech => 
@@ -37,6 +50,38 @@ export function AIServiceCalculator() {
       )
     );
   };
+  
+  // Get current provider models
+  const currentProviderModels = AI_PROVIDERS.find(
+    p => p.id === selectedProvider
+  )?.models || [];
+  
+  // Get selected model details
+  const selectedModelDetails = currentProviderModels.find(
+    m => m.id === selectedModel
+  );
+  
+  // Calculate estimated tokens and costs for display
+  const getTokenEstimation = () => {
+    const selectedLang = LANGUAGES.find(l => l.id === selectedLanguage);
+    if (!selectedLang || !selectedModelDetails) return null;
+    
+    const charsPerMin = selectedLang.charsPerMinute;
+    const totalChars = charsPerMin * callDuration;
+    const totalTokens = Math.round(totalChars / 4);
+    
+    const inputCost = (totalTokens * selectedModelDetails.pricing.input) / 1_000_000;
+    const outputCost = (totalTokens * selectedModelDetails.pricing.output) / 1_000_000;
+    
+    return {
+      tokens: totalTokens,
+      inputCost,
+      outputCost,
+      totalCost: inputCost + outputCost
+    };
+  };
+  
+  const tokenEstimation = getTokenEstimation();
   
   return (
     <Card className="p-6 space-y-6">
@@ -87,6 +132,30 @@ export function AIServiceCalculator() {
         </div>
         
         <div className="space-y-2">
+          <Label htmlFor="model-select">{t("modelSelection")}</Label>
+          <Select 
+            value={selectedModel} 
+            onValueChange={setSelectedModel}
+          >
+            <SelectTrigger id="model-select">
+              <SelectValue placeholder={t("selectModel")} />
+            </SelectTrigger>
+            <SelectContent>
+              {currentProviderModels.map(model => (
+                <SelectItem key={model.id} value={model.id}>
+                  {model.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {selectedModelDetails && (
+            <p className="text-xs text-muted-foreground">
+              {t("pricing")}: {t("input")} ${selectedModelDetails.pricing.input.toFixed(2)}/M {t("tokens")}, {t("output")} ${selectedModelDetails.pricing.output.toFixed(2)}/M {t("tokens")}
+            </p>
+          )}
+        </div>
+        
+        <div className="space-y-2">
           <Label htmlFor="output-type-select">{t("outputType")}</Label>
           <Select 
             value={selectedOutputType} 
@@ -115,21 +184,40 @@ export function AIServiceCalculator() {
               {t("selectedProvider")}: {AI_PROVIDERS.find(p => p.id === selectedProvider)?.name}
             </p>
             <p>
+              {t("selectedModel")}: {currentProviderModels.find(m => m.id === selectedModel)?.name}
+            </p>
+            <p>
               {t("conversationDuration")}: {callDuration} {t("minutes")}
             </p>
             <p>
               {t("totalMonthlyMinutes")}: {totalMinutes} {t("minutes")}
             </p>
-            <p className="font-semibold mt-2">
+            
+            {tokenEstimation && (
+              <div className="mt-2 pt-2 border-t border-muted-foreground/20">
+                <p>
+                  {t("estimatedTokensPerConversation")}: {tokenEstimation.tokens.toLocaleString()}
+                </p>
+                <p>
+                  {t("inputTokensCost")}: ${tokenEstimation.inputCost.toFixed(5)}
+                </p>
+                <p>
+                  {t("outputTokensCost")}: ${tokenEstimation.outputCost.toFixed(5)}
+                </p>
+                <p>
+                  {t("costPerConversation")}: ${tokenEstimation.totalCost.toFixed(5)}
+                </p>
+              </div>
+            )}
+            
+            <p className="font-semibold mt-2 pt-2 border-t border-muted-foreground/20">
               {t("estimatedMonthlyCost")}: {
                 new Intl.NumberFormat('en-US', { 
                   style: 'currency', 
                   currency: 'USD',
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
-                }).format(
-                  calculateAICost(selectedLanguage, selectedProvider, callDuration, totalMinutes)
-                )
+                }).format(aiCost)
               }
             </p>
           </div>

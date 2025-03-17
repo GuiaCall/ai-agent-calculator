@@ -1,11 +1,17 @@
 
-export interface AIProvider {
+export interface AIProviderModel {
   id: string;
   name: string;
   pricing: {
     input: number;
     output: number;
   };
+}
+
+export interface AIProvider {
+  id: string;
+  name: string;
+  models: AIProviderModel[];
 }
 
 export interface LanguageCharCount {
@@ -17,5 +23,6 @@ export interface LanguageCharCount {
 export interface AIServiceSelection {
   language: string;
   provider: string;
+  model: string;
   outputType: string;
 }
