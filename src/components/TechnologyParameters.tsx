@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Check, X } from "lucide-react";
+import { Check, X, Settings } from "lucide-react";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
@@ -109,7 +109,12 @@ export function TechnologyParameters({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">{t('technologyStack')}</h3>
+      <h3 className="text-indigo-800 font-bold text-xl flex items-center gap-2">
+        <div className="bg-indigo-100 p-2 rounded-full">
+          <Settings className="h-5 w-5 text-indigo-600" />
+        </div>
+        {t('technologyStack')}
+      </h3>
       <div className="space-y-4">
         {technologies.map((tech) => (
           <div key={tech.id} className="space-y-2">
