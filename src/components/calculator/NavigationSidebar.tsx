@@ -40,7 +40,7 @@ export function NavigationSidebar({ className }: NavigationSidebarProps) {
   const { technologies } = useCalculatorStateContext();
 
   // Get active technologies
-  const activeTechnologies = technologies.filter(tech => tech.enabled);
+  const activeTechnologies = technologies.filter(tech => tech.selected);
 
   // Main navigation items
   const navItems: NavItem[] = [

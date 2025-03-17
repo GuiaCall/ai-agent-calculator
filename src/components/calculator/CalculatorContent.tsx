@@ -48,7 +48,7 @@ export function CalculatorContent() {
           />
         </div>
 
-        <CurrencyToggle className="animate-fade-in" />
+        <CurrencyToggle />
         
         <div id="calculator-settings" className="animate-fade-in">
           <CalculatorSettingsSection />
@@ -68,7 +68,6 @@ export function CalculatorContent() {
           currency={state.currency}
           totalMinutes={state.totalMinutes}
           isEditingInvoice={!!state.editingInvoice}
-          className="animate-fade-in"
         />
 
         <div id="invoice-preview" className="animate-fade-in">
