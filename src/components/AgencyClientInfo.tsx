@@ -1,9 +1,9 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { AgencyInfo, ClientInfo } from "@/types/invoice";
 import { useTranslation } from "react-i18next";
+import { Building2, Users } from "lucide-react";
 
 interface AgencyClientInfoProps {
   onAgencyInfoChange: (info: AgencyInfo) => void;
@@ -23,7 +23,12 @@ export function AgencyClientInfo({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card className="p-6 space-y-4">
-        <h3 className="text-xl font-semibold">{t("agencyInformation")}</h3>
+        <h3 className="text-indigo-800 font-bold text-xl flex items-center gap-2">
+          <div className="bg-indigo-100 p-2 rounded-full">
+            <Building2 className="h-5 w-5 text-indigo-600" />
+          </div>
+          {t("agencyInformation")}
+        </h3>
         <div className="space-y-4">
           <div>
             <Label htmlFor="agencyName">{t("agencyName")}</Label>
@@ -75,7 +80,12 @@ export function AgencyClientInfo({
       </Card>
 
       <Card className="p-6 space-y-4">
-        <h3 className="text-xl font-semibold">{t("clientInformation")}</h3>
+        <h3 className="text-indigo-800 font-bold text-xl flex items-center gap-2">
+          <div className="bg-indigo-100 p-2 rounded-full">
+            <Users className="h-5 w-5 text-indigo-600" />
+          </div>
+          {t("clientInformation")}
+        </h3>
         <div className="space-y-4">
           <div>
             <Label htmlFor="clientName">{t("clientName")}</Label>
