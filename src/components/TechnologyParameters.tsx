@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,13 +6,7 @@ import { Check, X, Settings } from "lucide-react";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
-
-export interface Technology {
-  id: string;
-  name: string;
-  isSelected: boolean;
-  costPerMinute: number;
-}
+import { Technology } from "@/types/invoice";
 
 export interface TechnologyParametersProps {
   technologies: Technology[];
