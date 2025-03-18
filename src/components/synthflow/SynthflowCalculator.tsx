@@ -19,7 +19,7 @@ export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCal
   
   // Use the hook to get synthflow plans
   const { enhancedPlans, recommendedPlan, getCurrencySymbol, getCurrencyConversion } = useSynthflowPlans({ 
-    totalMinutes: totalMinutes,
+    totalMinutes,
     billingType
   });
 
@@ -38,7 +38,7 @@ export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCal
     <div className="space-y-6">
       <SynthflowBillingToggle 
         billingType={billingType} 
-        onBillingTypeChange={handleBillingTypeChange} 
+        onToggle={() => handleBillingTypeChange(billingType === 'monthly' ? 'yearly' : 'monthly')} 
       />
       
       <SynthflowPlanSelector 

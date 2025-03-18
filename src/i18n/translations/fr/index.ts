@@ -28,6 +28,10 @@ export const fr = {
     disclaimerAccept: "Je comprends que ce sont des calculs approximatifs",
     
     // Additional translation keys
-    technologies: "Technologies"
+    technologies: "Technologies",
+    
+    // Technology section messages
+    noTechnologySelected: "Aucune Stack Technologique Sélectionnée",
+    selectTechnologyMessage: "Veuillez sélectionner au moins une Stack Technologique."
   }
 };

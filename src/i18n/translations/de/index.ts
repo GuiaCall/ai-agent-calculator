@@ -28,6 +28,10 @@ export const de = {
     disclaimerAccept: "Ich verstehe, dass dies ungefähre Berechnungen sind",
     
     // Additional translation keys
-    technologies: "Technologien"
+    technologies: "Technologien",
+    
+    // Technology section messages
+    noTechnologySelected: "Kein Technologie-Stack ausgewählt",
+    selectTechnologyMessage: "Bitte wählen Sie mindestens einen Technologie-Stack aus."
   }
 };
