@@ -50,6 +50,7 @@ export const invoice = {
   "serviceDetails": "Servicedetails",
   "averageCallDuration": "Durchschnittliche Anrufdauer",
   "totalMinutesPerMonth": "Gesamtminuten pro Monat",
+  "totalCallsPerMonth": "Anrufe pro Monat gesamt",
   "costPerMinute": "Kosten pro Minute",
   "invoicePreview": "Rechnungsvorschau",
   "agencyClientInfo": "Agentur- & Kundeninfo",
