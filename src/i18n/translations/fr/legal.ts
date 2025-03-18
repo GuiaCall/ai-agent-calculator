@@ -1,3 +1,4 @@
+
 export const legal = {
   cookiePolicy: {
     title: "Politique des Cookies",
