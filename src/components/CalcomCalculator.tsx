@@ -1,10 +1,11 @@
+
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CALCOM_PLANS, CALCOM_PRICING_URL } from "@/constants/calcomPlans";
 import { CalcomPlan } from "@/types/calcom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "./ui/button";
 import { ExternalLink, Calendar } from "lucide-react";
 import { useToast } from "./ui/use-toast";
@@ -25,12 +26,14 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20, numb
   const { toast } = useToast();
   const { currency } = useCalculatorStateContext();
   const { t } = useTranslation();
+  const isInitialMount = useRef(true);
+  const prevTotalMinutes = useRef(totalMinutes);
 
   // Initialize with the first plan on component mount
   useEffect(() => {
     if (CALCOM_PLANS.length > 0 && !selectedPlan) {
       setSelectedPlan(CALCOM_PLANS[0]);
-      computeMonthlyCost(CALCOM_PLANS[0], numberOfUsers);
+      computeMonthlyCost(CALCOM_PLANS[0], numberOfUsers, false);
     }
   }, []);
 
@@ -39,10 +42,23 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20, numb
     if (initialUsers !== numberOfUsers) {
       setNumberOfUsers(initialUsers);
       if (selectedPlan) {
-        computeMonthlyCost(selectedPlan, initialUsers);
+        computeMonthlyCost(selectedPlan, initialUsers, false);
       }
     }
   }, [initialUsers]);
+
+  // Handle totalMinutes changes silently (without showing toast)
+  useEffect(() => {
+    if (!isInitialMount.current && prevTotalMinutes.current !== totalMinutes && selectedPlan) {
+      computeMonthlyCost(selectedPlan, numberOfUsers, false);
+    }
+    
+    prevTotalMinutes.current = totalMinutes;
+    
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    }
+  }, [totalMinutes]);
 
   const getCurrencyConversion = (amount: number): number => {
     switch (currency) {
@@ -62,13 +78,15 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20, numb
     }
   };
 
-  const computeMonthlyCost = (plan: CalcomPlan | null = selectedPlan, users: number = numberOfUsers) => {
+  const computeMonthlyCost = (plan: CalcomPlan | null = selectedPlan, users: number = numberOfUsers, showToast: boolean = true) => {
     if (!plan) {
-      toast({
-        title: t("error"),
-        description: t("pleaseSelectPlan"),
-        variant: "destructive",
-      });
+      if (showToast) {
+        toast({
+          title: t("error"),
+          description: t("pleaseSelectPlan"),
+          variant: "destructive",
+        });
+      }
       return;
     }
 
@@ -90,21 +108,23 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20, numb
       onPlanSelect(plan, users);
     }
     
-    toast({
-      title: t("monthlyCostCalculated"),
-      description: `${t("basePlanCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(plan.basePrice).toFixed(2)}
+    if (showToast) {
+      toast({
+        title: t("monthlyCostCalculated"),
+        description: `${t("basePlanCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(plan.basePrice).toFixed(2)}
 ${t("teamMembersCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(teamMemberCost).toFixed(2)}
 ${t("totalCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalCost).toFixed(2)}`,
-    });
+      });
+    }
 
     return totalCost;
   };
 
   useEffect(() => {
     if (selectedPlan) {
-      computeMonthlyCost(selectedPlan, numberOfUsers);
+      computeMonthlyCost(selectedPlan, numberOfUsers, false);
     }
-  }, [selectedPlan, numberOfUsers, totalMinutes]);
+  }, [selectedPlan, numberOfUsers]);
 
   return (
     <Card className="p-4 space-y-4">
@@ -169,7 +189,7 @@ ${t("totalCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalCo
 
       <div className="flex justify-between items-center pt-4">
         <Button 
-          onClick={() => computeMonthlyCost()}
+          onClick={() => computeMonthlyCost(selectedPlan, numberOfUsers, true)}
           className="w-full"
           variant="default"
         >

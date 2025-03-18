@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useCalculatorStateContext } from './CalculatorStateContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

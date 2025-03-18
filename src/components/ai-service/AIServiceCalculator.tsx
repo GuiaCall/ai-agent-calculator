@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useCalculatorStateContext } from "../calculator/CalculatorStateContext";
-import { Bot } from "lucide-react";
 import { AIServiceHeader } from "./AIServiceHeader";
 import { AIServiceSelectors } from "./AIServiceSelectors";
 import { AIServiceCostSummary } from "./AIServiceCostSummary";
@@ -15,7 +14,7 @@ interface AIServiceCalculatorProps {
 
 export function AIServiceCalculator({ totalMinutes }: AIServiceCalculatorProps) {
   const { t } = useTranslation();
-  const { setTechnologies } = useCalculatorStateContext();
+  const { setTechnologies, currency } = useCalculatorStateContext();
   
   const {
     selectedLanguage,
@@ -70,6 +69,7 @@ export function AIServiceCalculator({ totalMinutes }: AIServiceCalculatorProps) 
           providers={providers}
           currentProviderModels={currentProviderModels}
           outputTypes={outputTypes}
+          currency={currency}
         />
       </div>
     </Card>

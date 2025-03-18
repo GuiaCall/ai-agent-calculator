@@ -21,26 +21,38 @@ export function useAIServiceCalculator(
     }
   }, [selectedProvider]);
   
+  // Recalculate cost whenever any parameter changes
   useEffect(() => {
     calculateAndUpdateCost();
   }, [selectedLanguage, selectedProvider, selectedModel, selectedOutputType, totalMinutes]);
   
   const calculateAndUpdateCost = () => {
-    const cost = calculateAICost(
-      selectedLanguage,
-      selectedProvider,
-      selectedModel,
-      totalMinutes,
-      selectedOutputType
-    );
-    
-    setAiCost(cost);
-    
-    setTechnologies((techs: any) => 
-      techs.map((tech: any) => 
-        tech.id === "ai-service" ? { ...tech, costPerMinute: cost / (totalMinutes || 1) } : tech
-      )
-    );
+    try {
+      // Get the cost from our calculation function
+      const cost = calculateAICost(
+        selectedLanguage,
+        selectedProvider,
+        selectedModel,
+        totalMinutes,
+        selectedOutputType
+      );
+      
+      // Update local state
+      setAiCost(cost);
+      
+      // Update global technologies state with the cost per minute
+      if (totalMinutes > 0) {
+        setTechnologies((techs: any[]) => 
+          techs.map((tech: any) => 
+            tech.id === "ai-service" ? { ...tech, costPerMinute: cost / (totalMinutes || 1) } : tech
+          )
+        );
+      }
+      
+      console.log(`AI Service calculated cost: $${cost} for ${totalMinutes} minutes`);
+    } catch (error) {
+      console.error("Error calculating AI cost:", error);
+    }
   };
   
   // Get current provider models

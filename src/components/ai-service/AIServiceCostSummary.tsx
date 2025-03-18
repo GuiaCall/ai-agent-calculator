@@ -1,6 +1,7 @@
 
 import { useTranslation } from "react-i18next";
 import { AIProvider, AIProviderModel, LanguageCharCount, OutputType } from "@/types/aiProviders";
+import { CurrencyType } from "@/components/calculator/CalculatorState";
 
 interface TokenEstimation {
   inputTokens: number;
@@ -22,6 +23,7 @@ interface AIServiceCostSummaryProps {
   providers: AIProvider[];
   currentProviderModels: AIProviderModel[];
   outputTypes: OutputType[];
+  currency: CurrencyType;
 }
 
 export function AIServiceCostSummary({
@@ -35,9 +37,28 @@ export function AIServiceCostSummary({
   languages,
   providers,
   currentProviderModels,
-  outputTypes
+  outputTypes,
+  currency = 'USD'
 }: AIServiceCostSummaryProps) {
   const { t } = useTranslation();
+  
+  const getCurrencySymbol = (curr: CurrencyType = 'USD') => {
+    switch (curr) {
+      case 'EUR':
+        return '€';
+      default:
+        return '$';
+    }
+  };
+  
+  const getCurrencyConversion = (amount: number): number => {
+    switch (currency) {
+      case 'EUR':
+        return amount * 0.948231;
+      default:
+        return amount;
+    }
+  };
   
   return (
     <div className="mt-4 p-4 bg-muted rounded-md">
@@ -68,13 +89,13 @@ export function AIServiceCostSummary({
               {t("estimatedOutputTokens")}: {tokenEstimation.outputTokens.toLocaleString()} {t("tokens")}
             </p>
             <p>
-              {t("inputTokensCost")}: ${tokenEstimation.inputCost.toFixed(5)}
+              {t("inputTokensCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(tokenEstimation.inputCost).toFixed(5)}
             </p>
             <p>
-              {t("outputTokensCost")}: ${tokenEstimation.outputCost.toFixed(5)}
+              {t("outputTokensCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(tokenEstimation.outputCost).toFixed(5)}
             </p>
             <p className="font-semibold">
-              {t("totalCost")}: ${tokenEstimation.totalCost.toFixed(5)}
+              {t("totalCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(tokenEstimation.totalCost).toFixed(5)}
             </p>
           </div>
         )}
@@ -83,10 +104,10 @@ export function AIServiceCostSummary({
           {t("estimatedMonthlyCost")}: {
             new Intl.NumberFormat('en-US', { 
               style: 'currency', 
-              currency: 'USD',
+              currency: currency,
               minimumFractionDigits: 2,
               maximumFractionDigits: 2
-            }).format(aiCost)
+            }).format(getCurrencyConversion(aiCost))
           }
         </p>
       </div>
