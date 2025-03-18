@@ -16,24 +16,8 @@ export function NavigationSidebar() {
     .filter(tech => tech.isSelected)
     .map(tech => ({ id: tech.id, name: tech.name }));
   
-  // Handle scroll to section
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  // Handle scroll to technology
-  const scrollToTechnology = (techId: string) => {
-    const element = document.getElementById(`technology-${techId}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  // Get navigation items
-  const { navItems, activeSection } = useNavigationItems();
+  // Get navigation items including activeSection
+  const { navItems, scrollToSection, scrollToTechnology, activeSection } = useNavigationItems();
 
   // We're wrapping our component with SidebarProvider to fix the error
   return (

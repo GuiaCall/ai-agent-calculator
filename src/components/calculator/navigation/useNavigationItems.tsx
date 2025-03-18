@@ -1,7 +1,7 @@
 
 import { useTranslation } from "react-i18next";
 import { Calculator, FileText, Server, Settings } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
 
 interface NavItem {
@@ -13,6 +13,7 @@ interface NavItem {
 export function useNavigationItems() {
   const { t } = useTranslation();
   const { setOpen, setOpenMobile } = useSidebar();
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
   // Main navigation items
   const navItems: NavItem[] = [
@@ -44,6 +45,9 @@ export function useNavigationItems() {
       // Scroll to the element with smooth behavior
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       
+      // Update active section
+      setActiveSection(sectionId);
+      
       // Close sidebar after navigation
       setOpen(false);
       setOpenMobile(false);
@@ -55,6 +59,9 @@ export function useNavigationItems() {
     const element = document.getElementById(`technology-${techId}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Update active section to technology section
+      setActiveSection('technology-section');
       
       // Close sidebar after navigation
       setOpen(false);
@@ -90,5 +97,5 @@ export function useNavigationItems() {
     };
   }, [setOpen, setOpenMobile]);
 
-  return { navItems, scrollToSection, scrollToTechnology };
+  return { navItems, scrollToSection, scrollToTechnology, activeSection };
 }
