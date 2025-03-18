@@ -2,6 +2,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useCalculatorStateContext } from "../calculator/CalculatorStateContext";
+import { getCurrencySymbol } from "@/utils/currencyUtils";
 
 interface SynthflowUsageSummaryProps {
   totalMinutes: number;
@@ -10,15 +11,6 @@ interface SynthflowUsageSummaryProps {
 export function SynthflowUsageSummary({ totalMinutes }: SynthflowUsageSummaryProps) {
   const { t } = useTranslation();
   const { selectedSynthflowPlan, currency } = useCalculatorStateContext();
-  
-  const getCurrencySymbol = (currency: string) => {
-    switch (currency) {
-      case 'EUR':
-        return '€';
-      default:
-        return '$';
-    }
-  };
 
   const getCurrencyConversion = (amount: number): number => {
     switch (currency) {

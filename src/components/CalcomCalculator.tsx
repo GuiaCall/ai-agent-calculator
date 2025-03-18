@@ -30,8 +30,9 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
   useEffect(() => {
     if (CALCOM_PLANS.length > 0 && !selectedPlan) {
       setSelectedPlan(CALCOM_PLANS[0]);
+      computeMonthlyCost(CALCOM_PLANS[0], numberOfUsers);
     }
-  }, [selectedPlan]);
+  }, []);
 
   const getCurrencyConversion = (amount: number): number => {
     switch (currency) {
@@ -51,28 +52,8 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
     }
   };
 
-  useEffect(() => {
-    if (selectedPlan) {
-      const teamMemberCost = (selectedPlan.allowsTeam && numberOfUsers > 0)
-        ? numberOfUsers * selectedPlan.pricePerUser
-        : 0;
-      
-      const totalCost = selectedPlan.basePrice + teamMemberCost;
-      setMonthlyTotal(totalCost);
-
-      if (totalMinutes > 0) {
-        const costPerMinute = Number((totalCost / totalMinutes).toFixed(3));
-        const updatedPlan = {
-          ...selectedPlan,
-          costPerMinute
-        };
-        onPlanSelect(updatedPlan, numberOfUsers);
-      }
-    }
-  }, [selectedPlan, numberOfUsers, totalMinutes, onPlanSelect]);
-
-  const computeMonthlyCost = () => {
-    if (!selectedPlan) {
+  const computeMonthlyCost = (plan: CalcomPlan | null = selectedPlan, users: number = numberOfUsers) => {
+    if (!plan) {
       toast({
         title: t("error"),
         description: t("pleaseSelectPlan"),
@@ -81,27 +62,39 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
       return;
     }
 
-    const teamMemberCost = (selectedPlan.allowsTeam && numberOfUsers > 0)
-      ? numberOfUsers * selectedPlan.pricePerUser
+    const teamMemberCost = (plan.allowsTeam && users > 0)
+      ? users * plan.pricePerUser
       : 0;
     
-    const totalCost = selectedPlan.basePrice + teamMemberCost;
+    const totalCost = plan.basePrice + teamMemberCost;
     setMonthlyTotal(totalCost);
     
-    const costPerMinute = totalMinutes > 0 ? Number((totalCost / totalMinutes).toFixed(3)) : 0;
-    const updatedPlan = {
-      ...selectedPlan,
-      costPerMinute
-    };
-    onPlanSelect(updatedPlan, numberOfUsers);
+    if (totalMinutes > 0) {
+      const costPerMinute = Number((totalCost / totalMinutes).toFixed(3));
+      const updatedPlan = {
+        ...plan,
+        costPerMinute
+      };
+      onPlanSelect(updatedPlan, users);
+    } else {
+      onPlanSelect(plan, users);
+    }
     
     toast({
       title: t("monthlyCostCalculated"),
-      description: `${t("basePlanCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(selectedPlan.basePrice).toFixed(2)}
+      description: `${t("basePlanCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(plan.basePrice).toFixed(2)}
 ${t("teamMembersCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(teamMemberCost).toFixed(2)}
 ${t("totalCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalCost).toFixed(2)}`,
     });
+
+    return totalCost;
   };
+
+  useEffect(() => {
+    if (selectedPlan) {
+      computeMonthlyCost(selectedPlan, numberOfUsers);
+    }
+  }, [selectedPlan, numberOfUsers, totalMinutes]);
 
   return (
     <Card className="p-4 space-y-4">
@@ -166,7 +159,7 @@ ${t("totalCost")}: ${getCurrencySymbol(currency)}${getCurrencyConversion(totalCo
 
       <div className="flex justify-between items-center pt-4">
         <Button 
-          onClick={computeMonthlyCost}
+          onClick={() => computeMonthlyCost()}
           className="w-full"
           variant="default"
         >

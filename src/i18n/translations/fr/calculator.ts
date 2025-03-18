@@ -57,5 +57,6 @@ export const calculator = {
   "computeMonthlyCost": "Calculer le coût mensuel",
   "monthlyCostCalculated": "Coût mensuel calculé",
   "month": "mois",
-  "totalMonthlyCost": "Coût mensuel total"
+  "totalMonthlyCost": "Coût mensuel total",
+  "overageWarning": "Dépassement: {{minutes}} minutes ({{cost}})"
 }

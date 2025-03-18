@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useCalculatorStateContext } from './CalculatorStateContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MakeCalculator } from './make/MakeCalculator';
@@ -54,7 +54,7 @@ export function TechnologyCalculators() {
     
     setTechnologies(techs => 
       techs.map(tech => 
-        tech.id === 'calcom' ? { ...tech, costPerMinute: monthlyTotal } : tech
+        tech.id === 'calcom' || tech.id === 'cal' ? { ...tech, costPerMinute: monthlyTotal / (totalMinutes || 1) } : tech
       )
     );
   };
@@ -77,9 +77,11 @@ export function TechnologyCalculators() {
     setSelectedSynthflowPlan(plan);
     
     if (plan) {
+      const costPerMinute = plan.totalCost ? plan.totalCost / (totalMinutes || 1) : plan.monthlyPrice / (plan.minutesPerMonth || 1);
+      
       setTechnologies(techs => 
         techs.map(tech => 
-          tech.id === 'synthflow' ? { ...tech, costPerMinute: plan.monthlyPrice } : tech
+          tech.id === 'synthflow' ? { ...tech, costPerMinute } : tech
         )
       );
     }
@@ -115,7 +117,7 @@ export function TechnologyCalculators() {
               />
             )}
             
-            {tech.id === 'cal' && (
+            {(tech.id === 'cal' || tech.id === 'calcom') && (
               <CalcomCalculator 
                 onPlanSelect={handleCalcomPlanSelect}
                 totalMinutes={totalMinutes}

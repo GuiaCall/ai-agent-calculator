@@ -29,7 +29,7 @@ export function useSynthflowPlans(totalMinutes: number, billingType: 'monthly' |
   const enhancedPlans = SYNTHFLOW_PLANS.map(plan => {
     const basePrice = billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
     const overageMinutes = Math.max(0, totalMinutes - plan.minutesPerMonth);
-    const overageCost = overageMinutes * 0.13;
+    const overageCost = overageMinutes * 0.13; // $0.13 per minute for overage
     const totalCost = basePrice + overageCost;
     const costPerMinute = totalMinutes > 0 ? totalCost / totalMinutes : 0;
     

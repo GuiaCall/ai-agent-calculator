@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSynthflowPlans } from './hooks/useSynthflowPlans';
 import { SynthflowPlanSelector } from './SynthflowPlanSelector';
 import { SynthflowBillingToggle } from './SynthflowBillingToggle';
@@ -17,8 +17,15 @@ export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCal
   const [billingType, setBillingType] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<SynthflowPlan | null>(null);
   
-  // Use the hook to get synthflow plans - passing totalMinutes and billingType as separate arguments
-  const { enhancedPlans, recommendedPlan, getCurrencySymbol, getCurrencyConversion } = useSynthflowPlans(totalMinutes, billingType);
+  // Use the hook to get synthflow plans
+  const { enhancedPlans, recommendedPlan } = useSynthflowPlans(totalMinutes, billingType);
+
+  // Initialize with the recommended plan if none is selected
+  useEffect(() => {
+    if (!selectedPlan && recommendedPlan) {
+      handlePlanSelect(recommendedPlan);
+    }
+  }, [recommendedPlan]);
 
   // Handle plan selection
   const handlePlanSelect = (plan: SynthflowPlan | null) => {
