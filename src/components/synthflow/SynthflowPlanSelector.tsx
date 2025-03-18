@@ -1,131 +1,92 @@
 
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { SynthflowPlan } from "@/types/synthflow";
-import { useTranslation } from "react-i18next";
-import { useCalculatorStateContext } from "../calculator/CalculatorStateContext";
+import React from 'react';
+import { Check, X } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { SynthflowPlan } from '@/types/synthflow';
+import { useTranslation } from 'react-i18next';
 
-interface SynthflowPlanSelectorProps {
+export interface SynthflowPlanSelectorProps {
   enhancedPlans: SynthflowPlan[];
-  selectedPlanId: string | null;
-  onPlanChange: (planId: string) => void;
+  selectedPlan: SynthflowPlan | null;
+  onPlanSelect: (plan: SynthflowPlan | null) => void;
   billingType: 'monthly' | 'yearly';
-  getCurrencySymbol: (currency: string) => string;
-  getCurrencyConversion: (amount: number) => number;
+  recommendedPlan: SynthflowPlan | null;
 }
 
 export function SynthflowPlanSelector({
   enhancedPlans,
-  selectedPlanId,
-  onPlanChange,
+  selectedPlan,
+  onPlanSelect,
   billingType,
-  getCurrencySymbol,
-  getCurrencyConversion
+  recommendedPlan
 }: SynthflowPlanSelectorProps) {
   const { t } = useTranslation();
-  const { currency } = useCalculatorStateContext();
   
+  const handlePlanClick = (plan: SynthflowPlan) => {
+    onPlanSelect(plan.name === selectedPlan?.name ? null : plan);
+  };
+
   return (
     <div>
-      <Label className="text-base font-medium">{t("selectPlan")}</Label>
-      <RadioGroup 
-        className="grid gap-4 mt-3"
-        value={selectedPlanId || ''}
-        onValueChange={onPlanChange}
-      >
-        {enhancedPlans.map((plan) => (
-          <div 
-            key={plan.name} 
-            className={`p-4 rounded-lg border transition-all duration-200 ${
-              selectedPlanId === plan.name 
-                ? 'border-indigo-400 bg-indigo-50 shadow-md transform -translate-y-1' 
-                : plan.isRecommended 
-                  ? 'border-primary/50 bg-primary/5 hover:border-indigo-300 hover:bg-indigo-50/50' 
-                  : 'border-border hover:border-indigo-200 hover:bg-indigo-50/30'
-            }`}
-          >
-            <PlanHeader 
-              plan={plan} 
-              selectedPlanId={selectedPlanId} 
-            />
-            
-            <PlanDetails 
-              plan={plan}
-              selectedPlanId={selectedPlanId}
-              billingType={billingType}
-              getCurrencySymbol={getCurrencySymbol}
-              getCurrencyConversion={getCurrencyConversion}
-              currency={currency}
-            />
-          </div>
-        ))}
-      </RadioGroup>
-    </div>
-  );
-}
-
-function PlanHeader({ plan, selectedPlanId }: { plan: SynthflowPlan, selectedPlanId: string | null }) {
-  const { t } = useTranslation();
-  
-  return (
-    <div className="flex items-center space-x-2">
-      <RadioGroupItem value={plan.name} id={plan.name} className={selectedPlanId === plan.name ? 'text-indigo-600' : ''} />
-      <Label htmlFor={plan.name} className="flex items-center space-x-2">
-        <span className={`font-medium ${selectedPlanId === plan.name ? 'text-indigo-700' : ''}`}>{plan.name}</span>
-        {plan.isRecommended && (
-          <Badge variant="outline" className="bg-primary/10 text-primary">
-            {t("recommendedPlan")}
-          </Badge>
-        )}
-      </Label>
-    </div>
-  );
-}
-
-function PlanDetails({ 
-  plan, 
-  selectedPlanId, 
-  billingType,
-  getCurrencySymbol,
-  getCurrencyConversion,
-  currency
-}: { 
-  plan: SynthflowPlan, 
-  selectedPlanId: string | null,
-  billingType: 'monthly' | 'yearly',
-  getCurrencySymbol: (currency: string) => string,
-  getCurrencyConversion: (amount: number) => number,
-  currency: string
-}) {
-  const { t } = useTranslation();
-  
-  return (
-    <div className="ml-6 mt-2 space-y-2 text-sm">
-      <div className="flex justify-between">
-        <span>{t("basePlan", { count: plan.minutesPerMonth })}</span>
-        <span className="font-medium">
-          {getCurrencySymbol(currency)}{getCurrencyConversion(billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice).toFixed(2)} {t("per")} {billingType === 'monthly' ? t("month") : t("year")}
-        </span>
-      </div>
-      
-      {(plan.overageMinutes || 0) > 0 && (
-        <div className="flex justify-between text-amber-700">
-          <span>{t("overage", { count: plan.overageMinutes, rate: `${getCurrencySymbol(currency)}${getCurrencyConversion(0.13).toFixed(2)}` })}</span>
-          <span className="font-medium">{getCurrencySymbol(currency)}{getCurrencyConversion(plan.overageCost || 0).toFixed(2)}</span>
-        </div>
-      )}
-      
-      <div className="flex justify-between font-medium pt-1 border-t border-border">
-        <span>{t("totalMonthlyCost")}</span>
-        <span className={`${selectedPlanId === plan.name ? 'text-indigo-600 font-bold' : 'text-primary'}`}>
-          {getCurrencySymbol(currency)}{getCurrencyConversion(plan.totalCost || 0).toFixed(2)}
-        </span>
-      </div>
-      
-      <div className="flex justify-between text-muted-foreground">
-        <span>{t("effectiveCostPerMinute")}</span>
-        <span>{getCurrencySymbol(currency)}{getCurrencyConversion(plan.costPerMinute || 0).toFixed(4)}</span>
+      <h3 className="text-lg font-semibold mb-4">{t('selectPlan')}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {enhancedPlans.map((plan) => {
+          const isSelected = selectedPlan?.name === plan.name;
+          const isRecommended = recommendedPlan?.name === plan.name;
+          
+          return (
+            <Card 
+              key={plan.name}
+              className={cn(
+                "cursor-pointer border-2 transition-all relative overflow-hidden",
+                isSelected 
+                  ? "border-indigo-600 bg-indigo-50/50" 
+                  : isRecommended 
+                    ? "border-emerald-300" 
+                    : "border-gray-200 hover:border-gray-300"
+              )}
+              onClick={() => handlePlanClick(plan)}
+            >
+              {isRecommended && (
+                <div className="absolute top-0 right-0 bg-emerald-500 text-white px-2 py-1 text-xs">
+                  {t('recommended')}
+                </div>
+              )}
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-semibold text-md">{plan.name}</h3>
+                  {isSelected && <Check className="text-indigo-600 h-5 w-5" />}
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-2xl font-bold">
+                      ${billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice}
+                    </span>
+                    <span className="text-sm text-gray-500">/{t('month')}</span>
+                  </div>
+                  
+                  <p className="text-sm text-gray-600">
+                    {plan.minutesPerMonth.toLocaleString()} {t('minutesPerMonth')}
+                  </p>
+                  
+                  {plan.overageMinutes > 0 && (
+                    <div className="text-sm text-amber-600 flex items-center">
+                      <X className="h-4 w-4 mr-1" />
+                      <span>
+                        {t('overageWarning', {
+                          minutes: plan.overageMinutes.toLocaleString(),
+                          cost: `$${plan.overageCost.toFixed(2)}`
+                        })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

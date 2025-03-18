@@ -44,7 +44,7 @@ export function DesktopNavigation({
     <div 
       className={cn(
         "hidden md:block fixed left-0 top-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-r-lg shadow-md z-30 transition-all duration-300",
-        isCollapsed ? "w-16" : "w-56",
+        isCollapsed ? "w-16" : "w-64",
         className
       )}
     >
@@ -53,6 +53,7 @@ export function DesktopNavigation({
           <button 
             className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100"
             onClick={() => setIsCollapsed(!isCollapsed)}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
@@ -71,31 +72,23 @@ export function DesktopNavigation({
                 title={isCollapsed ? item.title : undefined}
               >
                 <span className="flex-shrink-0">{item.icon}</span>
-                {!isCollapsed && <span className="truncate">{item.title}</span>}
+                {!isCollapsed && <span className="truncate ml-2">{item.title}</span>}
               </button>
 
               {/* Technology dropdown for desktop */}
               {!isCollapsed && item.id === 'technology-section' && activeTechnologies.length > 0 && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="ml-8 flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 text-sm hover:bg-gray-100 w-full transition-colors animate-fade-in">
+                <div className="ml-8 space-y-1 animate-fade-in">
+                  {activeTechnologies.map(tech => (
+                    <button
+                      key={tech.id}
+                      className="flex items-center space-x-2 w-full px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-gray-100"
+                      onClick={() => scrollToTechnology(tech.id)}
+                    >
                       <Layers className="h-4 w-4 text-indigo-500" />
-                      <span className="truncate">{t("technologies")}</span>
-                      <ChevronDown className="h-4 w-4 ml-auto" />
+                      <span className="truncate">{tech.name}</span>
                     </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-white">
-                    {activeTechnologies.map(tech => (
-                      <DropdownMenuItem 
-                        key={tech.id}
-                        className="cursor-pointer"
-                        onClick={() => scrollToTechnology(tech.id)}
-                      >
-                        {tech.name}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  ))}
+                </div>
               )}
             </React.Fragment>
           ))}

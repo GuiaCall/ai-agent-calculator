@@ -1,72 +1,58 @@
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { SynthflowPlan } from "@/types/synthflow";
-import { useTranslation } from "react-i18next";
-import { useSynthflowPlans } from "./hooks/useSynthflowPlans";
-import { SynthflowPlanSelector } from "./SynthflowPlanSelector";
-import { SynthflowBillingToggle } from "./SynthflowBillingToggle";
-import { SynthflowUsageSummary } from "./SynthflowUsageSummary";
-import { useCalculatorStateContext } from "../calculator/CalculatorStateContext";
+import React, { useState } from 'react';
+import { useSynthflowPlans } from './hooks/useSynthflowPlans';
+import { SynthflowPlanSelector } from './SynthflowPlanSelector';
+import { SynthflowBillingToggle } from './SynthflowBillingToggle';
+import { SynthflowUsageSummary } from './SynthflowUsageSummary';
+import { useTranslation } from 'react-i18next';
+import { SynthflowPlan } from '@/types/synthflow';
 
-export interface SynthflowCalculatorProps {
+interface SynthflowCalculatorProps {
   totalMinutes: number;
   onPlanSelect: (plan: SynthflowPlan | null) => void;
 }
 
 export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCalculatorProps) {
   const { t } = useTranslation();
-  const { currency } = useCalculatorStateContext();
   const [billingType, setBillingType] = useState<'monthly' | 'yearly'>('monthly');
-  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SynthflowPlan | null>(null);
   
-  // Get enhanced plans from the hook
-  const { enhancedPlans, recommendedPlan, getCurrencySymbol, getCurrencyConversion } = useSynthflowPlans(totalMinutes, billingType);
+  // Use the hook to get synthflow plans
+  const { enhancedPlans, recommendedPlan, getCurrencySymbol, getCurrencyConversion } = useSynthflowPlans({ 
+    totalMinutes: totalMinutes,
+    billingType
+  });
 
-  const handlePlanChange = (planId: string) => {
-    setSelectedPlanId(planId);
-    
-    // Find the selected plan by ID
-    const selectedPlan = enhancedPlans.find(plan => plan.name === planId) || null;
-    onPlanSelect(selectedPlan);
+  // Handle plan selection
+  const handlePlanSelect = (plan: SynthflowPlan | null) => {
+    setSelectedPlan(plan);
+    onPlanSelect(plan);
   };
 
-  const handleBillingToggle = () => {
-    setBillingType(prev => prev === 'monthly' ? 'yearly' : 'monthly');
-    // Reset selected plan when toggling billing type
-    setSelectedPlanId(null);
-    onPlanSelect(null);
+  // Handle billing type change
+  const handleBillingTypeChange = (type: 'monthly' | 'yearly') => {
+    setBillingType(type);
   };
 
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-6">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">{t("synthflowPlans")}</h3>
-            <SynthflowBillingToggle 
-              billingType={billingType} 
-              onToggle={handleBillingToggle}
-            />
-          </div>
-
-          <SynthflowPlanSelector
-            enhancedPlans={enhancedPlans}
-            selectedPlanId={selectedPlanId}
-            onPlanChange={handlePlanChange}
-            billingType={billingType}
-            getCurrencySymbol={getCurrencySymbol}
-            getCurrencyConversion={getCurrencyConversion}
-          />
-
-          {selectedPlanId && (
-            <SynthflowUsageSummary 
-              totalMinutes={totalMinutes}
-              t={t}
-            />
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <SynthflowBillingToggle 
+        billingType={billingType} 
+        onBillingTypeChange={handleBillingTypeChange} 
+      />
+      
+      <SynthflowPlanSelector 
+        enhancedPlans={enhancedPlans}
+        selectedPlan={selectedPlan}
+        onPlanSelect={handlePlanSelect}
+        billingType={billingType}
+        recommendedPlan={recommendedPlan}
+      />
+      
+      <SynthflowUsageSummary 
+        totalMinutes={totalMinutes}
+        t={t}
+      />
+    </div>
   );
 }

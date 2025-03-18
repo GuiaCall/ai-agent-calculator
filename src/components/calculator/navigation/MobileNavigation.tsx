@@ -77,8 +77,8 @@ export function MobileNavigation({
                     setIsMobileOpen(false);
                   }}
                 >
-                  {item.icon}
-                  <span className="font-medium">{item.title}</span>
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  <span className="font-medium ml-2">{item.title}</span>
                 </button>
                 
                 {/* Technology dropdown for mobile */}
