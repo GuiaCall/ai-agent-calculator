@@ -43,6 +43,7 @@ export function useCalculatorState() {
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const [technologies, setTechnologies] = useState(initialTechnologies);
   const [numberOfUsers, setNumberOfUsers] = useState<number>(1);
+  const [showTechStackWarning, setShowTechStackWarning] = useState<boolean>(false);
   
   // Client and agency info
   const [agencyInfo, setAgencyInfo] = useState(savedAgencyInfo);
@@ -121,5 +122,7 @@ export function useCalculatorState() {
     setEditingInvoice,
     editingInvoiceId,
     isEditingInvoice,
+    showTechStackWarning,
+    setShowTechStackWarning,
   };
 }

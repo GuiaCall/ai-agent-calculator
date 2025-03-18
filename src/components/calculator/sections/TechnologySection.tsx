@@ -4,7 +4,7 @@ import { TechnologyCalculators } from "../TechnologyCalculators";
 import { useCalculatorStateContext } from "../CalculatorStateContext";
 import { Card } from "@/components/ui/card";
 import { Technology } from "@/types/invoice";
-import { useCalculation } from "@/hooks/useCalculation";
+import { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -14,40 +14,28 @@ export function TechnologySection() {
   const { 
     technologies, 
     setTechnologies,
-    totalMinutes,
-    margin,
-    agencyInfo,
-    clientInfo,
-    taxRate,
-    setTotalCost,
-    setSetupCost,
-    setShowPreview,
-    callDuration,
-    invoices,
-    setInvoices,
-    editingInvoice
+    showTechStackWarning,
+    setShowTechStackWarning
   } = useCalculatorStateContext();
   
   const { t } = useTranslation();
-  
-  const { showTechStackWarning } = useCalculation({
-    technologies,
-    totalMinutes,
-    margin,
-    agencyInfo,
-    clientInfo,
-    taxRate,
-    setTotalCost,
-    setSetupCost,
-    setShowPreview,
-    callDuration,
-    invoices,
-    setInvoices,
-    editingInvoiceId: editingInvoice?.id || null
-  });
+
+  // Auto-hide warning after 3 seconds
+  useEffect(() => {
+    if (showTechStackWarning) {
+      const timer = setTimeout(() => {
+        setShowTechStackWarning(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showTechStackWarning, setShowTechStackWarning]);
 
   const handleTechnologyChange = (updatedTechnologies: Technology[]) => {
     setTechnologies(updatedTechnologies);
+    // Clear warning if user selects a technology
+    if (updatedTechnologies.some(tech => tech.isSelected)) {
+      setShowTechStackWarning(false);
+    }
   };
 
   return (
@@ -55,7 +43,7 @@ export function TechnologySection() {
       <Card 
         className={cn(
           "p-6 bg-background text-foreground transition-all duration-300",
-          showTechStackWarning ? "border-2 border-primary-600 shadow-lg ring-2 ring-primary-300 animate-pulse" : ""
+          showTechStackWarning ? "border-2 border-primary shadow-lg ring-2 ring-primary/30 animate-pulse" : ""
         )}
       >
         {showTechStackWarning && (

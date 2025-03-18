@@ -19,10 +19,11 @@ export function useCalculatorLogic({
   setEditingInvoice,
   editingInvoice,
   resetCalculator,
+  setShowTechStackWarning
 }) {
   const navigate = useNavigate();
   
-  const { calculateCost, showTechStackWarning } = useCalculation({
+  const { calculateCost } = useCalculation({
     technologies,
     totalMinutes,
     margin,
@@ -35,7 +36,8 @@ export function useCalculatorLogic({
     callDuration,
     invoices,
     setInvoices,
-    editingInvoiceId: editingInvoice?.id || null
+    editingInvoiceId: editingInvoice?.id || null,
+    setShowTechStackWarning
   });
 
   const { exportPDF } = useExportPDF(invoices || []);
@@ -50,6 +52,5 @@ export function useCalculatorLogic({
     calculateCost,
     exportPDF,
     cancelEdit,
-    showTechStackWarning,
   };
 }

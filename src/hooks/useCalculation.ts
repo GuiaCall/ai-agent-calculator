@@ -20,6 +20,7 @@ interface UseCalculationProps {
   invoices: InvoiceHistory[];
   setInvoices: (invoices: InvoiceHistory[]) => void;
   editingInvoiceId: string | null;
+  setShowTechStackWarning?: (show: boolean) => void;
 }
 
 export function useCalculation({
@@ -35,32 +36,34 @@ export function useCalculation({
   callDuration,
   invoices,
   setInvoices,
-  editingInvoiceId
+  editingInvoiceId,
+  setShowTechStackWarning
 }: UseCalculationProps) {
   const { 
     showSuccessToast, 
     showErrorToast, 
     showTechnologySelectionError 
   } = useCalculationToasts();
-  
-  const [showTechStackWarning, setShowTechStackWarning] = useState(false);
 
   const calculateCost = async () => {
     // Validate technology selection
     const selectedTechs = technologies.filter((tech) => tech.isSelected);
     if (selectedTechs.length === 0) {
+      // Show toast notification
       showTechnologySelectionError();
-      setShowTechStackWarning(true);
       
-      // Hide warning after 3 seconds
-      setTimeout(() => {
-        setShowTechStackWarning(false);
-      }, 3000);
+      // Set visual warning in UI
+      if (setShowTechStackWarning) {
+        setShowTechStackWarning(true);
+      }
       
       return;
     }
     
-    setShowTechStackWarning(false);
+    // Clear warning if technologies are selected
+    if (setShowTechStackWarning) {
+      setShowTechStackWarning(false);
+    }
 
     // Calculate costs
     const { monthlyCost } = calculateTotalCostPerMinute(
@@ -151,5 +154,5 @@ export function useCalculation({
     }
   };
 
-  return { calculateCost, showTechStackWarning, setShowTechStackWarning };
+  return { calculateCost };
 }

@@ -1,7 +1,6 @@
 
 import { toast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
-import { AlertCircle } from "lucide-react";
 
 export function useCalculationToasts() {
   const { t } = useTranslation();

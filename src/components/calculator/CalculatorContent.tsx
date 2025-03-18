@@ -16,7 +16,10 @@ import { NavigationSidebar } from "./NavigationSidebar";
 
 export function CalculatorContent() {
   const state = useCalculatorStateContext();
-  const logic = useCalculatorLogic({ ...state });
+  const logic = useCalculatorLogic({ 
+    ...state, 
+    setShowTechStackWarning: state.setShowTechStackWarning 
+  });
 
   // Handle calculator actions
   const { handleCalculate } = SubscriptionCheck({
