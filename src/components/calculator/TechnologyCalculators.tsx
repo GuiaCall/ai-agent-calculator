@@ -1,78 +1,54 @@
 
-import { MakeCalculator } from "./make/MakeCalculator";
-import { SynthflowCalculator } from "../SynthflowCalculator";
-import { CalcomCalculator } from "../CalcomCalculator";
-import { TwilioCalculator } from "../TwilioCalculator";
-import { VapiCalculator } from "../VapiCalculator";
-import { BlandAICalculator } from "../BlandAICalculator";
-import { AIServiceCalculator } from "../AIServiceCalculator";
-import { useCalculatorStateContext } from "./CalculatorStateContext";
-import { CalcomPlan } from "@/types/calcom";
+import React from 'react';
+import { useCalculatorStateContext } from './CalculatorStateContext';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MakeCalculator } from './make/MakeCalculator';
+import { CalcomCalculator } from '@/components/CalcomCalculator';
+import { TwilioCalculator } from '@/components/TwilioCalculator';
+import { VapiCalculator } from '@/components/VapiCalculator';
+import { BlandAICalculator } from '@/components/BlandAICalculator';
+import { SynthflowCalculator } from '@/components/SynthflowCalculator';
+import { AIServiceCalculator } from '@/components/AIServiceCalculator';
+import { useTranslation } from 'react-i18next';
 
 export function TechnologyCalculators() {
-  const state = useCalculatorStateContext();
+  const { t } = useTranslation();
+  const { technologies } = useCalculatorStateContext();
 
-  const handleCalcomPlanSelect = (plan: CalcomPlan, users: number) => {
-    state.setSelectedCalcomPlan(plan);
-    state.setNumberOfUsers(users);
-    
-    // Calculate monthly cost (not cost per minute) for the technology parameter
-    const teamMemberCost = (plan.name === "Team" || plan.name === "Organization") && users > 0
-      ? users * plan.pricePerUser
-      : 0;
-    
-    const monthlyCost = plan.basePrice + teamMemberCost;
-    
-    // Update the technology parameter with the monthly cost
-    state.setTechnologies((techs) =>
-      techs.map((tech) =>
-        tech.id === "calcom" ? { ...tech, costPerMinute: monthlyCost } : tech
-      )
+  // Filter selected technologies
+  const selectedTechnologies = technologies.filter(tech => tech.isSelected);
+
+  if (selectedTechnologies.length === 0) {
+    return (
+      <Card className="bg-background text-foreground">
+        <CardHeader>
+          <CardTitle>{t("noTechnologySelected")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{t("selectTechnologyMessage")}</p>
+        </CardContent>
+      </Card>
     );
-  };
+  }
 
   return (
-    <div className="space-y-6">
-      {state.technologies.find((t) => t.id === "make")?.isSelected && (
-        <MakeCalculator
-          totalMinutes={state.totalMinutes}
-          averageCallDuration={state.callDuration}
-          onPlanSelect={state.setSelectedMakePlan}
-          onCostPerMinuteChange={(cost) => {
-            // This is handled in MakeCalculator directly now
-          }}
-        />
-      )}
-
-      {state.technologies.find((t) => t.id === "synthflow")?.isSelected && (
-        <SynthflowCalculator
-          totalMinutes={state.totalMinutes}
-          onPlanSelect={state.setSelectedSynthflowPlan}
-        />
-      )}
-
-      {state.technologies.find((t) => t.id === "calcom")?.isSelected && (
-        <CalcomCalculator 
-          onPlanSelect={handleCalcomPlanSelect}
-          totalMinutes={state.totalMinutes}
-        />
-      )}
-
-      {state.technologies.find((t) => t.id === "twilio")?.isSelected && (
-        <TwilioCalculator onRateSelect={state.setSelectedTwilioRate} />
-      )}
-
-      {state.technologies.find((t) => t.id === "vapi")?.isSelected && (
-        <VapiCalculator />
-      )}
-
-      {state.technologies.find((t) => t.id === "blandai")?.isSelected && (
-        <BlandAICalculator />
-      )}
-      
-      {state.technologies.find((t) => t.id === "aiservice")?.isSelected && (
-        <AIServiceCalculator />
-      )}
+    <div className="space-y-8">
+      {selectedTechnologies.map(tech => (
+        <Card key={tech.id} id={`technology-${tech.id}`} className="bg-background text-foreground overflow-hidden">
+          <CardHeader className="bg-muted/50">
+            <CardTitle>{tech.name}</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {tech.id === 'make' && <MakeCalculator />}
+            {tech.id === 'cal' && <CalcomCalculator />}
+            {tech.id === 'twilio' && <TwilioCalculator />}
+            {tech.id === 'vapi' && <VapiCalculator />}
+            {tech.id === 'blandai' && <BlandAICalculator />}
+            {tech.id === 'synthflow' && <SynthflowCalculator />}
+            {tech.id === 'ai-service' && <AIServiceCalculator />}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

@@ -1,7 +1,8 @@
 
 import { useTranslation } from "react-i18next";
 import { Calculator, FileText, Server, Settings } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface NavItem {
   id: string;
@@ -11,6 +12,7 @@ interface NavItem {
 
 export function useNavigationItems() {
   const { t } = useTranslation();
+  const { setOpen, setOpenMobile } = useSidebar();
 
   // Main navigation items
   const navItems: NavItem[] = [
@@ -42,10 +44,9 @@ export function useNavigationItems() {
       // Scroll to the element with smooth behavior
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       
-      // Close mobile menu after navigation
-      if (window.innerWidth < 768) {
-        // This will be handled by the component
-      }
+      // Close sidebar after navigation
+      setOpen(false);
+      setOpenMobile(false);
     }
   };
 
@@ -54,8 +55,40 @@ export function useNavigationItems() {
     const element = document.getElementById(`technology-${techId}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Close sidebar after navigation
+      setOpen(false);
+      setOpenMobile(false);
     }
   };
+
+  // Set up event listeners to collapse sidebar on manual navigation
+  useEffect(() => {
+    const handleScroll = () => {
+      // Close the sidebar when user manually scrolls
+      setOpen(false);
+      setOpenMobile(false);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Close the sidebar when user uses arrow keys for navigation
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || 
+          e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        setOpen(false);
+        setOpenMobile(false);
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('wheel', handleScroll, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Clean up event listeners
+    return () => {
+      window.removeEventListener('wheel', handleScroll);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [setOpen, setOpenMobile]);
 
   return { navItems, scrollToSection, scrollToTechnology };
 }
