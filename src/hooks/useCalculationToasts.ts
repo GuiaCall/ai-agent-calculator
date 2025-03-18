@@ -38,7 +38,7 @@ export function useCalculationToasts() {
       title: t("warning"),
       description: t("pleaseSelectTechnologyStack"),
       variant: "destructive",
-      icon: <AlertCircle className="h-5 w-5" />,
+      icon: AlertCircle,
     });
   };
 

@@ -1,3 +1,4 @@
+
 export const calculator = {
   "calculatorSettings": "Paramètres du Calculateur",
   "averageCallDuration": "Durée Moyenne d'Appel (minutes)",
@@ -31,5 +32,6 @@ export const calculator = {
   "costPerMinute": "Coût par Minute",
   "costCalculation": "Calcul du Coût",
   "totalMinutes": "Minutes totales",
-  "callDuration": "Durée d'appel"
+  "callDuration": "Durée d'appel",
+  "totalCallsPerMonth": "Nombre total d'appels par mois"
 };

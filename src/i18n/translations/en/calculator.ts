@@ -32,5 +32,6 @@ export const calculator = {
   "costPerMinute": "Cost Per Minute",
   "costCalculation": "Cost Calculation",
   "totalMinutes": "Total minutes",
-  "callDuration": "Call duration"
+  "callDuration": "Call duration",
+  "totalCallsPerMonth": "Total Calls Per Month"
 };
