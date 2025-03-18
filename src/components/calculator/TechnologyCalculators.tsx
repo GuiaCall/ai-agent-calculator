@@ -79,7 +79,7 @@ export function TechnologyCalculators() {
     if (plan) {
       setTechnologies(techs => 
         techs.map(tech => 
-          tech.id === 'synthflow' ? { ...tech, costPerMinute: plan.monthlyPrice } : tech
+          tech.id === 'synthflow' ? { ...tech, costPerMinute: plan.totalCost || 0 } : tech
         )
       );
     }
