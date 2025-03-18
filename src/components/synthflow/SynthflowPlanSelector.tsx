@@ -92,14 +92,9 @@ export function SynthflowPlanSelector({
                   </p>
                   
                   {plan.overageMinutes > 0 && (
-                    <div className="text-sm text-amber-600 flex items-center mt-2">
-                      <X className="h-4 w-4 mr-1 flex-shrink-0" />
-                      <span>
-                        {t('overageMinutes')}: {plan.overageMinutes.toLocaleString()} {t('minutes')}
-                        <br />
-                        {t('overageCost')}: {getCurrencySymbol(currency)}{getCurrencyConversion(plan.overageCost || 0).toFixed(2)}
-                      </span>
-                    </div>
+                    <p className="text-sm text-indigo-700 font-medium mt-2">
+                      + {plan.overageMinutes.toLocaleString()} {t('overageMinutes')}
+                    </p>
                   )}
                   
                   {plan.totalCost && (

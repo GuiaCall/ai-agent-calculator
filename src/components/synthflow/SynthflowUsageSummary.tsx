@@ -29,6 +29,9 @@ export function SynthflowUsageSummary({
   const formatCurrency = (amount: number) => {
     return `${getCurrencySymbol(currency)}${getCurrencyConversion(amount).toFixed(2)}`;
   };
+
+  // Calculate cost per minute for overage
+  const overageCostPerMinute = 0.13; // $0.13 per minute
   
   return (
     <div className="space-y-3 pt-3 border-t border-border">
@@ -54,11 +57,14 @@ export function SynthflowUsageSummary({
           <div>
             {selectedPlan.overageMinutes && selectedPlan.overageMinutes > 0 ? (
               <>
-                <p className="text-amber-600 font-medium">
+                <p className="text-indigo-700 font-bold">
                   {t("overageMinutes")}: {selectedPlan.overageMinutes.toLocaleString()} {t("minutes")}
                 </p>
-                <p className="text-amber-600 font-medium">
-                  {t("overageCost")}: {formatCurrency(selectedPlan.overageCost || 0)}
+                <p className="text-indigo-700 font-bold">
+                  {t("overageCost")}: {formatCurrency(selectedPlan.overageCost || 0)} 
+                  <span className="text-xs ml-1">
+                    ({formatCurrency(overageCostPerMinute)} / {t("minute")})
+                  </span>
                 </p>
               </>
             ) : (
