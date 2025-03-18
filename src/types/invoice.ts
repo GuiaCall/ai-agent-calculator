@@ -1,3 +1,4 @@
+
 export interface ContactPerson {
   name: string;
   phone: string;
@@ -18,6 +19,15 @@ export interface AgencyInfo {
   email: string;
   website: string;
   [key: string]: any;
+}
+
+export interface Technology {
+  id: string;
+  name: string;
+  isSelected: boolean;
+  isVisible: boolean;
+  costPerMinute: number;
+  setupCost: number;
 }
 
 export interface InvoiceHistory {

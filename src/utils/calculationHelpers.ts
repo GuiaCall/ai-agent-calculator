@@ -1,5 +1,5 @@
 
-import { Technology } from "@/components/calculator/calculatorInitialState";
+import { Technology } from "@/types/invoice";
 
 /**
  * Calculate the total cost per minute and monthly cost based on selected technologies and margin

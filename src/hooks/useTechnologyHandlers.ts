@@ -1,6 +1,6 @@
 
 import { CalcomPlan } from "@/types/calcom";
-import { Technology } from "@/components/calculator/calculatorInitialState";
+import { Technology } from "@/types/invoice";
 
 export function useTechnologyHandlers(setTechnologies: (technologies: Technology[] | ((prevTechs: Technology[]) => Technology[])) => void) {
   const handleCalcomPlanSelect = (plan: CalcomPlan, users: number) => {

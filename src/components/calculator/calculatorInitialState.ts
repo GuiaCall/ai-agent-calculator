@@ -1,3 +1,4 @@
+
 import { AgencyInfo, ClientInfo, Technology } from "@/types/invoice";
 
 export type CurrencyType = 'USD' | 'EUR';
@@ -62,14 +63,19 @@ export const initialTechnologies: Technology[] = [
 ];
 
 export const initialAgencyInfo: AgencyInfo = {
-  agencyName: '',
-  contactName: '',
+  name: '',
+  phone: '',
+  address: '',
   email: '',
-  address: ''
+  website: ''
 };
 
 export const initialClientInfo: ClientInfo = {
-  clientName: '',
-  contactName: '',
-  email: ''
+  name: '',
+  address: '',
+  tvaNumber: '',
+  contactPerson: {
+    name: '',
+    phone: ''
+  }
 };
