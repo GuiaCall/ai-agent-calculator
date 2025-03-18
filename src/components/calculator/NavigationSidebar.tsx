@@ -1,95 +1,65 @@
 
-import React, { useState, useEffect } from 'react';
-import { 
-  Calculator, 
-  Settings, 
-  Server, 
-  FileText, 
-  ChevronLeft, 
-  ChevronRight,
-  Menu,
-  ChevronDown,
-  Layers
-} from 'lucide-react';
-import { useTranslation } from "react-i18next";
-import { cn } from '@/lib/utils';
-import { Button } from "@/components/ui/button";
-import { useCalculatorStateContext } from './CalculatorStateContext';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuItem
-} from "@/components/ui/dropdown-menu";
-
-// Now let's import our new component files
-import { MobileNavigation } from './navigation/MobileNavigation';
+import React, { useState } from 'react';
+import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
 import { DesktopNavigation } from './navigation/DesktopNavigation';
+import { MobileNavigation } from './navigation/MobileNavigation';
 import { useNavigationItems } from './navigation/useNavigationItems';
+import { useCalculatorStateContext } from './CalculatorStateContext';
 
-export function NavigationSidebar({ className }: { className?: string }) {
-  const { t } = useTranslation();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+export function NavigationSidebar() {
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<string | null>(null);
   const { technologies } = useCalculatorStateContext();
-
-  // Get active technologies - fix the property name from 'selected' to 'isSelected'
-  const activeTechnologies = technologies.filter(tech => tech.isSelected);
   
-  // Use our custom hook to get navigation items
-  const { navItems, scrollToSection, scrollToTechnology } = useNavigationItems();
+  // Get active technologies for the navigation
+  const activeTechnologies = technologies
+    .filter(tech => tech.isSelected)
+    .map(tech => ({ id: tech.id, name: tech.name }));
+  
+  // Handle scroll to section
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
-  // Track scroll position to highlight the active section
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 100; // Add offset for better UX
+  // Handle scroll to technology
+  const scrollToTechnology = (techId: string) => {
+    const element = document.getElementById(`technology-${techId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
-      // Find the current section based on scroll position
-      for (const item of navItems) {
-        const element = document.getElementById(item.id);
-        if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(item.id);
-            break;
-          }
-        }
-      }
-    };
+  // Get navigation items
+  const { navItems, activeSection } = useNavigationItems();
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Call once on mount
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [navItems]);
-
+  // We're wrapping our component with SidebarProvider to fix the error
   return (
-    <>
-      {/* Mobile Navigation */}
-      <MobileNavigation 
-        isMobileOpen={isMobileOpen}
-        setIsMobileOpen={setIsMobileOpen}
-        activeSection={activeSection}
-        navItems={navItems}
-        activeTechnologies={activeTechnologies}
-        scrollToSection={scrollToSection}
-        scrollToTechnology={scrollToTechnology}
-      />
-
-      {/* Desktop Navigation */}
-      <DesktopNavigation 
-        isCollapsed={isCollapsed}
-        setIsCollapsed={setIsCollapsed}
-        activeSection={activeSection}
-        navItems={navItems}
-        activeTechnologies={activeTechnologies}
-        scrollToSection={scrollToSection}
-        scrollToTechnology={scrollToTechnology}
-        className={className}
-      />
-    </>
+    <SidebarProvider>
+      <div className="hidden md:block">
+        <DesktopNavigation 
+          isCollapsed={isCollapsed}
+          setIsCollapsed={setIsCollapsed}
+          activeSection={activeSection}
+          navItems={navItems}
+          activeTechnologies={activeTechnologies}
+          scrollToSection={scrollToSection}
+          scrollToTechnology={scrollToTechnology}
+        />
+      </div>
+      <div className="md:hidden">
+        <MobileNavigation 
+          isMobileOpen={isMobileOpen}
+          setIsMobileOpen={setIsMobileOpen}
+          activeSection={activeSection}
+          navItems={navItems}
+          activeTechnologies={activeTechnologies}
+          scrollToSection={scrollToSection}
+          scrollToTechnology={scrollToTechnology}
+        />
+      </div>
+    </SidebarProvider>
   );
 }

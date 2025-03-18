@@ -10,13 +10,80 @@ import { BlandAICalculator } from '@/components/BlandAICalculator';
 import { SynthflowCalculator } from '@/components/SynthflowCalculator';
 import { AIServiceCalculator } from '@/components/AIServiceCalculator';
 import { useTranslation } from 'react-i18next';
+import { MakePlan } from '@/types/make';
+import { CalcomPlan } from '@/types/calcom';
+import { SynthflowPlan } from '@/types/synthflow';
+import { TwilioSelection } from '@/types/twilio';
 
 export function TechnologyCalculators() {
   const { t } = useTranslation();
-  const { technologies } = useCalculatorStateContext();
+  const { 
+    technologies,
+    callDuration,
+    totalMinutes,
+    setSelectedMakePlan,
+    setSelectedCalcomPlan,
+    setSelectedTwilioRate,
+    setSelectedSynthflowPlan,
+    setTechnologies,
+    numberOfUsers,
+    setNumberOfUsers
+  } = useCalculatorStateContext();
 
   // Filter selected technologies
   const selectedTechnologies = technologies.filter(tech => tech.isSelected);
+
+  // Handler functions for each calculator
+  const handleMakePlanSelect = (plan: MakePlan) => {
+    setSelectedMakePlan(plan);
+  };
+
+  const handleMakeCostPerMinuteChange = (cost: number) => {
+    setTechnologies(techs => 
+      techs.map(tech => 
+        tech.id === 'make' ? { ...tech, costPerMinute: cost } : tech
+      )
+    );
+  };
+
+  const handleCalcomPlanSelect = (plan: CalcomPlan, users: number) => {
+    setSelectedCalcomPlan(plan);
+    setNumberOfUsers(users);
+    
+    const monthlyTotal = plan.basePrice + (plan.allowsTeam ? users * plan.pricePerUser : 0);
+    
+    setTechnologies(techs => 
+      techs.map(tech => 
+        tech.id === 'calcom' ? { ...tech, costPerMinute: monthlyTotal } : tech
+      )
+    );
+  };
+
+  const handleTwilioRateSelect = (selection: TwilioSelection | null) => {
+    setSelectedTwilioRate(selection);
+    
+    if (selection) {
+      const costPerMinute = Math.ceil((selection.inboundVoicePrice + (selection.inboundSmsPrice || 0)) * 1000) / 1000;
+      
+      setTechnologies(techs => 
+        techs.map(tech => 
+          tech.id === 'twilio' ? { ...tech, costPerMinute } : tech
+        )
+      );
+    }
+  };
+
+  const handleSynthflowPlanSelect = (plan: SynthflowPlan | null) => {
+    setSelectedSynthflowPlan(plan);
+    
+    if (plan) {
+      setTechnologies(techs => 
+        techs.map(tech => 
+          tech.id === 'synthflow' ? { ...tech, costPerMinute: plan.monthlyPrice } : tech
+        )
+      );
+    }
+  };
 
   if (selectedTechnologies.length === 0) {
     return (
@@ -39,12 +106,40 @@ export function TechnologyCalculators() {
             <CardTitle>{tech.name}</CardTitle>
           </CardHeader>
           <CardContent className="pt-6">
-            {tech.id === 'make' && <MakeCalculator />}
-            {tech.id === 'cal' && <CalcomCalculator />}
-            {tech.id === 'twilio' && <TwilioCalculator />}
+            {tech.id === 'make' && (
+              <MakeCalculator 
+                totalMinutes={totalMinutes}
+                averageCallDuration={callDuration}
+                onPlanSelect={handleMakePlanSelect}
+                onCostPerMinuteChange={handleMakeCostPerMinuteChange}
+              />
+            )}
+            
+            {tech.id === 'cal' && (
+              <CalcomCalculator 
+                onPlanSelect={handleCalcomPlanSelect}
+                totalMinutes={totalMinutes}
+                margin={20}
+              />
+            )}
+            
+            {tech.id === 'twilio' && (
+              <TwilioCalculator 
+                onRateSelect={handleTwilioRateSelect}
+              />
+            )}
+            
             {tech.id === 'vapi' && <VapiCalculator />}
+            
             {tech.id === 'blandai' && <BlandAICalculator />}
-            {tech.id === 'synthflow' && <SynthflowCalculator />}
+            
+            {tech.id === 'synthflow' && (
+              <SynthflowCalculator 
+                totalMinutes={totalMinutes}
+                onPlanSelect={handleSynthflowPlanSelect}
+              />
+            )}
+            
             {tech.id === 'ai-service' && <AIServiceCalculator />}
           </CardContent>
         </Card>
