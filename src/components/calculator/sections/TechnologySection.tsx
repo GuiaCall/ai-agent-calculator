@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 
 export function TechnologySection() {
   const { 
@@ -20,15 +21,22 @@ export function TechnologySection() {
   
   const { t } = useTranslation();
 
-  // Auto-hide warning after 3 seconds
+  // Show toast when warning appears
   useEffect(() => {
     if (showTechStackWarning) {
+      toast({
+        title: t("warning"),
+        description: t("pleaseSelectTechnologyStack"),
+        variant: "destructive",
+      });
+      
+      // Auto-hide warning after 3 seconds
       const timer = setTimeout(() => {
         setShowTechStackWarning(false);
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [showTechStackWarning, setShowTechStackWarning]);
+  }, [showTechStackWarning, setShowTechStackWarning, t]);
 
   const handleTechnologyChange = (updatedTechnologies: Technology[]) => {
     setTechnologies(updatedTechnologies);
@@ -43,7 +51,7 @@ export function TechnologySection() {
       <Card 
         className={cn(
           "p-6 bg-background text-foreground transition-all duration-300",
-          showTechStackWarning ? "border-2 border-primary shadow-lg ring-2 ring-primary/30 animate-pulse" : ""
+          showTechStackWarning ? "border-2 border-red-500 shadow-lg ring-2 ring-red-300 animate-pulse" : ""
         )}
       >
         {showTechStackWarning && (

@@ -13,8 +13,11 @@ import { CurrencyToggle } from "./CurrencyToggle";
 import { LoadingState } from "./LoadingState";
 import { SubscriptionCheck } from "./SubscriptionCheck";
 import { NavigationSidebar } from "./NavigationSidebar";
+import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 export function CalculatorContent() {
+  const { t } = useTranslation();
   const state = useCalculatorStateContext();
   const logic = useCalculatorLogic({ 
     ...state, 
@@ -24,6 +27,25 @@ export function CalculatorContent() {
   // Handle calculator actions
   const { handleCalculate } = SubscriptionCheck({
     onProceed: () => {
+      // Check if any technology is selected
+      const selectedTechs = state.technologies.filter(tech => tech.isSelected);
+      if (selectedTechs.length === 0) {
+        state.setShowTechStackWarning(true);
+        toast({
+          title: t("warning"),
+          description: t("pleaseSelectTechnologyStack"),
+          variant: "destructive",
+        });
+        console.log("No technologies selected - showing warning");
+        
+        // Scroll to technology section
+        const techSection = document.getElementById("technology-section");
+        if (techSection) {
+          techSection.scrollIntoView({ behavior: "smooth" });
+        }
+        return;
+      }
+      
       logic.calculateCost();
       // Ensure preview is visible after calculation
       state.setShowPreview(true);

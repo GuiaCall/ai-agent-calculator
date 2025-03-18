@@ -57,6 +57,7 @@ export function useCalculation({
         setShowTechStackWarning(true);
       }
       
+      console.log("Technology stack warning triggered! No technologies selected.");
       return;
     }
     

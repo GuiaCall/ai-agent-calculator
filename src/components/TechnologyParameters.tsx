@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,7 @@ export function TechnologyParameters({
   onTechnologyChange,
   onVisibilityChange,
 }: TechnologyParametersProps) {
-  const { currency } = useCalculatorStateContext();
+  const { currency, showTechStackWarning } = useCalculatorStateContext();
   const { t } = useTranslation();
   const [inputValues, setInputValues] = useState<Record<string, string>>({});
   
@@ -102,21 +103,22 @@ export function TechnologyParameters({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-indigo-800 font-bold text-xl flex items-center gap-2">
-        <div className="bg-indigo-100 p-2 rounded-full">
-          <Settings className="h-5 w-5 text-indigo-600" />
+      <h3 className={`text-indigo-800 font-bold text-xl flex items-center gap-2 ${showTechStackWarning ? 'text-red-600' : ''}`}>
+        <div className={`${showTechStackWarning ? 'bg-red-100' : 'bg-indigo-100'} p-2 rounded-full`}>
+          <Settings className={`h-5 w-5 ${showTechStackWarning ? 'text-red-600' : 'text-indigo-600'}`} />
         </div>
         {t('technologyStack')}
       </h3>
       <div className="space-y-4">
         {technologies.map((tech) => (
-          <div key={tech.id} className="space-y-2">
+          <div key={tech.id} className={`space-y-2 ${showTechStackWarning ? 'border-l-2 border-red-500 pl-2' : ''}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Switch
                   checked={tech.isSelected}
                   onCheckedChange={() => handleToggle(tech.id)}
                   id={`toggle-${tech.id}`}
+                  className={showTechStackWarning ? "data-[state=unchecked]:bg-red-300" : ""}
                 />
                 <Label htmlFor={`toggle-${tech.id}`} className="flex-1">
                   {t(tech.name)}
