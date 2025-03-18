@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -16,11 +15,12 @@ interface CalcomCalculatorProps {
   onPlanSelect: (plan: CalcomPlan, numberOfUsers: number) => void;
   totalMinutes: number;
   margin?: number;
+  numberOfUsers?: number;
 }
 
-export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: CalcomCalculatorProps) {
+export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20, numberOfUsers: initialUsers = 1 }: CalcomCalculatorProps) {
   const [selectedPlan, setSelectedPlan] = useState<CalcomPlan | null>(null);
-  const [numberOfUsers, setNumberOfUsers] = useState<number>(1);
+  const [numberOfUsers, setNumberOfUsers] = useState<number>(initialUsers);
   const [monthlyTotal, setMonthlyTotal] = useState<number>(0);
   const { toast } = useToast();
   const { currency } = useCalculatorStateContext();
@@ -33,6 +33,16 @@ export function CalcomCalculator({ onPlanSelect, totalMinutes, margin = 20 }: Ca
       computeMonthlyCost(CALCOM_PLANS[0], numberOfUsers);
     }
   }, []);
+
+  // Update the numberOfUsers state when the initialUsers prop changes
+  useEffect(() => {
+    if (initialUsers !== numberOfUsers) {
+      setNumberOfUsers(initialUsers);
+      if (selectedPlan) {
+        computeMonthlyCost(selectedPlan, initialUsers);
+      }
+    }
+  }, [initialUsers]);
 
   const getCurrencyConversion = (amount: number): number => {
     switch (currency) {

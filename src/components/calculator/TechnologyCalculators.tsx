@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useCalculatorStateContext } from './CalculatorStateContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -122,6 +121,7 @@ export function TechnologyCalculators() {
                 onPlanSelect={handleCalcomPlanSelect}
                 totalMinutes={totalMinutes}
                 margin={20}
+                numberOfUsers={numberOfUsers}
               />
             )}
             
