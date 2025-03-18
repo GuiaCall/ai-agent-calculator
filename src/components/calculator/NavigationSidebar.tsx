@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
 import { DesktopNavigation } from './navigation/DesktopNavigation';
 import { MobileNavigation } from './navigation/MobileNavigation';
-import { useNavigationItems } from './navigation/useNavigationItems';
 import { useCalculatorStateContext } from './CalculatorStateContext';
 
 export function NavigationSidebar() {
@@ -16,12 +15,52 @@ export function NavigationSidebar() {
     .filter(tech => tech.isSelected)
     .map(tech => ({ id: tech.id, name: tech.name }));
   
-  // Get navigation items including activeSection
-  const { navItems, scrollToSection, scrollToTechnology, activeSection } = useNavigationItems();
+  // Define navigation items locally to avoid dependency on useSidebar
+  const navItems = [
+    {
+      id: 'calculator-header',
+      title: "Agency & Client Info",
+      icon: "FileText"
+    },
+    {
+      id: 'calculator-settings',
+      title: "Calculator Settings",
+      icon: "Settings"
+    },
+    {
+      id: 'technology-section',
+      title: "Technology Stack",
+      icon: "Server"
+    },
+    {
+      id: 'invoice-preview',
+      title: "Invoice Preview",
+      icon: "Calculator"
+    }
+  ];
+  
+  // Local state for active section
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  
+  // Define scroll functions locally
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveSection(sectionId);
+    }
+  };
+  
+  const scrollToTechnology = (techId: string) => {
+    const element = document.getElementById(`technology-${techId}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveSection('technology-section');
+    }
+  };
 
-  // We're wrapping our component with SidebarProvider to fix the error
   return (
-    <SidebarProvider>
+    <>
       <div className="hidden md:block">
         <DesktopNavigation 
           isCollapsed={isCollapsed}
@@ -44,6 +83,6 @@ export function NavigationSidebar() {
           scrollToTechnology={scrollToTechnology}
         />
       </div>
-    </SidebarProvider>
+    </>
   );
 }
