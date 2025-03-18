@@ -47,6 +47,7 @@ export const calculator = {
   "overageCost": "Coût des dépassements",
   "totalCost": "Coût total",
   "minutes": "minutes",
+  "noOverage": "Pas de minutes excédentaires",
   "basePlanCost": "Coût du plan de base",
   "teamMembersCost": "Coût des membres de l'équipe",
   "costPerMinute": "Coût par minute",
@@ -54,5 +55,7 @@ export const calculator = {
   "teamMembersCostInfo": "Chaque membre supplémentaire coûte {{cost}} par mois",
   "pleaseSelectPlan": "Veuillez sélectionner un plan",
   "computeMonthlyCost": "Calculer le coût mensuel",
-  "monthlyCostCalculated": "Coût mensuel calculé"
+  "monthlyCostCalculated": "Coût mensuel calculé",
+  "month": "mois",
+  "totalMonthlyCost": "Coût mensuel total"
 }

@@ -51,19 +51,25 @@ export function SynthflowUsageSummary({ totalMinutes }: SynthflowUsageSummaryPro
               </p>
             </div>
             
-            {selectedSynthflowPlan.overageMinutes > 0 && (
-              <div>
-                <p className="text-amber-600 font-medium">
-                  {t("overageMinutes")}: {selectedSynthflowPlan.overageMinutes.toLocaleString()} {t("minutes")}
+            <div>
+              {selectedSynthflowPlan.overageMinutes && selectedSynthflowPlan.overageMinutes > 0 ? (
+                <>
+                  <p className="text-amber-600 font-medium">
+                    {t("overageMinutes")}: {selectedSynthflowPlan.overageMinutes.toLocaleString()} {t("minutes")}
+                  </p>
+                  <p className="text-amber-600 font-medium">
+                    {t("overageCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(selectedSynthflowPlan.overageCost || 0).toFixed(2)}
+                  </p>
+                </>
+              ) : (
+                <p className="text-green-600 font-medium">
+                  {t("noOverage")}
                 </p>
-                <p className="text-amber-600 font-medium">
-                  {t("overageCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(selectedSynthflowPlan.overageCost || 0).toFixed(2)}
-                </p>
-                <p className="font-medium mt-1">
-                  {t("totalCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(selectedSynthflowPlan.totalCost || 0).toFixed(2)}
-                </p>
-              </div>
-            )}
+              )}
+              <p className="font-medium mt-1">
+                {t("totalCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(selectedSynthflowPlan.totalCost || 0).toFixed(2)}
+              </p>
+            </div>
           </div>
         </div>
       )}

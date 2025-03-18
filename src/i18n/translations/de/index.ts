@@ -42,6 +42,7 @@ export const de = {
     overageCost: "Überziehungskosten",
     totalCost: "Gesamtkosten",
     minutes: "Minuten",
+    noOverage: "Keine Überziehungsminuten",
     
     // Cal.com calculator
     basePlanCost: "Basis-Plankosten",
@@ -51,6 +52,8 @@ export const de = {
     teamMembersCostInfo: "Jedes zusätzliche Teammitglied kostet {{cost}} pro Monat",
     pleaseSelectPlan: "Bitte wählen Sie einen Plan",
     computeMonthlyCost: "Monatliche Kosten berechnen",
-    monthlyCostCalculated: "Monatliche Kosten berechnet"
+    monthlyCostCalculated: "Monatliche Kosten berechnet",
+    month: "Monat",
+    totalMonthlyCost: "Gesamte monatliche Kosten"
   }
 };

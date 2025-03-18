@@ -42,6 +42,7 @@ export const en = {
     overageCost: "Overage Cost",
     totalCost: "Total Cost",
     minutes: "minutes",
+    noOverage: "No overage minutes",
     
     // Cal.com calculator
     basePlanCost: "Base Plan Cost",
@@ -51,6 +52,8 @@ export const en = {
     teamMembersCostInfo: "Each additional team member costs {{cost}} per month",
     pleaseSelectPlan: "Please select a plan",
     computeMonthlyCost: "Compute Monthly Cost",
-    monthlyCostCalculated: "Monthly Cost Calculated"
+    monthlyCostCalculated: "Monthly Cost Calculated",
+    month: "month",
+    totalMonthlyCost: "Total Monthly Cost"
   }
 };
