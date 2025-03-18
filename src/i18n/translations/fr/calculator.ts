@@ -39,5 +39,20 @@ export const calculator = {
   "pdfExportedSuccessfully": "PDF exporté avec succès",
   "failedToExportPDF": "Échec de l'exportation du PDF. Veuillez réessayer.",
   "previewNotFound": "Aperçu introuvable. Veuillez d'abord calculer le coût.",
-  "invoiceNotFound": "Facture introuvable"
+  "invoiceNotFound": "Facture introuvable",
+  "costBreakdown": "Répartition des coûts",
+  "planAllowance": "Allocation du plan",
+  "planBaseCost": "Coût de base du plan",
+  "overageMinutes": "Minutes excédentaires",
+  "overageCost": "Coût des dépassements",
+  "totalCost": "Coût total",
+  "minutes": "minutes",
+  "basePlanCost": "Coût du plan de base",
+  "teamMembersCost": "Coût des membres de l'équipe",
+  "costPerMinute": "Coût par minute",
+  "numberOfTeamMembers": "Nombre de membres de l'équipe",
+  "teamMembersCostInfo": "Chaque membre supplémentaire coûte {{cost}} par mois",
+  "pleaseSelectPlan": "Veuillez sélectionner un plan",
+  "computeMonthlyCost": "Calculer le coût mensuel",
+  "monthlyCostCalculated": "Coût mensuel calculé"
 }

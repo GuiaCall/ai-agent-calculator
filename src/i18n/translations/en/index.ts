@@ -32,6 +32,25 @@ export const en = {
     
     // Technology section messages
     noTechnologySelected: "No Technology Stack Selected",
-    selectTechnologyMessage: "Please select at least one Technology Stack."
+    selectTechnologyMessage: "Please select at least one Technology Stack.",
+    
+    // Synthflow usage summary
+    costBreakdown: "Cost Breakdown",
+    planAllowance: "Plan Allowance",
+    planBaseCost: "Plan Base Cost",
+    overageMinutes: "Overage Minutes",
+    overageCost: "Overage Cost",
+    totalCost: "Total Cost",
+    minutes: "minutes",
+    
+    // Cal.com calculator
+    basePlanCost: "Base Plan Cost",
+    teamMembersCost: "Team Members Cost",
+    costPerMinute: "Cost Per Minute",
+    numberOfTeamMembers: "Number of Team Members",
+    teamMembersCostInfo: "Each additional team member costs {{cost}} per month",
+    pleaseSelectPlan: "Please select a plan",
+    computeMonthlyCost: "Compute Monthly Cost",
+    monthlyCostCalculated: "Monthly Cost Calculated"
   }
 };
