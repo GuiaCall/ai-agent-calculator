@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useCalculatorStateContext } from './CalculatorStateContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MakeCalculator } from './make/MakeCalculator';
-import { CalcomCalculator } from '@/components/CalcomCalculator';
+import { CalcomCalculator } from '@/components/calcom/CalcomCalculator';
 import { TwilioCalculator } from '@/components/TwilioCalculator';
 import { VapiCalculator } from '@/components/VapiCalculator';
 import { BlandAICalculator } from '@/components/BlandAICalculator';
