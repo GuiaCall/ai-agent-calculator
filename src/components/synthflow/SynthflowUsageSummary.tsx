@@ -1,12 +1,14 @@
 
-import { TFunction } from "i18next";
+import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface SynthflowUsageSummaryProps {
   totalMinutes: number;
-  t: TFunction;
 }
 
-export function SynthflowUsageSummary({ totalMinutes, t }: SynthflowUsageSummaryProps) {
+export function SynthflowUsageSummary({ totalMinutes }: SynthflowUsageSummaryProps) {
+  const { t } = useTranslation();
+  
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-3 border-t border-border">
       <div>

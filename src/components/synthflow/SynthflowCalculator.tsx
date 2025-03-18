@@ -17,11 +17,8 @@ export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCal
   const [billingType, setBillingType] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<SynthflowPlan | null>(null);
   
-  // Use the hook to get synthflow plans
-  const { enhancedPlans, recommendedPlan, getCurrencySymbol, getCurrencyConversion } = useSynthflowPlans({ 
-    totalMinutes,
-    billingType
-  });
+  // Use the hook to get synthflow plans - passing totalMinutes and billingType as separate arguments
+  const { enhancedPlans, recommendedPlan, getCurrencySymbol, getCurrencyConversion } = useSynthflowPlans(totalMinutes, billingType);
 
   // Handle plan selection
   const handlePlanSelect = (plan: SynthflowPlan | null) => {
@@ -51,6 +48,7 @@ export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCal
       
       <SynthflowUsageSummary 
         totalMinutes={totalMinutes}
+        t={t}
       />
     </div>
   );
