@@ -5,6 +5,10 @@ export interface SynthflowPlan {
   monthlyPrice: number;
   yearlyPrice: number;
   costPerMinute?: number;
+  totalCost?: number;  // Adding this property
+  overageMinutes?: number;
+  overageCost?: number;
+  isRecommended?: boolean;
 }
 
 export interface SynthflowCalculation {
