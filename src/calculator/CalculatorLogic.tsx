@@ -38,15 +38,7 @@ export function useCalculatorLogic({
     editingInvoiceId: editingInvoice?.id || null
   });
 
-  const { exportPDF } = useExportPDF({
-    agencyInfo,
-    clientInfo,
-    totalMinutes,
-    margin,
-    callDuration,
-    taxRate,
-    technologies,
-  });
+  const { exportPDF } = useExportPDF(invoices || []);
 
   const cancelEdit = () => {
     setEditingInvoice(null);
