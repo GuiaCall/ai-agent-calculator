@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useCalculatorStateContext } from './CalculatorStateContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -78,7 +79,7 @@ export function TechnologyCalculators() {
     if (plan) {
       setTechnologies(techs => 
         techs.map(tech => 
-          tech.id === 'synthflow' ? { ...tech, costPerMinute: plan.totalCost ?? plan.monthlyPrice } : tech
+          tech.id === 'synthflow' ? { ...tech, costPerMinute: plan.monthlyPrice } : tech
         )
       );
     }
