@@ -7,6 +7,7 @@ import { useSynthflowPlans } from "./hooks/useSynthflowPlans";
 import { SynthflowPlanSelector } from "./SynthflowPlanSelector";
 import { SynthflowBillingToggle } from "./SynthflowBillingToggle";
 import { SynthflowUsageSummary } from "./SynthflowUsageSummary";
+import { useCalculatorStateContext } from "../calculator/CalculatorStateContext";
 
 export interface SynthflowCalculatorProps {
   totalMinutes: number;
@@ -15,18 +16,25 @@ export interface SynthflowCalculatorProps {
 
 export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCalculatorProps) {
   const { t } = useTranslation();
+  const { currency } = useCalculatorStateContext();
   const [billingType, setBillingType] = useState<'monthly' | 'yearly'>('monthly');
-  const { plans, selectedPlan, setSelectedPlan } = useSynthflowPlans(billingType, totalMinutes);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  
+  // Get enhanced plans from the hook
+  const { enhancedPlans, recommendedPlan, getCurrencySymbol, getCurrencyConversion } = useSynthflowPlans(totalMinutes, billingType);
 
-  const handlePlanSelect = (plan: SynthflowPlan | null) => {
-    setSelectedPlan(plan);
-    onPlanSelect(plan);
+  const handlePlanChange = (planId: string) => {
+    setSelectedPlanId(planId);
+    
+    // Find the selected plan by ID
+    const selectedPlan = enhancedPlans.find(plan => plan.name === planId) || null;
+    onPlanSelect(selectedPlan);
   };
 
   const handleBillingToggle = () => {
     setBillingType(prev => prev === 'monthly' ? 'yearly' : 'monthly');
     // Reset selected plan when toggling billing type
-    setSelectedPlan(null);
+    setSelectedPlanId(null);
     onPlanSelect(null);
   };
 
@@ -43,13 +51,15 @@ export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCal
           </div>
 
           <SynthflowPlanSelector
-            plans={plans}
-            selectedPlan={selectedPlan}
-            onPlanSelect={handlePlanSelect}
+            enhancedPlans={enhancedPlans}
+            selectedPlanId={selectedPlanId}
+            onPlanChange={handlePlanChange}
             billingType={billingType}
+            getCurrencySymbol={getCurrencySymbol}
+            getCurrencyConversion={getCurrencyConversion}
           />
 
-          {selectedPlan && (
+          {selectedPlanId && (
             <SynthflowUsageSummary 
               totalMinutes={totalMinutes}
               t={t}

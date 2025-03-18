@@ -26,7 +26,7 @@ export function useSynthflowPlans(totalMinutes: number, billingType: 'monthly' |
   };
   
   // Calculate costs and enhancements for each plan
-  const plansWithCosts = SYNTHFLOW_PLANS.map(plan => {
+  const enhancedPlans = SYNTHFLOW_PLANS.map(plan => {
     const basePrice = billingType === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
     const overageMinutes = Math.max(0, totalMinutes - plan.minutesPerMonth);
     const overageCost = overageMinutes * 0.13;
@@ -44,16 +44,16 @@ export function useSynthflowPlans(totalMinutes: number, billingType: 'monthly' |
   });
   
   // Find the most cost-effective plan
-  const recommendedPlan = [...plansWithCosts].sort((a, b) => a.totalCost - b.totalCost)[0];
+  const recommendedPlan = [...enhancedPlans].sort((a, b) => a.totalCost - b.totalCost)[0];
   
   // Mark the recommended plan
-  const enhancedPlans = plansWithCosts.map(plan => ({
+  const plansWithRecommendation = enhancedPlans.map(plan => ({
     ...plan,
     isRecommended: plan.name === recommendedPlan.name
   }));
 
   return {
-    enhancedPlans,
+    enhancedPlans: plansWithRecommendation,
     recommendedPlan,
     getCurrencySymbol,
     getCurrencyConversion

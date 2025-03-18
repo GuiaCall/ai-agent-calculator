@@ -4,11 +4,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { SynthflowPlan } from "@/types/synthflow";
 import { useTranslation } from "react-i18next";
+import { useCalculatorStateContext } from "../calculator/CalculatorStateContext";
 
 interface SynthflowPlanSelectorProps {
   enhancedPlans: SynthflowPlan[];
   selectedPlanId: string | null;
-  onPlanChange: (planName: string) => void;
+  onPlanChange: (planId: string) => void;
   billingType: 'monthly' | 'yearly';
   getCurrencySymbol: (currency: string) => string;
   getCurrencyConversion: (amount: number) => number;
@@ -23,7 +24,7 @@ export function SynthflowPlanSelector({
   getCurrencyConversion
 }: SynthflowPlanSelectorProps) {
   const { t } = useTranslation();
-  const { currency } = { currency: 'USD' }; // Temporary default, will be replaced by context
+  const { currency } = useCalculatorStateContext();
   
   return (
     <div>
@@ -55,6 +56,7 @@ export function SynthflowPlanSelector({
               billingType={billingType}
               getCurrencySymbol={getCurrencySymbol}
               getCurrencyConversion={getCurrencyConversion}
+              currency={currency}
             />
           </div>
         ))}
@@ -86,16 +88,17 @@ function PlanDetails({
   selectedPlanId, 
   billingType,
   getCurrencySymbol,
-  getCurrencyConversion
+  getCurrencyConversion,
+  currency
 }: { 
   plan: SynthflowPlan, 
   selectedPlanId: string | null,
   billingType: 'monthly' | 'yearly',
   getCurrencySymbol: (currency: string) => string,
-  getCurrencyConversion: (amount: number) => number
+  getCurrencyConversion: (amount: number) => number,
+  currency: string
 }) {
   const { t } = useTranslation();
-  const { currency } = { currency: 'USD' }; // Temporary default, will be replaced by context
   
   return (
     <div className="ml-6 mt-2 space-y-2 text-sm">
