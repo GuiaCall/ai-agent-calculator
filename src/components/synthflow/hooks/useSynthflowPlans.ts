@@ -49,7 +49,7 @@ export function useSynthflowPlans(totalMinutes: number, billingType: 'monthly' |
   // Mark the recommended plan
   const plansWithRecommendation = enhancedPlans.map(plan => ({
     ...plan,
-    isRecommended: plan.name === recommendedPlan.name
+    isRecommended: plan.name === recommendedPlan?.name
   }));
 
   return {

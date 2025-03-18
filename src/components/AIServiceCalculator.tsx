@@ -8,12 +8,13 @@ import { AI_PROVIDERS, LANGUAGES, OUTPUT_TYPES, calculateAICost } from "@/consta
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { Bot } from "lucide-react";
 
-export function AIServiceCalculator() {
+interface AIServiceCalculatorProps {
+  totalMinutes: number;
+}
+
+export function AIServiceCalculator({ totalMinutes }: AIServiceCalculatorProps) {
   const { t } = useTranslation();
-  const { 
-    totalMinutes, 
-    setTechnologies 
-  } = useCalculatorStateContext();
+  const { setTechnologies } = useCalculatorStateContext();
   
   const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0].id);
   const [selectedProvider, setSelectedProvider] = useState(AI_PROVIDERS[0].id);
@@ -46,7 +47,7 @@ export function AIServiceCalculator() {
     
     setTechnologies(techs => 
       techs.map(tech => 
-        tech.id === "aiservice" ? { ...tech, costPerMinute: cost } : tech
+        tech.id === "ai-service" ? { ...tech, costPerMinute: cost / (totalMinutes || 1) } : tech
       )
     );
   };

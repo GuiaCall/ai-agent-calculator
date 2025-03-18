@@ -6,6 +6,7 @@ import { SynthflowBillingToggle } from './SynthflowBillingToggle';
 import { SynthflowUsageSummary } from './SynthflowUsageSummary';
 import { useTranslation } from 'react-i18next';
 import { SynthflowPlan } from '@/types/synthflow';
+import { useCalculatorStateContext } from '../calculator/CalculatorStateContext';
 
 interface SynthflowCalculatorProps {
   totalMinutes: number;
@@ -14,11 +15,12 @@ interface SynthflowCalculatorProps {
 
 export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCalculatorProps) {
   const { t } = useTranslation();
+  const { currency } = useCalculatorStateContext();
   const [billingType, setBillingType] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<SynthflowPlan | null>(null);
   
   // Use the hook to get synthflow plans
-  const { enhancedPlans, recommendedPlan } = useSynthflowPlans(totalMinutes, billingType);
+  const { enhancedPlans, recommendedPlan, getCurrencySymbol, getCurrencyConversion } = useSynthflowPlans(totalMinutes, billingType);
 
   // Initialize with the recommended plan if none is selected
   useEffect(() => {
@@ -53,9 +55,15 @@ export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCal
         recommendedPlan={recommendedPlan}
       />
       
-      <SynthflowUsageSummary 
-        totalMinutes={totalMinutes}
-      />
+      {selectedPlan && (
+        <SynthflowUsageSummary 
+          totalMinutes={totalMinutes}
+          selectedPlan={selectedPlan}
+          billingType={billingType}
+          getCurrencySymbol={getCurrencySymbol}
+          getCurrencyConversion={getCurrencyConversion}
+        />
+      )}
     </div>
   );
 }

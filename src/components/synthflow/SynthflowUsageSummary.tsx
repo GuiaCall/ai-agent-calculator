@@ -2,23 +2,32 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useCalculatorStateContext } from "../calculator/CalculatorStateContext";
-import { getCurrencySymbol } from "@/utils/currencyUtils";
+import { SynthflowPlan } from "@/types/synthflow";
 
 interface SynthflowUsageSummaryProps {
   totalMinutes: number;
+  selectedPlan: SynthflowPlan;
+  billingType: 'monthly' | 'yearly';
+  getCurrencySymbol: (currency: string) => string;
+  getCurrencyConversion: (amount: number) => number;
 }
 
-export function SynthflowUsageSummary({ totalMinutes }: SynthflowUsageSummaryProps) {
+export function SynthflowUsageSummary({ 
+  totalMinutes, 
+  selectedPlan,
+  billingType,
+  getCurrencySymbol,
+  getCurrencyConversion
+}: SynthflowUsageSummaryProps) {
   const { t } = useTranslation();
-  const { selectedSynthflowPlan, currency } = useCalculatorStateContext();
-
-  const getCurrencyConversion = (amount: number): number => {
-    switch (currency) {
-      case 'EUR':
-        return amount * 0.948231;
-      default:
-        return amount;
-    }
+  const { currency } = useCalculatorStateContext();
+  
+  // Get the price based on billing type
+  const planPrice = billingType === 'monthly' ? selectedPlan.monthlyPrice : selectedPlan.yearlyPrice;
+  
+  // Format currency
+  const formatCurrency = (amount: number) => {
+    return `${getCurrencySymbol(currency)}${getCurrencyConversion(amount).toFixed(2)}`;
   };
   
   return (
@@ -29,42 +38,40 @@ export function SynthflowUsageSummary({ totalMinutes }: SynthflowUsageSummaryPro
         </p>
       </div>
       
-      {selectedSynthflowPlan && (
-        <div className="bg-muted/30 p-3 rounded-md space-y-2">
-          <h4 className="font-medium text-sm">{t("costBreakdown")}:</h4>
+      <div className="bg-muted/30 p-3 rounded-md space-y-2">
+        <h4 className="font-medium text-sm">{t("costBreakdown")}:</h4>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+          <div>
+            <p className="text-muted-foreground">
+              {t("planAllowance")}: <span className="font-medium">{selectedPlan.minutesPerMonth.toLocaleString()} {t("minutes")}</span>
+            </p>
+            <p className="text-muted-foreground">
+              {t("planBaseCost")}: <span className="font-medium">{formatCurrency(planPrice)}</span>
+            </p>
+          </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-            <div>
-              <p className="text-muted-foreground">
-                {t("planAllowance")}: <span className="font-medium">{selectedSynthflowPlan.minutesPerMonth.toLocaleString()} {t("minutes")}</span>
-              </p>
-              <p className="text-muted-foreground">
-                {t("planBaseCost")}: <span className="font-medium">{getCurrencySymbol(currency)}{getCurrencyConversion(selectedSynthflowPlan.monthlyPrice).toFixed(2)}</span>
-              </p>
-            </div>
-            
-            <div>
-              {selectedSynthflowPlan.overageMinutes && selectedSynthflowPlan.overageMinutes > 0 ? (
-                <>
-                  <p className="text-amber-600 font-medium">
-                    {t("overageMinutes")}: {selectedSynthflowPlan.overageMinutes.toLocaleString()} {t("minutes")}
-                  </p>
-                  <p className="text-amber-600 font-medium">
-                    {t("overageCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(selectedSynthflowPlan.overageCost || 0).toFixed(2)}
-                  </p>
-                </>
-              ) : (
-                <p className="text-green-600 font-medium">
-                  {t("noOverage")}
+          <div>
+            {selectedPlan.overageMinutes && selectedPlan.overageMinutes > 0 ? (
+              <>
+                <p className="text-amber-600 font-medium">
+                  {t("overageMinutes")}: {selectedPlan.overageMinutes.toLocaleString()} {t("minutes")}
                 </p>
-              )}
-              <p className="font-medium mt-1">
-                {t("totalCost")}: {getCurrencySymbol(currency)}{getCurrencyConversion(selectedSynthflowPlan.totalCost || 0).toFixed(2)}
+                <p className="text-amber-600 font-medium">
+                  {t("overageCost")}: {formatCurrency(selectedPlan.overageCost || 0)}
+                </p>
+              </>
+            ) : (
+              <p className="text-green-600 font-medium">
+                {t("noOverage")}
               </p>
-            </div>
+            )}
+            <p className="font-medium mt-1">
+              {t("totalCost")}: {formatCurrency(selectedPlan.totalCost || planPrice)}
+            </p>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

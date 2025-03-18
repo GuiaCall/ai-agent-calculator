@@ -7,7 +7,7 @@ import { CalcomCalculator } from '@/components/CalcomCalculator';
 import { TwilioCalculator } from '@/components/TwilioCalculator';
 import { VapiCalculator } from '@/components/VapiCalculator';
 import { BlandAICalculator } from '@/components/BlandAICalculator';
-import { SynthflowCalculator } from '@/components/SynthflowCalculator';
+import { SynthflowCalculator } from '@/components/synthflow/SynthflowCalculator';
 import { AIServiceCalculator } from '@/components/AIServiceCalculator';
 import { useTranslation } from 'react-i18next';
 import { MakePlan } from '@/types/make';
@@ -122,6 +122,7 @@ export function TechnologyCalculators() {
                 onPlanSelect={handleCalcomPlanSelect}
                 totalMinutes={totalMinutes}
                 margin={20}
+                numberOfUsers={numberOfUsers}
               />
             )}
             
@@ -142,7 +143,11 @@ export function TechnologyCalculators() {
               />
             )}
             
-            {tech.id === 'ai-service' && <AIServiceCalculator />}
+            {tech.id === 'ai-service' && (
+              <AIServiceCalculator 
+                totalMinutes={totalMinutes}
+              />
+            )}
           </CardContent>
         </Card>
       ))}
