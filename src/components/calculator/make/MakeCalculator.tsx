@@ -8,6 +8,7 @@ import { MakeCalculationResults } from "./MakeCalculationResults";
 import { calculateMakeOperations, calculateRequiredPlanPrice } from "@/utils/makeCalculations";
 import { useCalculatorStateContext } from "../CalculatorStateContext";
 import { useTranslation } from "react-i18next";
+import { Technology } from "@/types/invoice";
 
 export function MakeCalculator({
   totalMinutes,
@@ -74,8 +75,8 @@ export function MakeCalculator({
     onPlanSelect(adaptedPlan);
     onCostPerMinuteChange(costPerMinute);
     
-    setTechnologies(techs => 
-      techs.map(tech => 
+    setTechnologies((prevTechs: Technology[]) => 
+      prevTechs.map(tech => 
         tech.id === 'make' ? { ...tech, costPerMinute: monthlyPriceEquivalent } : tech
       )
     );
@@ -98,8 +99,8 @@ export function MakeCalculator({
     onPlanSelect(adaptedPlan);
     onCostPerMinuteChange(costPerMinute);
     
-    setTechnologies(techs => 
-      techs.map(tech => 
+    setTechnologies((prevTechs: Technology[]) => 
+      prevTechs.map(tech => 
         tech.id === 'make' ? { ...tech, costPerMinute: monthlyPriceEquivalent } : tech
       )
     );
@@ -149,3 +150,4 @@ export function MakeCalculator({
     </Card>
   );
 }
+

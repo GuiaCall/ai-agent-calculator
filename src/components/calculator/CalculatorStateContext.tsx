@@ -23,7 +23,7 @@ type CalculatorStateContextType = {
   showPreview: boolean;
   setShowPreview: (value: boolean) => void;
   technologies: Technology[];
-  setTechnologies: (value: Technology[]) => void;
+  setTechnologies: (value: Technology[] | ((prevTechs: Technology[]) => Technology[])) => void;
   invoices: InvoiceHistory[];
   setInvoices: (value: InvoiceHistory[]) => void;
   numberOfUsers: number;

@@ -2,6 +2,7 @@
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Technology } from "@/types/invoice";
 
 interface TwilioRateDisplayProps {
   selection: {
@@ -41,8 +42,8 @@ export function TwilioRateDisplay({ selection }: TwilioRateDisplayProps) {
       const monthlyCost = (totalMinutes * totalCostPerMinute) + selection.phoneNumberPrice;
       
       // Update the technology parameter with the monthly cost
-      setTechnologies(techs => 
-        techs.map(tech => 
+      setTechnologies((prevTechs: Technology[]) => 
+        prevTechs.map(tech => 
           tech.id === 'twilio' ? { ...tech, costPerMinute: monthlyCost } : tech
         )
       );

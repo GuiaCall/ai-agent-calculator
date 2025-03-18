@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { Label } from "./ui/label";
 import { useTranslation } from "react-i18next";
+import { Technology } from "@/types/invoice";
 
 export function BlandAICalculator() {
   const { t } = useTranslation();
@@ -36,8 +37,8 @@ export function BlandAICalculator() {
     setMonthlyCost(cost);
     
     // Update the technology parameters with the monthly cost
-    setTechnologies(techs => 
-      techs.map(tech => 
+    setTechnologies((prevTechs: Technology[]) => 
+      prevTechs.map(tech => 
         tech.id === 'blandai' ? { ...tech, costPerMinute: cost } : tech
       )
     );

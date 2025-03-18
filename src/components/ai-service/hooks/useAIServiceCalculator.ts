@@ -2,10 +2,11 @@
 import { useState, useEffect } from "react";
 import { AI_PROVIDERS, LANGUAGES, OUTPUT_TYPES, calculateAICost } from "@/constants/aiProviders";
 import { AIProvider, AIProviderModel, LanguageCharCount, OutputType } from "@/types/aiProviders";
+import { Technology } from "@/types/invoice";
 
 export function useAIServiceCalculator(
   totalMinutes: number, 
-  setTechnologies: (techs: any) => void
+  setTechnologies: (techs: Technology[] | ((prevTechs: Technology[]) => Technology[])) => void
 ) {
   const [selectedLanguage, setSelectedLanguage] = useState(LANGUAGES[0].id);
   const [selectedProvider, setSelectedProvider] = useState(AI_PROVIDERS[0].id);
@@ -42,8 +43,8 @@ export function useAIServiceCalculator(
       
       // Update global technologies state with the cost per minute
       if (totalMinutes > 0) {
-        setTechnologies((techs: any[]) => 
-          techs.map((tech: any) => 
+        setTechnologies((prevTechs: Technology[]) => 
+          prevTechs.map((tech) => 
             tech.id === "ai-service" ? { ...tech, costPerMinute: cost / (totalMinutes || 1) } : tech
           )
         );

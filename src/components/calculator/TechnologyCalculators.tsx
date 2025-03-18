@@ -14,6 +14,7 @@ import { MakePlan } from '@/types/make';
 import { CalcomPlan } from '@/types/calcom';
 import { SynthflowPlan } from '@/types/synthflow';
 import { TwilioSelection } from '@/types/twilio';
+import { Technology } from '@/types/invoice';
 
 export function TechnologyCalculators() {
   const { t } = useTranslation();
@@ -39,8 +40,8 @@ export function TechnologyCalculators() {
   };
 
   const handleMakeCostPerMinuteChange = (cost: number) => {
-    setTechnologies(techs => 
-      techs.map(tech => 
+    setTechnologies((prevTechs: Technology[]) => 
+      prevTechs.map(tech => 
         tech.id === 'make' ? { ...tech, costPerMinute: cost } : tech
       )
     );
@@ -52,8 +53,8 @@ export function TechnologyCalculators() {
     
     const monthlyTotal = plan.basePrice + (plan.allowsTeam ? users * plan.pricePerUser : 0);
     
-    setTechnologies(techs => 
-      techs.map(tech => 
+    setTechnologies((prevTechs: Technology[]) => 
+      prevTechs.map(tech => 
         tech.id === 'calcom' || tech.id === 'cal' ? { ...tech, costPerMinute: monthlyTotal / (totalMinutes || 1) } : tech
       )
     );
@@ -65,8 +66,8 @@ export function TechnologyCalculators() {
     if (selection) {
       const costPerMinute = Math.ceil((selection.inboundVoicePrice + (selection.inboundSmsPrice || 0)) * 1000) / 1000;
       
-      setTechnologies(techs => 
-        techs.map(tech => 
+      setTechnologies((prevTechs: Technology[]) => 
+        prevTechs.map(tech => 
           tech.id === 'twilio' ? { ...tech, costPerMinute } : tech
         )
       );
@@ -79,8 +80,8 @@ export function TechnologyCalculators() {
     if (plan) {
       const costPerMinute = plan.totalCost ? plan.totalCost / (totalMinutes || 1) : plan.monthlyPrice / (plan.minutesPerMonth || 1);
       
-      setTechnologies(techs => 
-        techs.map(tech => 
+      setTechnologies((prevTechs: Technology[]) => 
+        prevTechs.map(tech => 
           tech.id === 'synthflow' ? { ...tech, costPerMinute } : tech
         )
       );

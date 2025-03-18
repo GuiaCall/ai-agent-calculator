@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ExternalLink, Clock } from "lucide-react";
 import { useCalculatorStateContext } from "./calculator/CalculatorStateContext";
 import { useTranslation } from "react-i18next";
+import { Technology } from "@/types/invoice";
 
 export function VapiCalculator() {
   const { totalMinutes, setTechnologies, technologies, currency } = useCalculatorStateContext();
@@ -36,8 +37,8 @@ export function VapiCalculator() {
     if (!isNaN(numValue) && numValue >= 0) {
       const monthlyCost = numValue * totalMinutes;
       
-      setTechnologies(techs => 
-        techs.map(tech => 
+      setTechnologies((prevTechs: Technology[]) => 
+        prevTechs.map(tech => 
           tech.id === 'vapi' ? { ...tech, costPerMinute: monthlyCost } : tech
         )
       );
