@@ -4,6 +4,7 @@ import { InvoiceHistory } from "@/types/invoice";
 import { calculateTotalCostPerMinute } from "@/utils/calculationHelpers";
 import { createInvoice, updateInvoice, formatInvoiceData } from "@/utils/invoiceOperations";
 import { useCalculationToasts } from "./useCalculationToasts";
+import { useState } from "react";
 
 interface UseCalculationProps {
   technologies: any[];
@@ -41,14 +42,25 @@ export function useCalculation({
     showErrorToast, 
     showTechnologySelectionError 
   } = useCalculationToasts();
+  
+  const [showTechStackWarning, setShowTechStackWarning] = useState(false);
 
   const calculateCost = async () => {
     // Validate technology selection
     const selectedTechs = technologies.filter((tech) => tech.isSelected);
     if (selectedTechs.length === 0) {
       showTechnologySelectionError();
+      setShowTechStackWarning(true);
+      
+      // Hide warning after 3 seconds
+      setTimeout(() => {
+        setShowTechStackWarning(false);
+      }, 3000);
+      
       return;
     }
+    
+    setShowTechStackWarning(false);
 
     // Calculate costs
     const { monthlyCost } = calculateTotalCostPerMinute(
@@ -139,5 +151,5 @@ export function useCalculation({
     }
   };
 
-  return { calculateCost };
+  return { calculateCost, showTechStackWarning, setShowTechStackWarning };
 }

@@ -18,6 +18,8 @@ export const calculator = {
   "defaultTechnologyCosts": "Default Technology Costs",
   "defaultValuesDescription": "These are suggested default values. You can customize the costs in the calculator above.",
   "pleaseSelectAtLeastOneTechnology": "Please select at least one technology",
+  "pleaseSelectTechnologyStack": "Please select at least one technology stack before proceeding",
+  "warning": "Selection Required",
   "costCalculationCompletedAndSaved": "Cost calculation completed and saved",
   "costCalculationCompleted": "Cost calculation completed",
   "previewNotFound": "Preview not found. Please calculate cost first.",

@@ -1,6 +1,7 @@
 
 import { toast } from "@/hooks/use-toast";
 import { useTranslation } from "react-i18next";
+import { AlertCircle } from "lucide-react";
 
 export function useCalculationToasts() {
   const { t } = useTranslation();
@@ -34,9 +35,10 @@ export function useCalculationToasts() {
 
   const showTechnologySelectionError = () => {
     toast({
-      title: t("error"),
-      description: t("pleaseSelectAtLeastOneTechnology"),
+      title: t("warning"),
+      description: t("pleaseSelectTechnologyStack"),
       variant: "destructive",
+      icon: <AlertCircle className="h-5 w-5" />,
     });
   };
 
