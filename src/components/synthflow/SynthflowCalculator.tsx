@@ -48,7 +48,6 @@ export function SynthflowCalculator({ totalMinutes, onPlanSelect }: SynthflowCal
       
       <SynthflowUsageSummary 
         totalMinutes={totalMinutes}
-        t={t}
       />
     </div>
   );
