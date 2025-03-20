@@ -60,15 +60,15 @@ export function InvoicePreview({
   if (!totalCost) return null;
 
   return (
-    <div className="max-w-[210mm] mx-auto bg-white text-gray-800 rounded-xl shadow-2xl overflow-hidden print:shadow-none print:max-w-full">
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white print:break-inside-avoid">
+    <div className="max-w-[210mm] mx-auto bg-white text-gray-800 rounded-xl shadow-2xl overflow-hidden print:shadow-none print:max-w-full print:scale-90 print:my-0">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white print:break-inside-avoid">
         <InvoiceHeader 
           invoiceNumber={dynamicInvoiceNumber} 
           agencyInfo={agencyInfo} 
         />
       </div>
       
-      <div className="p-8 bg-white">
+      <div className="p-6 bg-white print:text-sm">
         <InvoiceBillingInfo 
           clientInfo={clientInfo} 
           total={total} 
@@ -86,7 +86,7 @@ export function InvoicePreview({
           <InvoiceTechnologyStack technologies={technologies} />
         )}
 
-        <div className="mt-10 print:break-inside-avoid">
+        <div className="mt-6 print:break-inside-avoid print:mt-4">
           <InvoiceItemsTable 
             totalMinutes={totalMinutes} 
             totalCost={totalCost} 
@@ -114,4 +114,3 @@ export function InvoicePreview({
     </div>
   );
 }
-

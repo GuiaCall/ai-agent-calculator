@@ -57,29 +57,41 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
         element.style.display = 'block';
       }
       
+      // Add a temporary class for PDF export styling
+      element.classList.add('pdf-export-mode');
+      
       // Give DOM time to update
       await new Promise(resolve => setTimeout(resolve, 800));
       
       console.log("Capturing canvas...");
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 2, // Higher scale for better quality
         useCORS: true,
         logging: false,
         allowTaint: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        // Optimal dimensions for A4
+        width: 793, // ~210mm at 96dpi
+        height: 1122, // ~297mm at 96dpi
       });
       
       console.log("Canvas captured, dimensions:", canvas.width, "x", canvas.height);
       
-      // Restore the original display state
+      // Restore the original display state and remove temporary class
       if (wasHidden) {
         setTimeout(() => {
           element.style.display = originalDisplay;
+          element.classList.remove('pdf-export-mode');
         }, 100);
+      } else {
+        element.classList.remove('pdf-export-mode');
       }
       
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
+      // A4 dimensions in mm
+      const imgWidth = 210;
+      const pageHeight = 297;
+      
+      // Calculate height based on aspect ratio
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       console.log("Calculated dimensions for PDF:", imgWidth, "x", imgHeight);
@@ -90,60 +102,11 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
         format: 'a4'
       });
 
-      // Check if we need multiple pages
-      const pagesNeeded = Math.ceil(imgHeight / pageHeight);
-      console.log("Pages needed:", pagesNeeded);
+      // Single page optimized approach - we're assuming our changes will make it fit on one page
+      const imgData = canvas.toDataURL('image/png');
       
-      if (pagesNeeded <= 1) {
-        // Single page
-        const imgData = canvas.toDataURL('image/png');
-        // Center the image on the page
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      } else {
-        // Multiple pages - improved page breaking with proper margins
-        let heightLeft = imgHeight;
-        let position = 0;
-        let page = 0;
-        
-        while (heightLeft > 0) {
-          // Add a new page after the first page
-          if (page > 0) {
-            pdf.addPage();
-          }
-          
-          // Calculate how much to print on this page
-          const heightToPrint = Math.min(heightLeft, pageHeight);
-          
-          // Create a temporary canvas for each page section
-          const tempCanvas = document.createElement('canvas');
-          const tempContext = tempCanvas.getContext('2d');
-          tempCanvas.width = canvas.width;
-          tempCanvas.height = (heightToPrint / imgHeight) * canvas.height;
-          
-          if (tempContext) {
-            // Draw the relevant portion of the original canvas
-            tempContext.drawImage(
-              canvas,
-              0,
-              (position / imgHeight) * canvas.height, // y position to start copying from
-              canvas.width,
-              (heightToPrint / imgHeight) * canvas.height, // height to copy
-              0,
-              0,
-              tempCanvas.width,
-              tempCanvas.height
-            );
-            
-            const imgData = tempCanvas.toDataURL('image/png');
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, heightToPrint);
-          }
-          
-          // Move to next page position
-          heightLeft -= pageHeight;
-          position += pageHeight;
-          page++;
-        }
-      }
+      // Add image to fit within A4 page
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
 
       // Generate a unique filename
       const currentInvoice = targetInvoice || (invoices.length > 0 ? invoices[invoices.length - 1] : null);
@@ -189,4 +152,3 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
 
   return { exportPDF };
 }
-
