@@ -64,4 +64,4 @@ export const invoice = {
   "itemsPerPage": "Éléments Par Page",
   "previous": "Précédent",
   "next": "Suivant"
-}
+};
