@@ -15,12 +15,14 @@ interface DeleteConfirmationDialogProps {
   isOpen: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  count?: number;
 }
 
 export function DeleteConfirmationDialog({
   isOpen,
   onCancel,
-  onConfirm
+  onConfirm,
+  count = 1
 }: DeleteConfirmationDialogProps) {
   const { t } = useTranslation();
 
@@ -28,9 +30,15 @@ export function DeleteConfirmationDialog({
     <AlertDialog open={isOpen} onOpenChange={() => onCancel()}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{t("confirmDelete")}</AlertDialogTitle>
+          <AlertDialogTitle>
+            {count === 1 
+              ? t("confirmDelete") 
+              : t("confirmDeleteMultiple", { count })}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            {t("deleteInvoiceConfirmation")}
+            {count === 1 
+              ? t("deleteInvoiceConfirmation") 
+              : t("deleteMultipleInvoicesConfirmation", { count })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

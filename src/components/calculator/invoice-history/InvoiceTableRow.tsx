@@ -12,6 +12,7 @@ import { InvoiceHistory } from "@/types/invoice";
 import { CurrencyType } from "../CalculatorState";
 import { useTranslation } from "react-i18next";
 import { getCurrencySymbol } from "@/utils/currencyUtils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface InvoiceTableRowProps {
   invoice: InvoiceHistory;
@@ -23,6 +24,9 @@ interface InvoiceTableRowProps {
   onEdit: (invoice: InvoiceHistory) => void;
   onCancelEdit: () => void;
   currency: CurrencyType;
+  isMultiSelectMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }
 
 export function InvoiceTableRow({
@@ -34,13 +38,25 @@ export function InvoiceTableRow({
   onExport,
   onEdit,
   onCancelEdit,
-  currency
+  currency,
+  isMultiSelectMode = false,
+  isSelected = false,
+  onToggleSelect = () => {}
 }: InvoiceTableRowProps) {
   const { t } = useTranslation();
   const currencySymbol = getCurrencySymbol(currency);
   
   return (
-    <tr className={`hover:bg-gray-50 ${isEditing ? 'bg-indigo-50' : ''}`}>
+    <tr className={`hover:bg-gray-50 ${isEditing ? 'bg-indigo-50' : ''} ${isSelected ? 'bg-indigo-50/50' : ''}`}>
+      {isMultiSelectMode && (
+        <td className="py-3 px-4">
+          <Checkbox 
+            checked={isSelected}
+            onCheckedChange={onToggleSelect}
+            className="data-[state=checked]:bg-indigo-600"
+          />
+        </td>
+      )}
       <td className="py-3 px-4">
         <div className="flex items-center">
           <button 
