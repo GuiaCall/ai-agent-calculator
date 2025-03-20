@@ -100,44 +100,48 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
         // Center the image on the page
         pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       } else {
-        // Multiple pages
-        for (let page = 0; page < pagesNeeded; page++) {
+        // Multiple pages - improved page breaking with proper margins
+        let heightLeft = imgHeight;
+        let position = 0;
+        let page = 0;
+        
+        while (heightLeft > 0) {
+          // Add a new page after the first page
           if (page > 0) {
             pdf.addPage();
           }
           
-          const sourceY = page * canvas.height / pagesNeeded;
-          const sourceHeight = canvas.height / pagesNeeded;
+          // Calculate how much to print on this page
+          const heightToPrint = Math.min(heightLeft, pageHeight);
           
+          // Create a temporary canvas for each page section
           const tempCanvas = document.createElement('canvas');
+          const tempContext = tempCanvas.getContext('2d');
           tempCanvas.width = canvas.width;
-          tempCanvas.height = sourceHeight;
+          tempCanvas.height = (heightToPrint / imgHeight) * canvas.height;
           
-          const ctx = tempCanvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(
+          if (tempContext) {
+            // Draw the relevant portion of the original canvas
+            tempContext.drawImage(
               canvas,
               0,
-              sourceY,
+              (position / imgHeight) * canvas.height, // y position to start copying from
               canvas.width,
-              sourceHeight,
+              (heightToPrint / imgHeight) * canvas.height, // height to copy
               0,
               0,
               tempCanvas.width,
               tempCanvas.height
             );
+            
+            const imgData = tempCanvas.toDataURL('image/png');
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, heightToPrint);
           }
           
-          const imgData = tempCanvas.toDataURL('image/png');
-          // Center each page
-          pdf.addImage(
-            imgData,
-            'PNG',
-            0,
-            0,
-            imgWidth,
-            (sourceHeight * imgWidth) / canvas.width
-          );
+          // Move to next page position
+          heightLeft -= pageHeight;
+          position += pageHeight;
+          page++;
         }
       }
 
@@ -185,3 +189,4 @@ export function useExportPDF(invoices: InvoiceHistory[]) {
 
   return { exportPDF };
 }
+

@@ -60,8 +60,8 @@ export function InvoicePreview({
   if (!totalCost) return null;
 
   return (
-    <div className="max-w-[210mm] mx-auto bg-white text-gray-800 rounded-xl shadow-2xl overflow-hidden print:shadow-none">
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white">
+    <div className="max-w-[210mm] mx-auto bg-white text-gray-800 rounded-xl shadow-2xl overflow-hidden print:shadow-none print:max-w-full">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 text-white print:break-inside-avoid">
         <InvoiceHeader 
           invoiceNumber={dynamicInvoiceNumber} 
           agencyInfo={agencyInfo} 
@@ -86,7 +86,7 @@ export function InvoicePreview({
           <InvoiceTechnologyStack technologies={technologies} />
         )}
 
-        <div className="mt-10">
+        <div className="mt-10 print:break-inside-avoid">
           <InvoiceItemsTable 
             totalMinutes={totalMinutes} 
             totalCost={totalCost} 
@@ -96,17 +96,22 @@ export function InvoicePreview({
           />
         </div>
 
-        <InvoiceTotals 
-          totalCost={totalCost} 
-          setupCost={setupCost} 
-          taxRate={taxRate} 
-          taxAmount={taxAmount}
-          total={total} 
-          currencySymbol={currencySymbol} 
-        />
+        <div className="print:break-inside-avoid">
+          <InvoiceTotals 
+            totalCost={totalCost} 
+            setupCost={setupCost} 
+            taxRate={taxRate} 
+            taxAmount={taxAmount}
+            total={total} 
+            currencySymbol={currencySymbol} 
+          />
+        </div>
 
-        <InvoiceFooter agencyInfo={agencyInfo} />
+        <div className="print:break-inside-avoid">
+          <InvoiceFooter agencyInfo={agencyInfo} />
+        </div>
       </div>
     </div>
   );
 }
+

@@ -16,7 +16,7 @@ export function InvoiceTechnologyStack({ technologies }: InvoiceTechnologyStackP
   }
   
   return (
-    <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+    <div className="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100 print:break-inside-avoid">
       <h3 className="text-lg font-semibold mb-3 text-gray-700">{t("technologyStack")}</h3>
       <div className="flex flex-wrap gap-2">
         {selectedTechs.map((tech, index) => (
@@ -28,3 +28,4 @@ export function InvoiceTechnologyStack({ technologies }: InvoiceTechnologyStackP
     </div>
   );
 }
+
