@@ -27,7 +27,7 @@ export function InvoiceTable({
   onPrint,
   currencySymbol,
 }: InvoiceTableProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("invoice");
   const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
   const [currentPage, setCurrentPage] = useState(1);
   
@@ -69,19 +69,19 @@ export function InvoiceTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Invoice Number</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Client</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Last Export</TableHead>
-            <TableHead>Actions</TableHead>
+            <TableHead>{t("invoiceNumber")}</TableHead>
+            <TableHead>{t("date")}</TableHead>
+            <TableHead>{t("client")}</TableHead>
+            <TableHead>{t("amount")}</TableHead>
+            <TableHead>{t("lastExported")}</TableHead>
+            <TableHead>{t("actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {currentInvoices.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-4">
-                No invoices found
+                {t("noInvoicesFound")}
               </TableCell>
             </TableRow>
           ) : (
@@ -111,7 +111,7 @@ export function InvoiceTable({
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
-              &lt;
+              &lt; {t("previous")}
             </button>
             
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
@@ -137,7 +137,7 @@ export function InvoiceTable({
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
-              &gt;
+              {t("next")} &gt;
             </button>
           </div>
         </div>
