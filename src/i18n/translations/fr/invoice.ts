@@ -43,7 +43,9 @@ export const invoice = {
   "edit": "Modifier",
   "delete": "Supprimer",
   "confirmDelete": "Confirmer la suppression",
+  "confirmDeleteMultiple": "Confirmer la suppression multiple",
   "deleteInvoiceConfirmation": "Cette action ne peut pas être annulée. La facture et toutes les données associées seront définitivement supprimées.",
+  "deleteMultipleInvoicesConfirmation": "Cette action ne peut pas être annulée. Toutes les factures sélectionnées et leurs données associées seront définitivement supprimées.",
   "cancel": "Annuler",
   "invoiceDeleted": "Facture supprimée",
   "invoiceDeletedDescription": "La facture a été supprimée avec succès.",
@@ -54,5 +56,9 @@ export const invoice = {
   "costPerMinute": "Coût par Minute",
   "invoicePreview": "Aperçu de la Facture",
   "agencyClientInfo": "Info Agence & Client",
-  "calculatorSettings": "Paramètres du Calculateur"
+  "calculatorSettings": "Paramètres du Calculateur",
+  "selectMultiple": "Sélection Multiple",
+  "cancelSelection": "Annuler la Sélection",
+  "deleteSelected": "Supprimer la Sélection",
+  "invoices": "Factures"
 }

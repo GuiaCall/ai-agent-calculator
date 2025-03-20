@@ -39,7 +39,9 @@ export const invoice = {
   "edit": "Edit",
   "delete": "Delete",
   "confirmDelete": "Confirm Deletion",
+  "confirmDeleteMultiple": "Confirm Multiple Deletion",
   "deleteInvoiceConfirmation": "This action cannot be undone. This will permanently delete the invoice and all associated data.",
+  "deleteMultipleInvoicesConfirmation": "This action cannot be undone. This will permanently delete all selected invoices and their associated data.",
   "cancel": "Cancel",
   "invoiceDeleted": "Invoice Deleted",
   "invoiceDeletedDescription": "The invoice has been successfully deleted.",
@@ -51,5 +53,9 @@ export const invoice = {
   "invoicePreview": "Invoice Preview",
   "agencyClientInfo": "Agency & Client Info",
   "calculatorSettings": "Calculator Settings",
-  "client": "Client"
+  "client": "Client",
+  "selectMultiple": "Select Multiple",
+  "cancelSelection": "Cancel Selection",
+  "deleteSelected": "Delete Selected",
+  "invoices": "Invoices"
 };

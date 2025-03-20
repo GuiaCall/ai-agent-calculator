@@ -33,12 +33,12 @@ export function DeleteConfirmationDialog({
           <AlertDialogTitle>
             {count === 1 
               ? t("confirmDelete") 
-              : t("confirmDeleteMultiple", { count })}
+              : t("confirmDeleteMultiple")}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {count === 1 
               ? t("deleteInvoiceConfirmation") 
-              : t("deleteMultipleInvoicesConfirmation", { count })}
+              : t("deleteMultipleInvoicesConfirmation")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

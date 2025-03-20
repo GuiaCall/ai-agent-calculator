@@ -43,7 +43,9 @@ export const invoice = {
   "edit": "Bearbeiten",
   "delete": "Löschen",
   "confirmDelete": "Löschen bestätigen",
+  "confirmDeleteMultiple": "Mehrfachlöschung bestätigen",
   "deleteInvoiceConfirmation": "Diese Aktion kann nicht rückgängig gemacht werden. Die Rechnung und alle zugehörigen Daten werden dauerhaft gelöscht.",
+  "deleteMultipleInvoicesConfirmation": "Diese Aktion kann nicht rückgängig gemacht werden. Alle ausgewählten Rechnungen und deren zugehörige Daten werden dauerhaft gelöscht.",
   "cancel": "Abbrechen",
   "invoiceDeleted": "Rechnung gelöscht",
   "invoiceDeletedDescription": "Die Rechnung wurde erfolgreich gelöscht.",
@@ -54,5 +56,9 @@ export const invoice = {
   "costPerMinute": "Kosten pro Minute",
   "invoicePreview": "Rechnungsvorschau",
   "agencyClientInfo": "Agentur- & Kundeninfo",
-  "calculatorSettings": "Rechnereinstellungen"
+  "calculatorSettings": "Rechnereinstellungen",
+  "selectMultiple": "Mehrfachauswahl",
+  "cancelSelection": "Auswahl aufheben",
+  "deleteSelected": "Ausgewählte löschen",
+  "invoices": "Rechnungen"
 };
