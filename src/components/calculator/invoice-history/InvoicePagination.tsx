@@ -31,7 +31,7 @@ export function InvoicePagination({
   return (
     <div className="py-4 flex flex-col sm:flex-row justify-between items-center border-t border-gray-200 px-4">
       <div className="flex items-center mb-3 sm:mb-0">
-        <span className="text-sm text-gray-600 mr-2">{t("itemsPerPage")}:</span>
+        <span className="text-sm text-gray-600 mr-2">{t("invoice:itemsPerPage")}:</span>
         <Select 
           value={itemsPerPage.toString()} 
           onValueChange={(value) => onItemsPerPageChange(Number(value))}

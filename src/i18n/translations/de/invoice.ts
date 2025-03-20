@@ -60,5 +60,8 @@ export const invoice = {
   "selectMultiple": "Mehrfachauswahl",
   "cancelSelection": "Auswahl aufheben",
   "deleteSelected": "Ausgewählte löschen",
-  "invoices": "Rechnungen"
+  "invoices": "Rechnungen",
+  "itemsPerPage": "Einträge pro Seite",
+  "previous": "Zurück",
+  "next": "Weiter"
 };

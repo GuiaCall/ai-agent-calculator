@@ -57,5 +57,8 @@ export const invoice = {
   "selectMultiple": "Select Multiple",
   "cancelSelection": "Cancel Selection",
   "deleteSelected": "Delete Selected",
-  "invoices": "Invoices"
+  "invoices": "Invoices",
+  "itemsPerPage": "Items Per Page",
+  "previous": "Previous",
+  "next": "Next"
 };
