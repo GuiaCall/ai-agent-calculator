@@ -21,7 +21,7 @@ export function InvoiceTotals({
   const { t } = useTranslation();
   
   return (
-    <div className="mt-4 border-t border-gray-200 pt-2 print:mt-2 print:pt-1">
+    <div className="mt-3 border-t border-gray-200 pt-2 print:mt-1 print:pt-1">
       <div className="flex justify-end">
         <div className="w-1/2 space-y-1 print:space-y-0.5 print:text-xs">
           <div className="flex justify-between text-gray-600">

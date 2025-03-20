@@ -108,7 +108,7 @@ export function CalculatorActions({
               
               <div className="bg-white p-4 rounded-lg shadow-sm border border-indigo-50 flex flex-col items-center">
                 <p className="text-gray-500 text-sm mb-1">{t("totalMinutes")}</p>
-                <p className="text-2xl font-bold text-indigo-800">{totalMinutes}</p>
+                <p className="text-2xl font-bold text-indigo-800">{totalMinutes.toLocaleString()}</p>
               </div>
             </div>
           </div>
