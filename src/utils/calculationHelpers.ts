@@ -13,7 +13,7 @@ export function calculateTotalCostPerMinute(
   const selectedTechs = technologies.filter(tech => tech.isSelected);
   
   console.log("========== CALCULATING TOTAL COST ==========");
-  console.log(`Selected technologies (${selectedTechs.length}):`, selectedTechs.map(t => t.name));
+  console.log(`Selected technologies (${selectedTechs.length}):`, selectedTechs.map(t => `${t.name}: ${t.costPerMinute}$`));
   
   // Calculate the sum of all monthly costs from selected technologies
   const monthlyBaseCost = selectedTechs.reduce((acc, tech) => {
@@ -22,7 +22,7 @@ export function calculateTotalCostPerMinute(
     return acc + tech.costPerMinute;
   }, 0);
 
-  console.log("Technologies selected:", selectedTechs.map(t => `${t.name}: ${t.costPerMinute}$`));
+  console.log("All technologies:", technologies.map(t => `${t.name}: selected=${t.isSelected}, cost=${t.costPerMinute}$`));
   console.log("Base monthly cost (without margin):", monthlyBaseCost);
   
   // Apply margin to the monthly cost

@@ -52,11 +52,17 @@ export function TechnologyCalculators() {
     setNumberOfUsers(users);
     
     const monthlyTotal = plan.basePrice + (plan.allowsTeam ? users * plan.pricePerUser : 0);
+    console.log(`Cal.com plan selected: ${plan.name}, Monthly total: ${monthlyTotal}$, Users: ${users}`);
     
+    // Update both 'calcom' and 'cal' technology entries if they exist
     setTechnologies((prevTechs: Technology[]) => 
-      prevTechs.map(tech => 
-        tech.id === 'calcom' || tech.id === 'cal' ? { ...tech, costPerMinute: monthlyTotal / (totalMinutes || 1) } : tech
-      )
+      prevTechs.map(tech => {
+        if (tech.id === 'calcom' || tech.id === 'cal') {
+          console.log(`Updating ${tech.id} cost from ${tech.costPerMinute}$ to ${monthlyTotal}$`);
+          return { ...tech, costPerMinute: monthlyTotal };
+        }
+        return tech;
+      })
     );
   };
 

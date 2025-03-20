@@ -21,7 +21,7 @@ export function CalcomCostSummary({
 }: CalcomCostSummaryProps) {
   const { t } = useTranslation();
 
-  if (monthlyTotal <= 0 || !selectedPlan) {
+  if (!selectedPlan) {
     return null;
   }
 
@@ -35,11 +35,11 @@ export function CalcomCostSummary({
           {t("teamMembersCost")} ({numberOfUsers}): {getCurrencySymbol()}{getCurrencyConversion(numberOfUsers * (selectedPlan.pricePerUser || 0)).toFixed(2)}
         </p>
       )}
-      <p className="text-sm font-medium">
+      <p className="text-sm font-medium text-primary">
         {t("totalCost")}: {getCurrencySymbol()}{getCurrencyConversion(monthlyTotal).toFixed(2)}
       </p>
       {totalMinutes > 0 && (
-        <p className="text-sm font-medium">
+        <p className="text-xs text-muted-foreground mt-2">
           {t("costPerMinute")}: {getCurrencySymbol()}{getCurrencyConversion(monthlyTotal / totalMinutes).toFixed(5)}
         </p>
       )}

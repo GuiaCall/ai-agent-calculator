@@ -69,7 +69,12 @@ export function useCalculation({
     console.log("===== COST CALCULATION START =====");
     console.log("Total minutes:", totalMinutes);
     console.log("Margin:", margin, "%");
-    console.log("Selected technologies:", selectedTechs.map(t => `${t.name}: ${t.costPerMinute}$`).join(", "));
+    console.log("Selected technologies:", selectedTechs.length);
+    
+    // Log detailed information about each selected technology
+    selectedTechs.forEach((tech, index) => {
+      console.log(`[${index + 1}] ${tech.name} (${tech.id}): Monthly cost = ${tech.costPerMinute}$`);
+    });
     
     // Calculate total cost of each technology
     let totalTechCost = 0;
