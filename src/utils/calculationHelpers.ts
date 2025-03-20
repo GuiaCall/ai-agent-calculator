@@ -12,12 +12,14 @@ export function calculateTotalCostPerMinute(
   // Filter selected technologies for better logs
   const selectedTechs = technologies.filter(tech => tech.isSelected);
   
+  console.log("========== CALCULATING TOTAL COST ==========");
+  console.log(`Selected technologies (${selectedTechs.length}):`, selectedTechs.map(t => t.name));
+  
   // Calculate the sum of all monthly costs from selected technologies
   const monthlyBaseCost = selectedTechs.reduce((acc, tech) => {
-    // Get the monthly cost (not the per-minute cost) by multiplying by total minutes if needed
-    const techMonthlyCost = tech.costPerMinute;
-    console.log(`Technology ${tech.name}: Monthly cost = ${techMonthlyCost}$`);
-    return acc + techMonthlyCost;
+    // Log each technology's cost for debugging
+    console.log(`Technology ${tech.name}: Monthly cost = ${tech.costPerMinute}$`);
+    return acc + tech.costPerMinute;
   }, 0);
 
   console.log("Technologies selected:", selectedTechs.map(t => `${t.name}: ${t.costPerMinute}$`));
@@ -29,6 +31,7 @@ export function calculateTotalCostPerMinute(
   
   // Calculate cost per minute
   const costPerMinute = totalMinutes > 0 ? totalMonthlyCost / totalMinutes : 0;
+  console.log("Cost per minute:", costPerMinute);
   
   return {
     monthlyCost: Math.ceil(totalMonthlyCost * 100) / 100,  // Round to 2 decimal places
