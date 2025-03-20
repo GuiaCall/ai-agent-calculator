@@ -90,7 +90,7 @@ export function useCalcomCalculator({
     }
 
     const teamMemberCost = (plan.allowsTeam && users > 0)
-      ? users * plan.pricePerUser
+      ? users * (plan.pricePerUser || 0)
       : 0;
     
     const totalCost = plan.basePrice + teamMemberCost;
@@ -98,7 +98,7 @@ export function useCalcomCalculator({
     
     console.log(`Cal.com monthly cost computed: Base=${plan.basePrice}$, TeamMembers=${teamMemberCost}$, Total=${totalCost}$`);
     
-    // Always call onPlanSelect to update the parent component's state
+    // Always call onPlanSelect to update the parent component's state with the FULL monthly cost
     const updatedPlan = {
       ...plan,
       costPerMinute: totalCost

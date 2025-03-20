@@ -80,7 +80,7 @@ export function useCalculation({
     let totalTechCost = 0;
     selectedTechs.forEach(tech => {
       console.log(`${tech.name} cost: ${tech.costPerMinute}$`);
-      totalTechCost += tech.costPerMinute;
+      totalTechCost += Number(tech.costPerMinute || 0);
     });
     console.log("Total technology cost (without margin):", totalTechCost);
     

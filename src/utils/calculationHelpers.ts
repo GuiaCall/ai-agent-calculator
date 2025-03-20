@@ -16,11 +16,13 @@ export function calculateTotalCostPerMinute(
   console.log(`Selected technologies (${selectedTechs.length}):`, selectedTechs.map(t => `${t.name}: ${t.costPerMinute}$`));
   
   // Calculate the sum of all monthly costs from selected technologies
-  const monthlyBaseCost = selectedTechs.reduce((acc, tech) => {
-    // Log each technology's cost for debugging
-    console.log(`Technology ${tech.name}: Monthly cost = ${tech.costPerMinute}$`);
-    return acc + tech.costPerMinute;
-  }, 0);
+  let monthlyBaseCost = 0;
+  
+  // Log each technology cost for debugging
+  selectedTechs.forEach(tech => {
+    console.log(`Technology ${tech.name} (${tech.id}): Monthly cost = ${tech.costPerMinute}$`);
+    monthlyBaseCost += Number(tech.costPerMinute || 0);
+  });
 
   console.log("All technologies:", technologies.map(t => `${t.name}: selected=${t.isSelected}, cost=${t.costPerMinute}$`));
   console.log("Base monthly cost (without margin):", monthlyBaseCost);

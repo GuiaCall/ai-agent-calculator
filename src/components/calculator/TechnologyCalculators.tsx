@@ -84,7 +84,7 @@ export function TechnologyCalculators() {
     setSelectedSynthflowPlan(plan);
     
     if (plan) {
-      const costPerMinute = plan.totalCost ? plan.totalCost / (totalMinutes || 1) : plan.monthlyPrice / (plan.minutesPerMonth || 1);
+      const costPerMinute = plan.totalCost || plan.monthlyPrice;
       
       setTechnologies((prevTechs: Technology[]) => 
         prevTechs.map(tech => 
@@ -93,6 +93,12 @@ export function TechnologyCalculators() {
       );
     }
   };
+
+  // Debug logging to check tech costs after all updates
+  useEffect(() => {
+    const selectedTechs = technologies.filter(tech => tech.isSelected);
+    console.log("Current selected technologies:", selectedTechs.map(t => `${t.name} (${t.id}): ${t.costPerMinute}$`));
+  }, [technologies]);
 
   if (selectedTechnologies.length === 0) {
     return (
