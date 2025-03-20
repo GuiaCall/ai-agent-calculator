@@ -42,13 +42,17 @@ export function useAIServiceCalculator(
       setAiCost(cost);
       
       // Update global technologies state with the cost per minute
-      if (totalMinutes > 0) {
-        setTechnologies((prevTechs: Technology[]) => 
-          prevTechs.map((tech) => 
-            tech.id === "ai-service" ? { ...tech, costPerMinute: cost / (totalMinutes || 1) } : tech
-          )
-        );
-      }
+      // Important: We're storing the FULL monthly cost in costPerMinute field
+      // Not dividing by minutes here as that's done in the final calculation
+      setTechnologies((prevTechs: Technology[]) => 
+        prevTechs.map((tech) => {
+          if (tech.id === "ai-service") {
+            console.log(`Updating AI Service cost from ${tech.costPerMinute}$ to ${cost}$`);
+            return { ...tech, costPerMinute: cost };
+          }
+          return tech;
+        })
+      );
       
       console.log(`AI Service calculated cost: $${cost} for ${totalMinutes} minutes`);
     } catch (error) {

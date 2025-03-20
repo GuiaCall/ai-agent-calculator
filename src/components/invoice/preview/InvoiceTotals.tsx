@@ -20,13 +20,18 @@ export function InvoiceTotals({
 }: InvoiceTotalsProps) {
   const { t } = useTranslation();
   
+  // Ensure totalCost and setupCost are numbers
+  const safeTotal = Number(totalCost || 0);
+  const safeSetup = Number(setupCost || 0);
+  const subtotal = safeTotal + safeSetup;
+  
   return (
     <div className="mt-3 border-t border-gray-200 pt-2 print:mt-1 print:pt-1">
       <div className="flex justify-end">
         <div className="w-1/2 space-y-1 print:space-y-0.5 print:text-xs">
           <div className="flex justify-between text-gray-600">
             <span>{t("subtotal")}</span>
-            <span>{currencySymbol}{((totalCost || 0) + (setupCost || 0)).toFixed(2)}</span>
+            <span>{currencySymbol}{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-gray-600">
             <span>{t("tax")} ({taxRate}%)</span>

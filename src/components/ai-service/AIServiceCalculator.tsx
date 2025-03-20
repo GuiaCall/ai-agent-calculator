@@ -35,6 +35,11 @@ export function AIServiceCalculator({ totalMinutes }: AIServiceCalculatorProps) 
     outputTypes
   } = useAIServiceCalculator(totalMinutes, setTechnologies);
   
+  // Add a debug log to track AI Service cost updates
+  useEffect(() => {
+    console.log(`[AIServiceCalculator] Current AI cost: $${aiCost}`);
+  }, [aiCost]);
+  
   return (
     <Card className="p-6 space-y-6">
       <AIServiceHeader />

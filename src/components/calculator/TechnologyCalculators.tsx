@@ -51,7 +51,7 @@ export function TechnologyCalculators() {
     setSelectedCalcomPlan(plan);
     setNumberOfUsers(users);
     
-    const monthlyTotal = plan.basePrice + (plan.allowsTeam ? users * plan.pricePerUser : 0);
+    const monthlyTotal = plan.basePrice + (plan.allowsTeam ? users * (plan.pricePerUser || 0) : 0);
     console.log(`Cal.com plan selected: ${plan.name}, Monthly total: ${monthlyTotal}$, Users: ${users}`);
     
     // Update both 'calcom' and 'cal' technology entries if they exist
