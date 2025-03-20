@@ -61,7 +61,7 @@ export const invoice = {
   "cancelSelection": "Auswahl aufheben",
   "deleteSelected": "Ausgewählte löschen",
   "invoices": "Rechnungen",
-  "itemsPerPage": "Einträge pro Seite",
+  "itemsPerPage": "Einträge Pro Seite",
   "previous": "Zurück",
   "next": "Weiter"
 };

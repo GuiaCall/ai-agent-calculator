@@ -3,14 +3,13 @@ import React, { useState, useEffect } from "react";
 import { InvoiceHistory } from "@/types/invoice";
 import { CurrencyType } from "../CalculatorState";
 import { useTranslation } from "react-i18next";
-import { InvoiceTableHeader } from "./InvoiceTableHeader";
 import { InvoiceTableRow } from "./InvoiceTableRow";
 import { InvoiceExpandedDetails } from "./InvoiceExpandedDetails";
 import { InvoicePagination } from "./InvoicePagination";
 import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
-import { Button } from "@/components/ui/button";
-import { Trash2, CheckSquare, X } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { InvoiceEmptyState } from "./InvoiceEmptyState";
+import { InvoiceTableHeaderRow } from "./InvoiceTableHeaderRow";
+import { InvoiceSelectionActions } from "./InvoiceSelectionActions";
 import { DEFAULT_ITEMS_PER_PAGE } from "@/utils/paginationUtils";
 
 interface InvoiceHistoryTableProps {
@@ -61,11 +60,7 @@ export function InvoiceHistoryTable({
   }, [invoices]);
   
   if (!invoices || invoices.length === 0) {
-    return (
-      <div className="py-8 text-center text-gray-500">
-        <p>{t("noInvoicesFound")}</p>
-      </div>
-    );
+    return <InvoiceEmptyState />;
   }
 
   const toggleRowExpand = (id: string) => {
@@ -143,60 +138,24 @@ export function InvoiceHistoryTable({
     <>
       <div className="bg-white rounded-lg border overflow-hidden shadow-sm mt-8 animate-fadeIn">
         <div className="p-3 flex justify-between items-center border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800">{t("invoices")}</h3>
-          <div className="flex gap-2">
-            {isMultiSelectMode && selectedInvoices.length > 0 && (
-              <Button 
-                variant="destructive" 
-                size="sm" 
-                onClick={handleBulkDelete}
-                className="flex items-center gap-1"
-              >
-                <Trash2 size={16} />
-                {t("deleteSelected")} ({selectedInvoices.length})
-              </Button>
-            )}
-            
-            <Button 
-              variant={isMultiSelectMode ? "outline" : "secondary"} 
-              size="sm" 
-              onClick={toggleMultiSelectMode}
-              className="flex items-center gap-1"
-            >
-              {isMultiSelectMode ? (
-                <>
-                  <X size={16} />
-                  {t("cancelSelection")}
-                </>
-              ) : (
-                <>
-                  <CheckSquare size={16} />
-                  {t("selectMultiple")}
-                </>
-              )}
-            </Button>
-          </div>
+          <h3 className="text-lg font-semibold text-gray-800">{t("invoice:invoices")}</h3>
+          <InvoiceSelectionActions
+            isMultiSelectMode={isMultiSelectMode}
+            selectedCount={selectedInvoices.length}
+            onToggleMultiSelectMode={toggleMultiSelectMode}
+            onBulkDelete={handleBulkDelete}
+          />
         </div>
         
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-                {isMultiSelectMode && (
-                  <th className="py-3 px-4 text-left">
-                    <Checkbox 
-                      checked={currentInvoices.length > 0 && selectedInvoices.length === currentInvoices.length}
-                      onCheckedChange={toggleSelectAll}
-                      className="bg-white/20 border-white data-[state=checked]:bg-white data-[state=checked]:text-indigo-600"
-                    />
-                  </th>
-                )}
-                <th className="py-3 px-4 text-left">{t("invoiceNumber")}</th>
-                <th className="py-3 px-4 text-left">{t("date")}</th>
-                <th className="py-3 px-4 text-left">{t("client")}</th>
-                <th className="py-3 px-4 text-right">{t("amount")}</th>
-                <th className="py-3 px-4 text-center">{t("actions")}</th>
-              </tr>
+              <InvoiceTableHeaderRow 
+                isMultiSelectMode={isMultiSelectMode}
+                onToggleSelectAll={toggleSelectAll}
+                allSelected={currentInvoices.length > 0 && selectedInvoices.length === currentInvoices.length}
+                hasInvoices={currentInvoices.length > 0}
+              />
             </thead>
             <tbody className="divide-y divide-gray-200">
               {currentInvoices.map((invoice) => (

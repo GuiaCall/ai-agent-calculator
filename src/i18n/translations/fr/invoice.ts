@@ -61,7 +61,7 @@ export const invoice = {
   "cancelSelection": "Annuler la Sélection",
   "deleteSelected": "Supprimer la Sélection",
   "invoices": "Factures",
-  "itemsPerPage": "Éléments par Page",
+  "itemsPerPage": "Éléments Par Page",
   "previous": "Précédent",
   "next": "Suivant"
 }
