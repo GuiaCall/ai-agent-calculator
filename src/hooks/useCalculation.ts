@@ -66,6 +66,11 @@ export function useCalculation({
       setShowTechStackWarning(false);
     }
 
+    console.log("===== COST CALCULATION START =====");
+    console.log("Total minutes:", totalMinutes);
+    console.log("Margin:", margin, "%");
+    console.log("Selected technologies:", selectedTechs.map(t => t.name).join(", "));
+    
     // Calculate costs
     const { monthlyCost } = calculateTotalCostPerMinute(
       technologies,
@@ -73,7 +78,12 @@ export function useCalculation({
       margin
     );
 
+    console.log("Final monthly cost:", monthlyCost);
+    
+    // Setup cost should be the same as monthly cost for consistency
     const setupCostValue = monthlyCost;
+    console.log("Setup cost:", setupCostValue);
+    console.log("===== COST CALCULATION END =====");
     
     // Update state with calculated costs
     setTotalCost(monthlyCost);

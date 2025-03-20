@@ -54,6 +54,9 @@ export function TechnologyParameters({
     );
     onTechnologyChange(updatedTechs);
     onVisibilityChange(id, !technologies.find(t => t.id === id)?.isSelected);
+    
+    // Log for debugging
+    console.log(`Technology ${id} toggled:`, !technologies.find(t => t.id === id)?.isSelected);
   };
 
   const handleCostChange = (id: string, value: string) => {
@@ -81,6 +84,7 @@ export function TechnologyParameters({
         tech.id === id ? { ...tech, costPerMinute: numValue } : tech
       );
       onTechnologyChange(updatedTechs);
+      console.log(`Set cost for ${id} to ${numValue}`);
     }
   };
 
@@ -136,7 +140,7 @@ export function TechnologyParameters({
                     inputMode="decimal"
                     value={getDisplayValue(tech)}
                     onChange={(e) => handleCostChange(tech.id, e.target.value)}
-                    className="w-32 pr-8 bg-background text-foreground"
+                    className="w-full pr-8 bg-background text-foreground"
                     placeholder="0.00"
                   />
                   {tech.costPerMinute >= 0 ? (
