@@ -1,13 +1,6 @@
 
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ITEMS_PER_PAGE_OPTIONS } from "@/utils/paginationUtils";
 
@@ -19,24 +12,24 @@ interface InvoicePaginationProps {
   onItemsPerPageChange: (count: number) => void;
 }
 
-export function InvoicePagination({ 
-  currentPage, 
-  totalPages, 
+export function InvoicePagination({
+  currentPage,
+  totalPages,
   onPageChange,
   itemsPerPage,
-  onItemsPerPageChange
+  onItemsPerPageChange,
 }: InvoicePaginationProps) {
   const { t } = useTranslation();
   
   return (
-    <div className="py-4 flex flex-col sm:flex-row justify-between items-center border-t border-gray-200 px-4">
-      <div className="flex items-center mb-3 sm:mb-0">
-        <span className="text-sm text-gray-600 mr-2">{t("invoice:itemsPerPage")}:</span>
-        <Select 
-          value={itemsPerPage.toString()} 
+    <div className="flex justify-between items-center px-4 py-3 border-t border-gray-200">
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-gray-600">{t("invoice:itemsPerPage")}:</span>
+        <Select
+          value={itemsPerPage.toString()}
           onValueChange={(value) => onItemsPerPageChange(Number(value))}
         >
-          <SelectTrigger className="w-20 h-8">
+          <SelectTrigger className="w-16 h-8">
             <SelectValue placeholder={itemsPerPage.toString()} />
           </SelectTrigger>
           <SelectContent>
@@ -49,34 +42,63 @@ export function InvoicePagination({
         </Select>
       </div>
       
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious 
-              onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-              className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-            />
-          </PaginationItem>
+      {totalPages > 1 && (
+        <div className="flex space-x-1">
+          <button
+            className={`px-3 py-1 rounded ${
+              currentPage === 1 
+                ? 'bg-gray-100 text-gray-400' 
+                : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+            }`}
+            onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            &lt; {t("invoice:previous")}
+          </button>
           
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <PaginationItem key={page}>
-              <PaginationLink
-                isActive={currentPage === page}
-                onClick={() => onPageChange(page)}
+          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+            // Show pages around current page if there are many pages
+            let pageToShow;
+            if (totalPages <= 5) {
+              pageToShow = i + 1;
+            } else {
+              if (currentPage <= 3) {
+                pageToShow = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageToShow = totalPages - 4 + i;
+              } else {
+                pageToShow = currentPage - 2 + i;
+              }
+            }
+            
+            return (
+              <button
+                key={pageToShow}
+                className={`px-3 py-1 rounded ${
+                  currentPage === pageToShow 
+                    ? 'bg-indigo-600 text-white' 
+                    : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+                }`}
+                onClick={() => onPageChange(pageToShow)}
               >
-                {page}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
+                {pageToShow}
+              </button>
+            );
+          })}
           
-          <PaginationItem>
-            <PaginationNext 
-              onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
-              className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+          <button
+            className={`px-3 py-1 rounded ${
+              currentPage === totalPages 
+                ? 'bg-gray-100 text-gray-400' 
+                : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
+            }`}
+            onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            {t("invoice:next")} &gt;
+          </button>
+        </div>
+      )}
     </div>
   );
 }

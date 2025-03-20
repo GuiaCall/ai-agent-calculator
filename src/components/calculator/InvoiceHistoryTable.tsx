@@ -263,7 +263,6 @@ export function InvoiceHistoryTable({
                   <PaginationPrevious 
                     onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
                     className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-                    aria-label={t("invoice:previous")}
                   >
                     {t("invoice:previous")}
                   </PaginationPrevious>
@@ -284,7 +283,6 @@ export function InvoiceHistoryTable({
                   <PaginationNext 
                     onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
                     className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-                    aria-label={t("invoice:next")}
                   >
                     {t("invoice:next")}
                   </PaginationNext>
