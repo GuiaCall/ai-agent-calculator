@@ -32,6 +32,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ITEMS_PER_PAGE_OPTIONS, DEFAULT_ITEMS_PER_PAGE } from "@/utils/paginationUtils";
 
 interface InvoiceHistoryTableProps {
   invoices: InvoiceHistory[];
@@ -58,7 +60,7 @@ export function InvoiceHistoryTable({
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(DEFAULT_ITEMS_PER_PAGE);
   const totalPages = Math.ceil(invoices.length / itemsPerPage);
   
   // Get current invoices for pagination
@@ -99,6 +101,12 @@ export function InvoiceHistoryTable({
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  // Reset to page 1 when itemsPerPage changes
+  const handleItemsPerPageChange = (value: string) => {
+    setItemsPerPage(Number(value));
+    setCurrentPage(1);
   };
 
   return (
@@ -226,16 +234,39 @@ export function InvoiceHistoryTable({
           </table>
         </div>
         
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="py-4 flex justify-center border-t border-gray-200">
+        {/* Items per page selector */}
+        <div className="flex justify-between items-center px-4 py-3 border-t border-gray-200">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">{t("invoice:itemsPerPage")}:</span>
+            <Select
+              value={itemsPerPage.toString()}
+              onValueChange={handleItemsPerPageChange}
+            >
+              <SelectTrigger className="w-16 h-8">
+                <SelectValue placeholder={itemsPerPage.toString()} />
+              </SelectTrigger>
+              <SelectContent>
+                {ITEMS_PER_PAGE_OPTIONS.map(option => (
+                  <SelectItem key={option} value={option.toString()}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        
+          {/* Pagination */}
+          {totalPages > 1 && (
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
                   <PaginationPrevious 
                     onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
                     className={currentPage === 1 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-                  />
+                    aria-label={t("invoice:previous")}
+                  >
+                    {t("invoice:previous")}
+                  </PaginationPrevious>
                 </PaginationItem>
                 
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
@@ -253,12 +284,15 @@ export function InvoiceHistoryTable({
                   <PaginationNext 
                     onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
                     className={currentPage === totalPages ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-                  />
+                    aria-label={t("invoice:next")}
+                  >
+                    {t("invoice:next")}
+                  </PaginationNext>
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
-          </div>
-        )}
+          )}
+        </div>
       </div>
       
       <AlertDialog open={invoiceToDelete !== null} onOpenChange={() => setInvoiceToDelete(null)}>
